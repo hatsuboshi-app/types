@@ -1,1 +1,1 @@
-# types
+# Hatsuboshi App・Types
