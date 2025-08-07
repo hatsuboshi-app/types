@@ -1,3 +1,3 @@
 import { PlayableIdol } from "./PlayableIdol"
 
-export { PlayableIdol }
+export type { PlayableIdol }
