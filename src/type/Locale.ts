@@ -1,0 +1,1 @@
+type Locale = "en" | "ja" | "ro"
