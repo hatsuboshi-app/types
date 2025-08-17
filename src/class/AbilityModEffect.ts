@@ -2,7 +2,6 @@ import AbilityModEffectType from "../enum/AbilityModEffectType"
 import EffectLine, { DefaultEffectLine } from "../type/EffectLine"
 import EffectReference, { IEffectReference } from "./EffectReference"
 import EffectVariable, { IEffectVariable } from "./EffectVariable"
-import SkillModEffectType from "../enum/SkillModEffectType"
 
 type AbilityModEffect =
     EnhanceAbilityModEffect |
