@@ -9,6 +9,10 @@ export default class EffectVariable implements IEffectVariable {
         this.id = obj?.id ?? "v000"
         this.value = obj?.value ?? 0
     }
+
+    copy(): EffectVariable {
+        return new EffectVariable(JSON.parse(JSON.stringify(this)))
+    }
 }
 
 export interface IEffectVariable {

@@ -1,13 +1,13 @@
-import AbilityModEffect, {
-    IAbilityModEffect,
-    InsertAbilityModEffect,
-    ReplaceAbilityModEffect
-} from "./AbilityModEffect"
-import AbilityModEffectType from "../enum/AbilityModEffectType"
+import EffectMod, {
+    IEffectMod,
+    InsertEffectMod,
+    ReplaceEffectMod
+} from "./EffectMod"
+import EffectModType from "../enum/EffectModType"
 
 export default class AbilityLevel implements IAbilityLevel {
     level: number
-    mods: AbilityModEffect[]
+    mods: EffectMod[]
 
     constructor()
     constructor(obj: IAbilityLevel)
@@ -16,14 +16,14 @@ export default class AbilityLevel implements IAbilityLevel {
         this.mods = []
         obj?.mods?.forEach(m => {
             switch (m.type) {
-                case AbilityModEffectType.Enhance:
+                case EffectModType.Enhance:
                     this.mods.push(m)
                     break
-                case AbilityModEffectType.Insert:
-                    this.mods.push(new InsertAbilityModEffect(m))
+                case EffectModType.Insert:
+                    this.mods.push(new InsertEffectMod(m))
                     break
-                case AbilityModEffectType.Replace:
-                    this.mods.push(new ReplaceAbilityModEffect(m))
+                case EffectModType.Replace:
+                    this.mods.push(new ReplaceEffectMod(m))
                     break
             }
         })
@@ -32,5 +32,5 @@ export default class AbilityLevel implements IAbilityLevel {
 
 export interface IAbilityLevel {
     level: number
-    mods: IAbilityModEffect[]
+    mods: IEffectMod[]
 }

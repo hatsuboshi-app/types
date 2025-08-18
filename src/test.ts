@@ -11,14 +11,13 @@ import SkillCategory from "./enum/SkillCategory"
 import SkillSource from "./enum/SkillSource"
 import EffectReferenceType from "./enum/EffectReferenceType"
 import AuditionEffect from "./class/persistent/AuditionEffect"
-import SkillModEffectType from "./enum/SkillModEffectType"
 import PItemSource from "./enum/PItemSource"
 import AuditionTerminology from "./class/persistent/AuditionTerminology"
 import { DefaultAbilityIcon } from "./type/AbilityIcon"
-import AbilityModEffectType from "./enum/AbilityModEffectType"
-import EffectReference from "./class/EffectReference"
+import EffectModType from "./enum/EffectModType"
+import { IEffectReference } from "./class/EffectReference"
 
-const getRefEffect = (id: string, refId: string): EffectReference => {
+const getRefEffect = (id: string, refId: string): IEffectReference => {
     const ae: AuditionEffect = auditionEffects.find(a => a.id == refId) as AuditionEffect
     return {
         id,
@@ -30,7 +29,7 @@ const getRefEffect = (id: string, refId: string): EffectReference => {
     }
 }
 
-const getRefTerminology = (id: string, refId: string): EffectReference => {
+const getRefTerminology = (id: string, refId: string): IEffectReference => {
     const at: AuditionTerminology = auditionTerminologies.find(a => a.id == refId) as AuditionTerminology
     return {
         id,
@@ -77,8 +76,7 @@ const kotoneItem: Partial<IPItem> = {
     rarity: Rarity.SSR,
     source: PItemSource.PIdol,
     unlockLevel: 0,
-    usageLimit: 1,
-    effect: {
+    initialEffect: {
         refs: [
             getRefEffect("r001", "ae-000002"),
             getRefEffect("r002", "ae-000003"),
@@ -86,6 +84,7 @@ const kotoneItem: Partial<IPItem> = {
             getRefTerminology("r004", "at-000001"),
             getRefTerminology("r005", "at-000002"),
             getRefEffect("r006", "ae-000006"),
+            getRefTerminology("r007", "at-000003"),
         ],
         vars: [
             { id: "v001", value: 13 },
@@ -93,6 +92,7 @@ const kotoneItem: Partial<IPItem> = {
             { id: "v004", value: 1 },
             { id: "v005", value: 1 },
             { id: "v006", value: 1 },
+            { id: "v007", value: 1 },
         ],
         lines: [
             {
@@ -127,6 +127,14 @@ const kotoneItem: Partial<IPItem> = {
                     ro: null,
                 }
             },
+            {
+                position: 4,
+                body: {
+                    ja: "（{r007}中{v007}回）",
+                    en: "({v007} time{plural_s@v007} per {r007})",
+                    ro: null,
+                }
+            },
         ]
     },
     upgradeLevels: [
@@ -134,12 +142,12 @@ const kotoneItem: Partial<IPItem> = {
             level: 1,
             mods: [
                 {
-                    type: AbilityModEffectType.Enhance,
+                    type: EffectModType.Enhance,
                     var: "v002",
                     value: 8
                 },
                 {
-                    type: AbilityModEffectType.Replace,
+                    type: EffectModType.Replace,
                     refs: [],
                     vars: [{ id: "v101", value: 2 }],
                     line: {
@@ -168,23 +176,24 @@ const kotoneSkill: Partial<ISkill> = {
     category: SkillCategory.Mental,
     source: SkillSource.PIdol,
     unlockLevel: 0,
-    staminaCost: 0,
-    isUnique: true,
-    isOnceOnly: true,
-    isInitial: false,
-    customizeLimit: 0,
-    customizes: [],
+    initialStaminaCost: 0,
+    initialFlags: {
+        isInitial: false,
+        isUnique: true,
+        isOnceOnly: true
+    },
+    initialCustomizeLimit: 0,
     upgradeLevels: [
         {
             level: 1,
             mods: [
                 {
-                    type: SkillModEffectType.Enhance,
+                    type: EffectModType.Enhance,
                     var: "v001",
                     value: -1
                 },
                 {
-                    type: SkillModEffectType.Insert,
+                    type: EffectModType.Insert,
                     refs: [],
                     vars: [
                         { id: "v101", value: 1 }
@@ -193,7 +202,7 @@ const kotoneSkill: Partial<ISkill> = {
                         position: 0.5,
                         body: {
                             ja: "{r003}+{v101}",
-                            en: "{r003} +{v101}",
+                            en: "+{v101} {r003}",
                             ro: null
                         },
                         effectIcon: auditionEffects.find(ae => ae.id === "ae-000003") as AuditionEffect
@@ -202,7 +211,7 @@ const kotoneSkill: Partial<ISkill> = {
             ]
         }
     ],
-    effect: {
+    initialEffect: {
         refs: [
             getRefEffect("r001", "ae-000001"),
             getRefEffect("r002", "ae-000002"),
@@ -226,7 +235,7 @@ const kotoneSkill: Partial<ISkill> = {
                 position: 1,
                 body: {
                     ja: "以降、{r002}使用時、{r003}+{v002}",
-                    en: "Thereafter, +{v002} {r003} when using a {r002}",
+                    en: "Passive Effect: +{v002} {r003} when using a {r002}",
                     ro: null
                 },
                 effectIcon: auditionEffects.find(ae => ae.id === "ae-000004") as AuditionEffect
@@ -245,8 +254,11 @@ const kotoneSkill: Partial<ISkill> = {
 const s3Kotone: Partial<IPIdol> = {
     id: "pi-000001",
     idol: new Idol(kotone),
-    signaturePItem: new PItem(kotoneItem),
-    signatureSkill: new Skill(kotoneSkill),
+    name: {
+        ja: "自己肯定感爆上げ↑↑しゅきしゅきソング",
+        ro: "Jikokouteikan Bakuage ↑↑ Shuki-shuki Song",
+        en: "Self-affirmation Explosion ↑↑ Shuki-shuki Song"
+    },
     visual: {
         default: {
             regular: {
@@ -260,20 +272,17 @@ const s3Kotone: Partial<IPIdol> = {
         },
         another: []
     },
-    abilities: [
-    ],
-    initialParameter: { vo: 65, da: 65, vi: 95 },
-    initialGrowth: { vo: 8.0, da: 24.5, vi: 22.5 },
-    initialStamina: 31,
-    isWelfare: false,
-    name: {
-        ja: "自己肯定感爆上げ↑↑しゅきしゅきソング",
-        ro: "Jikokouteikan Bakuage ↑↑ Shuki-shuki Song",
-        en: "Self-affirmation Explosion ↑↑ Shuki-shuki Song"
-    },
     plan: PIdolPlan.Sense,
     subplan: PIdolSubplan.Focus,
     rarity: Rarity.SSR,
+    isWelfare: false,
+    signaturePItem: new PItem(kotoneItem),
+    signatureSkill: new Skill(kotoneSkill),
+    initialStamina: 31,
+    initialParameter: { vo: 65, da: 65, vi: 95 },
+    initialGrowth: { vo: 8.0, da: 24.5, vi: 22.5 },
+    initialAbilities: [
+    ],
     trainingLevels: [
         {
             level: 1,
@@ -281,7 +290,7 @@ const s3Kotone: Partial<IPIdol> = {
             growth: { vo: 0, da: 0, vi: 0 },
             stamina: 0,
             triggers: {},
-            abilityUpgradePos: null,
+            abilityUpgrades: [],
             abilities: []
         },
         {
@@ -290,12 +299,11 @@ const s3Kotone: Partial<IPIdol> = {
             growth: { vo: 0, da: 0, vi: 0 },
             stamina: 0,
             triggers: {},
-            abilityUpgradePos: null,
+            abilityUpgrades: [],
             abilities: [{
                 icon: DefaultAbilityIcon,
                 position: 0,
-                level: 0,
-                effect: {
+                initialEffect: {
                     refs: [
                         getRefTerminology("r001", "at-000004"),
                         getRefTerminology("r002", "at-000005"),
@@ -310,7 +318,7 @@ const s3Kotone: Partial<IPIdol> = {
                             position: 0,
                             body: {
                                 ja: "{r001}、{r002}、{r003}すべての{r004}発生率+{v001}%",
-                                en: "Occurance chance of {r001}, {r002} and {r003} {r004}s +{v001}%",
+                                en: "Occurrence chance of {r001}, {r002} and {r003} {r004}s +{v001}%",
                                 ro: null
                             }
                         }
@@ -321,7 +329,7 @@ const s3Kotone: Partial<IPIdol> = {
                         level: 1,
                         mods: [
                             {
-                                type: AbilityModEffectType.Enhance,
+                                type: EffectModType.Enhance,
                                 var: "v001",
                                 value: 5
                             }
@@ -339,7 +347,7 @@ const s3Kotone: Partial<IPIdol> = {
                 visualUpgrade: true,
                 skillUpgrade: true
             },
-            abilityUpgradePos: null,
+            abilityUpgrades: [],
             abilities: []
         },
         {
@@ -348,7 +356,7 @@ const s3Kotone: Partial<IPIdol> = {
             growth: { vo: 0, da: 0, vi: 0 },
             stamina: 0,
             triggers: {},
-            abilityUpgradePos: null,
+            abilityUpgrades: [],
             abilities: []
         },
         {
@@ -357,7 +365,7 @@ const s3Kotone: Partial<IPIdol> = {
             growth: { vo: 0, da: 0, vi: 0 },
             stamina: 3,
             triggers: {},
-            abilityUpgradePos: null,
+            abilityUpgrades: [],
             abilities: []
         },
         {
@@ -366,7 +374,7 @@ const s3Kotone: Partial<IPIdol> = {
             growth: { vo: 0, da: 0, vi: 0 },
             stamina: 0,
             triggers: {},
-            abilityUpgradePos: 0,
+            abilityUpgrades: [0],
             abilities: []
         },
     ],
@@ -377,12 +385,11 @@ const s3Kotone: Partial<IPIdol> = {
             growth: { vo: 0, da: 0, vi: 0 },
             stamina: 0,
             triggers: {},
-            abilityUpgradePos: null,
+            abilityUpgrades: [],
             abilities: [{
                 icon: DefaultAbilityIcon,
                 position: 1,
-                level: 0,
-                effect: {
+                initialEffect: {
                     refs: [
                         getRefTerminology("r001", "at-000002"),
                         getRefTerminology("r002", "at-000008"),
@@ -406,7 +413,7 @@ const s3Kotone: Partial<IPIdol> = {
                         level: 1,
                         mods: [
                             {
-                                type: AbilityModEffectType.Enhance,
+                                type: EffectModType.Enhance,
                                 var: "v001",
                                 value: 1
                             }
@@ -423,7 +430,7 @@ const s3Kotone: Partial<IPIdol> = {
             triggers: {
                 pItemUpgrade: true
             },
-            abilityUpgradePos: null,
+            abilityUpgrades: [],
             abilities: []
         },
         {
@@ -432,7 +439,7 @@ const s3Kotone: Partial<IPIdol> = {
             growth: { vo: 0, da: 5, vi: 3 },
             stamina: 0,
             triggers: {},
-            abilityUpgradePos: null,
+            abilityUpgrades: [],
             abilities: []
         },
         {
@@ -443,24 +450,16 @@ const s3Kotone: Partial<IPIdol> = {
             triggers: {
                 altOutfitUnlock: true
             },
-            abilityUpgradePos: 1,
+            abilityUpgrades: [1],
             abilities: []
         }
     ],
 }
 
 const idol = new PIdol(s3Kotone)
-//
-// console.log(JSON.stringify(idol, undefined, 2))
-// console.log()
-// idol.signatureSkill.effect.plaintext("en").forEach(l => console.log(l))
-// console.log()
-// idol.signatureSkill.effect.plaintext("ja").forEach(l => console.log(l))
-// console.log()
-// idol.signaturePItem.effect.plaintext("en").forEach(l => console.log(l))
-// console.log()
-// idol.signaturePItem.effect.plaintext("ja").forEach(l => console.log(l))
-// console.log()
+
+idol.setTrainingLevel(5).setPotentialLevel(3)
+
 console.log("=============================")
 console.log("> Info:")
 console.log("=============================")
@@ -468,26 +467,40 @@ console.log(idol.name.ja)
 console.log(idol.name.ro)
 console.log(idol.name.en)
 console.log()
-console.log(`Vo: ${idol.initialParameter.vo}, Da: ${idol.initialParameter.da}, Vi: ${idol.initialParameter.vi}`)
-console.log(`Vo: ${idol.initialGrowth.vo}%, Da: ${idol.initialGrowth.da}%, Vi: ${idol.initialGrowth.vi}%`)
-console.log(`Stamina: ${idol.initialStamina}`)
+console.log(`Training Lv${idol.trainingLevel}, Potential Lv${idol.potentialLevel}`)
+console.log()
+console.log(`Vo: ${idol.currentParameter.vo}, Da: ${idol.currentParameter.da}, Vi: ${idol.currentParameter.vi}`)
+console.log(`Vo: ${idol.currentGrowth.vo}%, Da: ${idol.currentGrowth.da}%, Vi: ${idol.currentGrowth.vi}%`)
+console.log(`Stamina: ${idol.currentStamina}`)
+console.log()
+console.log()
+console.log("=============================")
+console.log("> Abilities:")
+console.log("=============================")
+idol.currentAbilities.forEach(ability => ability.currentEffect.plaintext("ja").forEach(l => console.log(l)))
+idol.currentAbilities.forEach(ability => ability.currentEffect.plaintext("en").forEach(l => console.log(l)))
 console.log()
 console.log()
 console.log("=============================")
 console.log("> Skill Card:")
 console.log("=============================")
-console.log(idol.signatureSkill.name.ja)
-console.log(idol.signatureSkill.name.en)
+console.log(idol.signatureSkill.formattedName.ja)
+console.log(idol.signatureSkill.formattedName.ro)
+console.log(idol.signatureSkill.formattedName.en)
 console.log()
-idol.signatureSkill.effect.plaintext("ja").forEach(l => console.log(l))
-idol.signatureSkill.effect.plaintext("en").forEach(l => console.log(l))
+idol.signatureSkill.currentEffect.plaintext("ja").forEach(l => console.log(l))
+idol.signatureSkill.currentEffect.plaintext("en").forEach(l => console.log(l))
+console.log()
+console.log("Icons:")
+idol.signatureSkill.currentEffect.effectIcons.forEach(e => console.log(e.name.ja, e.name.en))
 console.log()
 console.log()
 console.log("=============================")
 console.log("> Produce Item:")
 console.log("=============================")
-console.log(idol.signaturePItem.name.ja)
-console.log(idol.signaturePItem.name.en)
+console.log(idol.signaturePItem.formattedName.ja)
+console.log(idol.signaturePItem.formattedName.ro)
+console.log(idol.signaturePItem.formattedName.en)
 console.log()
-idol.signaturePItem.effect.plaintext("ja").forEach(l => console.log(l))
-idol.signaturePItem.effect.plaintext("en").forEach(l => console.log(l))
+idol.signaturePItem.currentEffect.plaintext("ja").forEach(l => console.log(l))
+idol.signaturePItem.currentEffect.plaintext("en").forEach(l => console.log(l))

@@ -1,4 +1,4 @@
-import AbilityIconColor from "../enum/AbilityIconColor";
+import AbilityIconColor from "../enum/AbilityIconColor"
 
 type AbilityIcon = {
     color: AbilityIconColor

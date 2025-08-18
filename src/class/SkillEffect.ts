@@ -1,7 +1,7 @@
 import Effect, { IEffect } from "./Effect"
 import AuditionEffect from "./persistent/AuditionEffect"
-import SkillEffectLine, { ISkillEffectLine } from "./persistent/SkillEffectLine"
-import Nullable from "../type/Nullable";
+import SkillEffectLine, { ISkillEffectLine } from "./SkillEffectLine"
+import Nullable from "../type/Nullable"
 
 export default class SkillEffect extends Effect implements ISkillEffect {
     lines: SkillEffectLine[]
@@ -32,8 +32,13 @@ export default class SkillEffect extends Effect implements ISkillEffect {
     }
 
     get effectIcons(): AuditionEffect[] {
-        // implement
-        return []
+        return this.lines
+            .sort((a, b) => a.position - b.position)
+            .map(l => l.effectIcon).filter(e => e !== null)
+    }
+
+    copy(): SkillEffect {
+        return new SkillEffect(JSON.parse(JSON.stringify(this)))
     }
 }
 

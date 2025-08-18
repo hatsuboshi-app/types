@@ -1,6 +1,5 @@
 import ParameterSet, { DefaultParameterSet } from "../type/ParameterSet"
 import Ability, { IAbility } from "./Ability"
-import Nullable from "../type/Nullable"
 
 export default class PIdolLevelEffect implements IPIdolLevelEffect {
     level: number
@@ -8,7 +7,7 @@ export default class PIdolLevelEffect implements IPIdolLevelEffect {
     growth: ParameterSet
     stamina: number
     triggers: Partial<PIdolLevelEffectTriggers>
-    abilityUpgradePos: Nullable<number>
+    abilityUpgrades: number[]
     abilities: Ability[]
 
     constructor()
@@ -20,7 +19,10 @@ export default class PIdolLevelEffect implements IPIdolLevelEffect {
         this.growth = obj?.growth ?? DefaultParameterSet
         this.stamina = obj?.stamina ?? 0
         this.triggers = obj?.triggers ?? {}
-        this.abilityUpgradePos = obj?.abilityUpgradePos ?? null
+        this.abilityUpgrades = []
+        obj?.abilityUpgrades?.forEach(p => {
+            this.abilityUpgrades.push(p)
+        })
         this.abilities = []
         obj?.abilities?.forEach(a => {
             this.abilities.push(new Ability(a))
@@ -34,14 +36,14 @@ export interface IPIdolLevelEffect {
     growth: ParameterSet
     stamina: number
     triggers: Partial<PIdolLevelEffectTriggers>
-    abilityUpgradePos: Nullable<number>
+    abilityUpgrades: number[]
     abilities: IAbility[]
 }
 
 type PIdolLevelEffectTriggers = {
-    visualUpgrade: boolean,
-    altOutfitUnlock: boolean,
-    skillUpgrade: boolean,
-    skillCustomizeUnlock: boolean,
+    visualUpgrade: boolean
+    altOutfitUnlock: boolean
+    skillCustomizeUnlock: boolean
+    skillUpgrade: boolean
     pItemUpgrade: boolean
 }

@@ -1,9 +1,9 @@
-import SkillModEffect, { InsertSkillModEffect, ISkillModEffect, ReplaceSkillModEffect } from "./SkillModEffect"
-import SkillModEffectType from "../enum/SkillModEffectType"
+import SkillEffectMod, { InsertSkillEffectMod, ISkillEffectMod, ReplaceSkillEffectMod } from "./SkillEffectMod"
+import EffectModType from "../enum/EffectModType"
 
 export default class SkillUpgradeLevelEffect implements ISkillUpgradeLevelEffect {
     level: number
-    mods: SkillModEffect[]
+    mods: SkillEffectMod[]
 
     constructor()
     constructor(obj: Partial<ISkillUpgradeLevelEffect>)
@@ -13,16 +13,16 @@ export default class SkillUpgradeLevelEffect implements ISkillUpgradeLevelEffect
         this.mods = []
         obj?.mods?.forEach(m => {
             switch (m.type) {
-                case SkillModEffectType.CostReduce:
-                case SkillModEffectType.Enhance:
-                case SkillModEffectType.Evolve:
+                case EffectModType.CostReduce:
+                case EffectModType.Evolve:
+                case EffectModType.Enhance:
                     this.mods.push(m)
                     break
-                case SkillModEffectType.Replace:
-                    this.mods.push(new ReplaceSkillModEffect(m))
+                case EffectModType.Replace:
+                    this.mods.push(new ReplaceSkillEffectMod(m))
                     break
-                case SkillModEffectType.Insert:
-                    this.mods.push(new InsertSkillModEffect(m))
+                case EffectModType.Insert:
+                    this.mods.push(new InsertSkillEffectMod(m))
                     break
             }
         })
@@ -31,5 +31,5 @@ export default class SkillUpgradeLevelEffect implements ISkillUpgradeLevelEffect
 
 export interface ISkillUpgradeLevelEffect {
     level: number
-    mods: ISkillModEffect[]
+    mods: ISkillEffectMod[]
 }

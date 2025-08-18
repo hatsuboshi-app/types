@@ -1,7 +1,7 @@
 import EffectReferenceType from "../enum/EffectReferenceType"
-import Nullable from "../type/Nullable";
-import AuditionEffectIcon from "../type/AuditionEffectIcon";
-import LocaleString, { DefaultLocaleString } from "../type/LocaleString";
+import Nullable from "../type/Nullable"
+import AuditionEffectIcon from "../type/AuditionEffectIcon"
+import LocaleString, { DefaultLocaleString } from "../type/LocaleString"
 
 export default class EffectReference implements IEffectReference {
     id: string
@@ -21,6 +21,10 @@ export default class EffectReference implements IEffectReference {
         this.isHighlighted = obj?.isHighlighted ?? false
         this.icon = obj?.icon ?? null
         this.name = obj?.name ?? DefaultLocaleString
+    }
+
+    copy(): EffectReference {
+        return new EffectReference(JSON.parse(JSON.stringify(this)))
     }
 }
 

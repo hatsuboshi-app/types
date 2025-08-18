@@ -27,7 +27,7 @@ export default class PDrink implements IPDrink {
         this.plan = obj?.plan ?? Plan.Free
         this.rarity = obj?.rarity ?? Rarity.R
         this.unlockLevel = obj?.unlockLevel ?? 0
-        this.effect = new Effect(obj?.effect, true)
+        this.effect = new Effect(obj?.effect)
     }
 }
 

@@ -5,7 +5,7 @@ import Idol, { IIdol } from "./class/persistent/Idol";
 import PDrink, { IPDrink } from "./class/persistent/PDrink";
 import PItem, { IPItem } from "./class/persistent/PItem";
 import Skill, { ISkill } from "./class/persistent/Skill";
-import SkillEffectLine, { ISkillEffectLine } from "./class/persistent/SkillEffectLine";
+import SkillEffectLine, { ISkillEffectLine } from "./class/SkillEffectLine";
 import SupportCard, { ISupportCard } from "./class/persistent/SupportCard";
 import Ability, { IAbility } from "./class/Ability";
 import Effect, { IEffect } from "./class/Effect";
