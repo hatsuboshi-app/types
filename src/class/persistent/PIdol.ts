@@ -1,5 +1,5 @@
 import PersistentObject from "../../interface/PersistentObject"
-import Idol, { IIdol } from "./Idol"
+import Character, { IIdol } from "./Character"
 import Rarity from "../../enum/Rarity"
 import PIdolPlan from "../../enum/PIdolPlan"
 import PIdolSubplan from "../../enum/PIdolSubplan"
@@ -17,7 +17,7 @@ export default class PIdol implements IPIdol {
     updatedAt: string
     name: LocaleStringWithRomaji
     visual: PIdolVisual
-    idol: Idol
+    character: Character
     rarity: Rarity
     plan: PIdolPlan
     subplan: PIdolSubplan
@@ -48,7 +48,7 @@ export default class PIdol implements IPIdol {
         this.updatedAt = obj?.updatedAt ?? new Date().toISOString()
         this.name = obj?.name ?? DefaultLocaleStringWithRomaji
         this.visual = obj?.visual ?? DefaultPIdolVisual
-        this.idol = new Idol(obj?.idol)
+        this.character = new Character(obj?.character)
         this.rarity = obj?.rarity ?? Rarity.R
         this.plan = obj?.plan ?? PIdolPlan.Logic
         this.subplan = obj?.subplan ?? PIdolSubplan.Impression
@@ -198,7 +198,7 @@ export default class PIdol implements IPIdol {
 export interface IPIdol extends PersistentObject {
     name: LocaleStringWithRomaji
     visual: PIdolVisual
-    idol: IIdol
+    character: IIdol
     rarity: Rarity
     plan: PIdolPlan
     subplan: PIdolSubplan

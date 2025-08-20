@@ -1,7 +1,7 @@
 import PIdol, { IPIdol } from "./class/persistent/PIdol"
 import AuditionEffect, { IAuditionEffect } from "./class/persistent/AuditionEffect";
 import AuditionTerminology, { IAuditionTerminology } from "./class/persistent/AuditionTerminology";
-import Idol, { IIdol } from "./class/persistent/Idol";
+import Character, { IIdol } from "./class/persistent/Character";
 import PDrink, { IPDrink } from "./class/persistent/PDrink";
 import PItem, { IPItem } from "./class/persistent/PItem";
 import Skill, { ISkill } from "./class/persistent/Skill";
