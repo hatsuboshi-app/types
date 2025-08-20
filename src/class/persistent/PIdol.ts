@@ -1,5 +1,4 @@
 import PersistentObject from "../../interface/PersistentObject"
-import LocaleString, { DefaultLocaleString } from "../../type/LocaleString"
 import Idol, { IIdol } from "./Idol"
 import Rarity from "../../enum/Rarity"
 import PIdolPlan from "../../enum/PIdolPlan"
@@ -10,12 +9,13 @@ import PItem, { IPItem } from "./PItem"
 import Ability, { IAbility } from "../Ability"
 import PIdolVisual, { DefaultPIdolVisual } from "../../type/PIdolVisual"
 import Skill, { ISkill } from "./Skill"
+import LocaleStringWithRomaji, { DefaultLocaleStringWithRomaji } from "../../type/LocaleStringWithRomaji"
 
 export default class PIdol implements IPIdol {
     id: string
     createdAt: string
     updatedAt: string
-    name: LocaleString
+    name: LocaleStringWithRomaji
     visual: PIdolVisual
     idol: Idol
     rarity: Rarity
@@ -46,7 +46,7 @@ export default class PIdol implements IPIdol {
         this.id = obj?.id ?? "pi-000000"
         this.createdAt = obj?.createdAt ?? new Date().toISOString()
         this.updatedAt = obj?.updatedAt ?? new Date().toISOString()
-        this.name = obj?.name ?? DefaultLocaleString
+        this.name = obj?.name ?? DefaultLocaleStringWithRomaji
         this.visual = obj?.visual ?? DefaultPIdolVisual
         this.idol = new Idol(obj?.idol)
         this.rarity = obj?.rarity ?? Rarity.R
@@ -196,7 +196,7 @@ export default class PIdol implements IPIdol {
 }
 
 export interface IPIdol extends PersistentObject {
-    name: LocaleString
+    name: LocaleStringWithRomaji
     visual: PIdolVisual
     idol: IIdol
     rarity: Rarity

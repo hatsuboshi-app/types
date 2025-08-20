@@ -4,7 +4,7 @@ import SkillCustomizeLevelEffect, { ISkillCustomizeLevelEffect } from "./SkillCu
 export default class SkillCustomize implements ISkillCustomize {
     position: number
     levels: SkillCustomizeLevelEffect[]
-    type: string
+    typeRefId: string
     description: LocaleString
 
     constructor()
@@ -13,7 +13,7 @@ export default class SkillCustomize implements ISkillCustomize {
     constructor(obj?: Partial<ISkillCustomize>) {
         this.position = obj?.position ?? 0
         this.levels = []
-        this.type = obj?.type ?? ""
+        this.typeRefId = obj?.typeRefId ?? ""
         this.description =  obj?.description ?? DefaultLocaleString
     }
 }
@@ -21,6 +21,6 @@ export default class SkillCustomize implements ISkillCustomize {
 export interface ISkillCustomize {
     position: number
     levels: ISkillCustomizeLevelEffect[]
-    type: string
+    typeRefId: string
     description: LocaleString
 }

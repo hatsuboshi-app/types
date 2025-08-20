@@ -1,26 +1,28 @@
 import EffectLine, { IEffectLine } from "./EffectLine"
 import ParsedEffectLine from "../type/ParsedEffectLine"
-import EffectVariable, { IEffectVariable } from "./EffectVariable"
-import EffectReference, { IEffectReference } from "./EffectReference"
+import EffectVariable from "../type/EffectVariable"
+import EffectReference from "../type/EffectReference"
 import type EffectMod from "./EffectMod"
-import EffectModType from "../enum/EffectModType";
+import EffectModType from "../enum/EffectModType"
+import Locale from "../type/Locale"
+import LocaleString from "../type/LocaleString";
 
 export default class Effect implements IEffect {
     refs: EffectReference[]
     vars: EffectVariable[]
     lines: EffectLine[]
 
-    constructor();
+    constructor()
     constructor(obj: Partial<IEffect>)
     constructor(obj?: Partial<IEffect>)
     constructor(obj?: Partial<IEffect>) {
         this.refs = []
         obj?.refs?.forEach(r => {
-            this.refs.push(new EffectReference(r))
+            this.refs.push(r)
         })
         this.vars = []
         obj?.vars?.forEach(v => {
-            this.vars.push(new EffectVariable(v))
+            this.vars.push(v)
         })
         this.lines = []
         obj?.lines?.forEach(l => {
@@ -28,38 +30,46 @@ export default class Effect implements IEffect {
         })
     }
 
-    parsed(loc: Locale): ParsedEffectLine[] {
+    get parsed(): ParsedEffectLine[] {
         // implement
         return []
     }
 
-    plaintext(loc: Locale): string[] {
-        const plaintextLines: string[] = []
-        this.lines.sort((a, b) => a.position - b.position).forEach(l => {
-            const line = l.body[loc]
-            if (line != null) {
-                plaintextLines.push(line.replace(/\{(.*?)}/g, (_, m) => {
-                    if (m.includes("plural")) {
-                        try {
-                            const v = this.vars.find(v => v.id === m.split("@")[1])
-                            if (!v) return ""
-                            if (v.value === 1 || v.value === -1) return ""
-                            return m.split("@")[0].split("_")[1]
-                        } catch (_) {
-                            return ""
+    get plaintext(): LocaleString[] {
+        const getLocLine = (l: EffectLine, loc: Locale) => {
+                const line = l.body[loc]
+                if (line != null) {
+                    return line.replace(/\{(.*?)}/g, (_, m) => {
+                        if (m.includes("plural")) {
+                            try {
+                                const v = this.vars.find(v => v.id === m.split("@")[1])
+                                if (!v) return ""
+                                if (v.value === 1 || v.value === -1) return ""
+                                return m.split("@")[0].split("_")[1]
+                            } catch (_) {
+                                return ""
+                            }
+                        } else {
+                            return (
+                                this.refs.find(r => r.id === m)?.name[loc] ??
+                                this.vars.find(v => v.id === m)?.value.toString() ?? ""
+                            )
                         }
-                    } else {
-                        return (
-                            this.refs.find(r => r.id === m)?.name[loc] ??
-                            this.vars.find(v => v.id === m)?.value.toString() ?? ""
-                        )
-                    }
-                }))
-            } else {
-                plaintextLines.push("")
+                    })
+                } else {
+                    return ""
+                }
             }
-        })
-        return plaintextLines
+        return (
+            this.lines
+            .sort((a, b) => a.position - b.position)
+            .map(el => {
+                return {
+                    en: getLocLine(el, "en"),
+                    ja: getLocLine(el, "ja")
+                }
+            })
+        )
     }
 
     modify(mod: EffectMod): undefined {
@@ -74,13 +84,13 @@ export default class Effect implements IEffect {
                 // check for no duplicate vars before insert, otherwise skip
                 mod.vars.forEach(mv => {
                     if (this.vars.every(v => v.id !== mv.id)) {
-                        this.vars.push(mv.copy())
+                        this.vars.push(structuredClone(mv))
                     }
                 })
                 // check for no duplicate refs before insert, otherwise skip
                 mod.refs.forEach(mr => {
                     if (this.refs.every(r => r.id !== mr.id)) {
-                        this.refs.push(mr.copy())
+                        this.refs.push(structuredClone(mr))
                     }
                 })
                 // check for line is not duplicate before insert, otherwise skip
@@ -93,18 +103,18 @@ export default class Effect implements IEffect {
                 mod.vars.forEach(mv => {
                     const i = this.vars.findIndex(r => r.id === mv.id)
                     if (i === -1) {
-                        this.vars.push(mv.copy())
+                        this.vars.push(structuredClone(mv))
                     } else {
-                        this.vars[i] = mv.copy()
+                        this.vars[i] = structuredClone(mv)
                     }
                 })
                 // check for no duplicate refs before insert, otherwise replace
                 mod.refs.forEach(mr => {
                     const i = this.refs.findIndex(r => r.id === mr.id)
                     if (i === -1) {
-                        this.refs.push(mr.copy())
+                        this.refs.push(structuredClone(mr))
                     } else {
-                        this.refs[i] = mr.copy()
+                        this.refs[i] = structuredClone(mr)
                     }
                 })
                 // check for line is not duplicate before insert, otherwise replace
@@ -120,7 +130,7 @@ export default class Effect implements IEffect {
 }
 
 export interface IEffect {
-    refs: IEffectReference[]
-    vars: IEffectVariable[]
+    refs: EffectReference[]
+    vars: EffectVariable[]
     lines: IEffectLine[]
 }

@@ -1,7 +1,7 @@
 import EffectModType from "../enum/EffectModType"
 import EffectLine, { IEffectLine } from "./EffectLine"
-import EffectReference, { IEffectReference } from "./EffectReference"
-import EffectVariable, { IEffectVariable } from "./EffectVariable"
+import EffectReference from "../type/EffectReference"
+import EffectVariable from "../type/EffectVariable"
 
 type EffectMod =
     EnhanceEffectMod |
@@ -35,17 +35,17 @@ export class InsertEffectMod implements IInsertEffectMod {
     constructor(obj?: Partial<IInsertEffectMod>) {
         this.type = EffectModType.Insert
         this.refs = []
-        obj?.refs?.forEach(r => this.refs.push(new EffectReference(r)))
+        obj?.refs?.forEach(r => this.refs.push(r))
         this.vars = []
-        obj?.vars?.forEach(v => this.vars.push(new EffectVariable(v)))
+        obj?.vars?.forEach(v => this.vars.push(v))
         this.line = new EffectLine(obj?.line)
     }
 }
 
 export interface IInsertEffectMod {
     type: EffectModType.Insert
-    refs: IEffectReference[]
-    vars: IEffectVariable[]
+    refs: EffectReference[]
+    vars: EffectVariable[]
     line: IEffectLine
 }
 
@@ -63,17 +63,17 @@ export class ReplaceEffectMod implements IReplaceEffectMod {
     constructor(obj?: Partial<IReplaceEffectMod>) {
         this.type = EffectModType.Replace
         this.refs = []
-        obj?.refs?.forEach(r => this.refs.push(new EffectReference(r)))
+        obj?.refs?.forEach(r => this.refs.push(r))
         this.vars = []
-        obj?.vars?.forEach(v => this.vars.push(new EffectVariable(v)))
+        obj?.vars?.forEach(v => this.vars.push(v))
         this.line = new EffectLine(obj?.line)
     }
 }
 
 export interface IReplaceEffectMod {
     type: EffectModType.Replace
-    refs: IEffectReference[]
-    vars: IEffectVariable[]
+    refs: EffectReference[]
+    vars: EffectVariable[]
     line: IEffectLine
 }
 

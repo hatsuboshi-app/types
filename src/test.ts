@@ -15,9 +15,9 @@ import PItemSource from "./enum/PItemSource"
 import AuditionTerminology from "./class/persistent/AuditionTerminology"
 import { DefaultAbilityIcon } from "./type/AbilityIcon"
 import EffectModType from "./enum/EffectModType"
-import { IEffectReference } from "./class/EffectReference"
+import EffectReference from "./type/EffectReference"
 
-const getRefEffect = (id: string, refId: string): IEffectReference => {
+const getRefEffect = (id: string, refId: string): EffectReference => {
     const ae: AuditionEffect = auditionEffects.find(a => a.id == refId) as AuditionEffect
     return {
         id,
@@ -29,7 +29,7 @@ const getRefEffect = (id: string, refId: string): IEffectReference => {
     }
 }
 
-const getRefTerminology = (id: string, refId: string): IEffectReference => {
+const getRefTerminology = (id: string, refId: string): EffectReference => {
     const at: AuditionTerminology = auditionTerminologies.find(a => a.id == refId) as AuditionTerminology
     return {
         id,
@@ -100,7 +100,6 @@ const kotoneItem: Partial<IPItem> = {
                 body: {
                     ja: "{r001}使用後、{r002}が{v001}以上の場合、{r003}+{v002}",
                     en: "If {r002} is at or above {v001} after using a {r001}, +{v002} {r003}",
-                    ro: null,
                 }
             },
             {
@@ -108,7 +107,6 @@ const kotoneItem: Partial<IPItem> = {
                 body: {
                     ja: "次に使用する{r001}の効果をもう1回発動（{v004}回・{v005}{r004}）",
                     en: "The next {r001} used will have its effects invoked twice ({v004} time{plural_s@v004}, within {v005} {r004}{plural_s@v005})",
-                    ro: null,
                 }
             },
             {
@@ -116,7 +114,6 @@ const kotoneItem: Partial<IPItem> = {
                 body: {
                     ja: "{r005}を引く",
                     en: "Draw a {r005}",
-                    ro: null,
                 }
             },
             {
@@ -124,7 +121,6 @@ const kotoneItem: Partial<IPItem> = {
                 body: {
                     ja: "{r006}+{v006}",
                     en: "+{v006} {r006}",
-                    ro: null,
                 }
             },
             {
@@ -132,7 +128,6 @@ const kotoneItem: Partial<IPItem> = {
                 body: {
                     ja: "（{r007}中{v007}回）",
                     en: "({v007} time{plural_s@v007} per {r007})",
-                    ro: null,
                 }
             },
         ]
@@ -155,7 +150,6 @@ const kotoneItem: Partial<IPItem> = {
                         body: {
                             ja: "{r005}を{v101}枚引く",
                             en: "Draw {v101} {r005}{plural_s@v101}",
-                            ro: null
                         }
                     }
                 }
@@ -203,7 +197,6 @@ const kotoneSkill: Partial<ISkill> = {
                         body: {
                             ja: "{r003}+{v101}",
                             en: "+{v101} {r003}",
-                            ro: null
                         },
                         effectIcon: auditionEffects.find(ae => ae.id === "ae-000003") as AuditionEffect
                     }
@@ -227,7 +220,6 @@ const kotoneSkill: Partial<ISkill> = {
                 body: {
                     ja: "{r001}{v001}",
                     en: "{r001} {v001}",
-                    ro: null
                 },
                 effectIcon: null
             },
@@ -236,7 +228,6 @@ const kotoneSkill: Partial<ISkill> = {
                 body: {
                     ja: "以降、{r002}使用時、{r003}+{v002}",
                     en: "Passive Effect: +{v002} {r003} when using a {r002}",
-                    ro: null
                 },
                 effectIcon: auditionEffects.find(ae => ae.id === "ae-000004") as AuditionEffect
             },
@@ -319,7 +310,6 @@ const s3Kotone: Partial<IPIdol> = {
                             body: {
                                 ja: "{r001}、{r002}、{r003}すべての{r004}発生率+{v001}%",
                                 en: "Occurrence chance of {r001}, {r002} and {r003} {r004}s +{v001}%",
-                                ro: null
                             }
                         }
                     ]
@@ -403,7 +393,6 @@ const s3Kotone: Partial<IPIdol> = {
                             body: {
                                 ja: "獲得{r001}{r002}回数+{v001}",
                                 en: "{r001} {r002} Opportunity +{v001}",
-                                ro: null
                             }
                         }
                     ]
@@ -477,8 +466,7 @@ console.log()
 console.log("=============================")
 console.log("> Abilities:")
 console.log("=============================")
-idol.currentAbilities.forEach(ability => ability.currentEffect.plaintext("ja").forEach(l => console.log(l)))
-idol.currentAbilities.forEach(ability => ability.currentEffect.plaintext("en").forEach(l => console.log(l)))
+idol.currentAbilities.forEach(ability => ability.currentEffect.plaintext.forEach(l => console.log(l)))
 console.log()
 console.log()
 console.log("=============================")
@@ -488,8 +476,7 @@ console.log(idol.signatureSkill.formattedName.ja)
 console.log(idol.signatureSkill.formattedName.ro)
 console.log(idol.signatureSkill.formattedName.en)
 console.log()
-idol.signatureSkill.currentEffect.plaintext("ja").forEach(l => console.log(l))
-idol.signatureSkill.currentEffect.plaintext("en").forEach(l => console.log(l))
+idol.signatureSkill.currentEffect.plaintext.forEach(l => console.log(l))
 console.log()
 console.log("Icons:")
 idol.signatureSkill.currentEffect.effectIcons.forEach(e => console.log(e.name.ja, e.name.en))
@@ -502,5 +489,4 @@ console.log(idol.signaturePItem.formattedName.ja)
 console.log(idol.signaturePItem.formattedName.ro)
 console.log(idol.signaturePItem.formattedName.en)
 console.log()
-idol.signaturePItem.currentEffect.plaintext("ja").forEach(l => console.log(l))
-idol.signaturePItem.currentEffect.plaintext("en").forEach(l => console.log(l))
+idol.signaturePItem.currentEffect.plaintext.forEach(l => console.log(l))

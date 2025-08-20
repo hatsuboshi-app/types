@@ -1,16 +1,16 @@
 import PersistentObject from "../../interface/PersistentObject"
-import LocaleString, { DefaultLocaleString } from "../../type/LocaleString"
 import Effect, { IEffect } from "../Effect"
 import Plan from "../../enum/Plan"
 import Rarity from "../../enum/Rarity"
 import PItemSource from "../../enum/PItemSource"
-import AbilityLevel, { IAbilityLevel } from "../AbilityLevel";
+import AbilityLevel, { IAbilityLevel } from "../AbilityLevel"
+import LocaleStringWithRomaji, { DefaultLocaleStringWithRomaji } from "../../type/LocaleStringWithRomaji"
 
 export default class PItem implements IPItem {
     id: string
     createdAt: string
     updatedAt: string
-    name: LocaleString
+    name: LocaleStringWithRomaji
     assetUrl: string
     plan: Plan
     rarity: Rarity
@@ -30,7 +30,7 @@ export default class PItem implements IPItem {
         this.id = obj?.id ?? "it-000000"
         this.createdAt = obj?.createdAt ?? new Date().toISOString()
         this.updatedAt = obj?.updatedAt ?? new Date().toISOString()
-        this.name = obj?.name ?? DefaultLocaleString
+        this.name = obj?.name ?? DefaultLocaleStringWithRomaji
         this.assetUrl = obj?.assetUrl ?? ""
         this.plan = obj?.plan ?? Plan.Free
         this.rarity = obj?.rarity ?? Rarity.R
@@ -52,7 +52,7 @@ export default class PItem implements IPItem {
         }
     }
 
-    get formattedName(): LocaleString {
+    get formattedName(): LocaleStringWithRomaji {
         const upgradeSymbol = "+"
         return {
             ja: this.name.ja + upgradeSymbol.repeat(this.upgradeLevel),
@@ -97,7 +97,7 @@ export default class PItem implements IPItem {
 }
 
 export interface IPItem extends PersistentObject {
-    name: LocaleString
+    name: LocaleStringWithRomaji
     assetUrl: string
     plan: Plan
     rarity: Rarity

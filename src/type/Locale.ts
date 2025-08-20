@@ -1,1 +1,3 @@
-type Locale = "en" | "ja" | "ro"
+type Locale = "en" | "ja"
+
+export default Locale

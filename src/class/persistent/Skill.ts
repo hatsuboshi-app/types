@@ -1,5 +1,4 @@
 import PersistentObject from "../../interface/PersistentObject"
-import LocaleString, { DefaultLocaleString } from "../../type/LocaleString"
 import SkillEffect, { ISkillEffect } from "../SkillEffect"
 import Plan from "../../enum/Plan"
 import SkillCategory from "../../enum/SkillCategory"
@@ -9,12 +8,13 @@ import SkillCustomize, { ISkillCustomize } from "../SkillCustomize"
 import SkillSource from "../../enum/SkillSource"
 import SkillFlags, { DefaultSkillFlags } from "../../type/SkillFlags"
 import EffectModType from "../../enum/EffectModType";
+import LocaleStringWithRomaji, { DefaultLocaleStringWithRomaji } from "../../type/LocaleStringWithRomaji";
 
 export default class Skill implements ISkill {
     id: string
     createdAt: string
     updatedAt: string
-    name: LocaleString
+    name: LocaleStringWithRomaji
     assetUrl: string
     plan: Plan
     rarity: SkillRarity
@@ -43,7 +43,7 @@ export default class Skill implements ISkill {
         this.id = obj?.id ?? "sk-000000"
         this.createdAt = obj?.createdAt ?? new Date().toISOString()
         this.updatedAt = obj?.updatedAt ?? new Date().toISOString()
-        this.name = obj?.name ?? DefaultLocaleString
+        this.name = obj?.name ?? DefaultLocaleStringWithRomaji
         this.assetUrl = obj?.assetUrl ?? ""
         this.plan = obj?.plan ?? Plan.Free
         this.rarity = obj?.rarity ?? SkillRarity.N
@@ -81,7 +81,7 @@ export default class Skill implements ISkill {
         })
     }
 
-    get formattedName(): LocaleString {
+    get formattedName(): LocaleStringWithRomaji {
         const upgradeSymbol = "+"
         return {
             ja: this.name.ja + upgradeSymbol.repeat(this.upgradeLevel),
@@ -208,7 +208,7 @@ export default class Skill implements ISkill {
 }
 
 export interface ISkill extends PersistentObject {
-    name: LocaleString
+    name: LocaleStringWithRomaji
     assetUrl: string
     plan: Plan
     rarity: SkillRarity

@@ -1,6 +1,6 @@
 import ParsedEffectElementType from "../enum/ParsedEffectElementType"
-import EffectReference from "../class/EffectReference"
-import EffectVariable from "../class/EffectVariable"
+import EffectReference from "./EffectReference"
+import EffectVariable from "./EffectVariable"
 
 type ParsedEffectElement =
     ReferenceParsedEffectElement |
