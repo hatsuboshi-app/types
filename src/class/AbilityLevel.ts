@@ -1,15 +1,19 @@
 import EffectMod, {
+    DBEffectMod,
     IEffectMod,
     InsertEffectMod,
     ReplaceEffectMod
 } from "./EffectMod"
 import EffectModType from "../enum/EffectModType"
+import { DBSerializable } from "./abstract/DBSerializable"
+import { EffectReferenceAsyncPopulateMethods } from "./EffectReference"
 
-export default class AbilityLevel implements IAbilityLevel {
+export default class AbilityLevel implements IAbilityLevel, DBSerializable<DBAbilityLevel> {
     level: number
     mods: EffectMod[]
 
     constructor()
+    constructor(obj?: IAbilityLevel)
     constructor(obj: IAbilityLevel)
     constructor(obj?: IAbilityLevel) {
         this.level = obj?.level ?? 0
@@ -28,9 +32,45 @@ export default class AbilityLevel implements IAbilityLevel {
             }
         })
     }
+
+    static async fromDB(obj: DBAbilityLevel, populate: EffectReferenceAsyncPopulateMethods): Promise<AbilityLevel> {
+        const al = new AbilityLevel({ ...obj, mods: [] })
+        for await (const em of obj.mods) {
+            switch (em.type) {
+                case EffectModType.Enhance:
+                    al.mods.push(em)
+                    break
+                case EffectModType.Replace:
+                    al.mods.push(await ReplaceEffectMod.fromDB(em, populate))
+                    break
+                case EffectModType.Insert:
+                    al.mods.push(await InsertEffectMod.fromDB(em, populate))
+                    break
+            }
+        }
+        return al
+    }
+    toDB(): DBAbilityLevel {
+        return {
+            ...this,
+            mods: this.mods.map(m => {
+                switch (m.type) {
+                    case EffectModType.Enhance:
+                        return m
+                    case EffectModType.Replace:
+                    case EffectModType.Insert:
+                        return m.toDB()
+                }
+            })
+        }
+    }
 }
 
 export interface IAbilityLevel {
     level: number
     mods: IEffectMod[]
+}
+
+export type DBAbilityLevel = Omit<IAbilityLevel, "mods"> & {
+    mods: DBEffectMod[]
 }

@@ -1,13 +1,16 @@
 import ParameterSet, { DefaultParameterSet } from "../type/ParameterSet"
-import Ability, { IAbility } from "./Ability"
+import Ability, { DBAbility, IAbility } from "./Ability"
+import PIdolLevelEffectTriggers from "../type/PIdolLevelEffectTriggers"
+import { DBSerializable } from "./abstract/DBSerializable";
+import { EffectReferenceAsyncPopulateMethods } from "./EffectReference";
 
-export default class PIdolLevelEffect implements IPIdolLevelEffect {
+export default class PIdolLevelEffect implements IPIdolLevelEffect, DBSerializable<DBPIdolLevelEffect> {
     level: number
     parameter: ParameterSet
     growth: ParameterSet
     stamina: number
     triggers: Partial<PIdolLevelEffectTriggers>
-    abilityUpgrades: number[]
+    abilityUpgradePositions: number[]
     abilities: Ability[]
 
     constructor()
@@ -19,14 +22,28 @@ export default class PIdolLevelEffect implements IPIdolLevelEffect {
         this.growth = obj?.growth ?? DefaultParameterSet
         this.stamina = obj?.stamina ?? 0
         this.triggers = obj?.triggers ?? {}
-        this.abilityUpgrades = []
-        obj?.abilityUpgrades?.forEach(p => {
-            this.abilityUpgrades.push(p)
+        this.abilityUpgradePositions = []
+        obj?.abilityUpgradePositions?.forEach(p => {
+            this.abilityUpgradePositions.push(p)
         })
         this.abilities = []
         obj?.abilities?.forEach(a => {
             this.abilities.push(new Ability(a))
         })
+    }
+
+    static async fromDB(obj: DBPIdolLevelEffect, populate: EffectReferenceAsyncPopulateMethods): Promise<PIdolLevelEffect> {
+        const ile = new PIdolLevelEffect({ ...obj, abilities: [] })
+        for await (const a of obj.abilities) {
+            ile.abilities.push(await Ability.fromDB(a, populate))
+        }
+        return ile
+    }
+    toDB(): DBPIdolLevelEffect {
+        return {
+            ...this,
+            abilities: this.abilities.map(a => a.toDB())
+        }
     }
 }
 
@@ -36,14 +53,10 @@ export interface IPIdolLevelEffect {
     growth: ParameterSet
     stamina: number
     triggers: Partial<PIdolLevelEffectTriggers>
-    abilityUpgrades: number[]
+    abilityUpgradePositions: number[]
     abilities: IAbility[]
 }
 
-type PIdolLevelEffectTriggers = {
-    visualUpgrade: boolean
-    altOutfitUnlock: boolean
-    skillCustomizeUnlock: boolean
-    skillUpgrade: boolean
-    pItemUpgrade: boolean
+export type DBPIdolLevelEffect = Omit<IPIdolLevelEffect, "abilities"> & {
+    abilities: DBAbility[]
 }

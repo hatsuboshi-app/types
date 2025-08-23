@@ -1,24 +1,18 @@
-import PersistentObject from "../../interface/PersistentObject"
+import PersistentObject, { IPersistentObject } from "../abstract/PersistentObject"
 
-export default class SupportCard implements ISupportCard {
-    id: string
-    createdAt: string
-    updatedAt: string
-
+export default class SupportCard extends PersistentObject implements ISupportCard {
     // implement
 
     constructor()
     constructor(obj: Partial<ISupportCard>)
     constructor(obj?: Partial<ISupportCard>)
     constructor(obj?: Partial<ISupportCard>) {
-        this.id = obj?.id ?? "sp-000000"
-        this.createdAt = obj?.createdAt ?? new Date().toISOString()
-        this.updatedAt = obj?.updatedAt ?? new Date().toISOString()
+        super(obj, "support_card")
     }
 }
 
-export interface ISupportCard extends PersistentObject {
-
+export interface ISupportCard extends IPersistentObject {
     // implement
-
 }
+
+export type DBSupportCard = ISupportCard

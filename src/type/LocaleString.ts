@@ -1,4 +1,4 @@
-import Nullable from "./Nullable"
+import Nullable from "./util/Nullable"
 
 type LocaleString = {
     ja: string

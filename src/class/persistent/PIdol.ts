@@ -1,20 +1,27 @@
-import PersistentObject from "../../interface/PersistentObject"
-import Character, { IIdol } from "./Character"
+import PersistentObject, { IPersistentObject } from "../abstract/PersistentObject"
+import Character, { DBCharacter, ICharacter } from "./Character"
 import Rarity from "../../enum/Rarity"
 import PIdolPlan from "../../enum/PIdolPlan"
 import PIdolSubplan from "../../enum/PIdolSubplan"
 import ParameterSet, { DefaultParameterSet } from "../../type/ParameterSet"
-import PIdolLevelEffect, { IPIdolLevelEffect } from "../PIdolLevelEffect"
-import PItem, { IPItem } from "./PItem"
-import Ability, { IAbility } from "../Ability"
+import PIdolLevelEffect, { DBPIdolLevelEffect, IPIdolLevelEffect } from "../PIdolLevelEffect"
+import PItem, { DBPItem, IPItem } from "./PItem"
+import Ability, { DBAbility, IAbility } from "../Ability"
 import PIdolVisual, { DefaultPIdolVisual } from "../../type/PIdolVisual"
-import Skill, { ISkill } from "./Skill"
+import Skill, { DBSkill, ISkill } from "./Skill"
 import LocaleStringWithRomaji, { DefaultLocaleStringWithRomaji } from "../../type/LocaleStringWithRomaji"
+import { DBSerializable } from "../abstract/DBSerializable"
+import PIdolUpgradeState from "../../type/PIdolUpgradeState"
+import { EffectReferenceAsyncPopulateMethods } from "../EffectReference";
+import AsyncPopulateMethod from "../../type/util/AsyncPopulateMethod";
 
-export default class PIdol implements IPIdol {
-    id: string
-    createdAt: string
-    updatedAt: string
+export type PIdolAsyncPopulateMethods = EffectReferenceAsyncPopulateMethods & {
+    character: AsyncPopulateMethod<DBCharacter>,
+    skill: AsyncPopulateMethod<DBSkill>,
+    pItem: AsyncPopulateMethod<DBPItem>
+}
+
+export default class PIdol extends PersistentObject implements IPIdol, DBSerializable<DBPIdol> {
     name: LocaleStringWithRomaji
     visual: PIdolVisual
     character: Character
@@ -34,8 +41,8 @@ export default class PIdol implements IPIdol {
     currentParameter: ParameterSet
     currentGrowth: ParameterSet
     currentAbilities: Ability[]
-    trainingLevel: number
-    potentialLevel: number
+    currentTrainingLevel: number
+    currentPotentialLevel: number
 
     constructor()
     constructor(obj: Partial<IPIdol>)
@@ -43,9 +50,7 @@ export default class PIdol implements IPIdol {
     constructor(obj: Partial<IPIdol>, upgradeState?: Partial<PIdolUpgradeState>)
     constructor(obj?: Partial<IPIdol>, upgradeState?: Partial<PIdolUpgradeState>)
     constructor(obj?: Partial<IPIdol>, upgradeState?: Partial<PIdolUpgradeState>) {
-        this.id = obj?.id ?? "pi-000000"
-        this.createdAt = obj?.createdAt ?? new Date().toISOString()
-        this.updatedAt = obj?.updatedAt ?? new Date().toISOString()
+        super(obj, "idol")
         this.name = obj?.name ?? DefaultLocaleStringWithRomaji
         this.visual = obj?.visual ?? DefaultPIdolVisual
         this.character = new Character(obj?.character)
@@ -81,13 +86,55 @@ export default class PIdol implements IPIdol {
         })
 
         // set modifiable properties
-        this.trainingLevel = 0
+        this.currentTrainingLevel = 0
         if (upgradeState?.trainingLevel && upgradeState?.trainingLevel > 0) {
             this.setTrainingLevel(upgradeState.trainingLevel)
         }
-        this.potentialLevel = 0
+        this.currentPotentialLevel = 0
         if (upgradeState?.potentialLevel && upgradeState?.potentialLevel > 0) {
             this.setPotentialLevel(upgradeState.potentialLevel)
+        }
+    }
+
+    static async fromDB(obj: DBPIdol, populate: PIdolAsyncPopulateMethods): Promise<PIdol> {
+        const i = new PIdol({
+            ...obj,
+            character: await Character.fromDB(await populate.character(obj.character)),
+            signatureSkill: await Skill.fromDB(await populate.skill(obj.signatureSkill), populate),
+            signaturePItem: await PItem.fromDB(await populate.pItem(obj.signaturePItem), populate),
+            initialAbilities: [],
+            trainingLevels: [],
+            potentialLevels: []
+        })
+        for await (const a of obj.initialAbilities) {
+            i.initialAbilities.push(await Ability.fromDB(a, populate))
+        }
+        for await (const tl of obj.trainingLevels) {
+            i.trainingLevels.push(await PIdolLevelEffect.fromDB(tl, populate))
+        }
+        for await (const pl of obj.potentialLevels) {
+            i.potentialLevels.push(await PIdolLevelEffect.fromDB(pl, populate))
+        }
+        return i
+    }
+    toDB(): DBPIdol {
+        const {
+            currentTrainingLevel,
+            currentPotentialLevel,
+            currentAbilities,
+            currentParameter,
+            currentStamina,
+            currentGrowth,
+            character,
+            signatureSkill,
+            signaturePItem,
+            ...trimmed
+        } = this
+        return {
+            ...trimmed,
+            character: this.character.id,
+            signatureSkill: this.signatureSkill.id,
+            signaturePItem: this.signaturePItem.id
         }
     }
 
@@ -100,10 +147,10 @@ export default class PIdol implements IPIdol {
         this.currentGrowth = PIdol.parameterSetSum(this.currentGrowth, effect.growth)
         this.currentStamina += effect.stamina
         if (effect.triggers.pItemUpgrade) {
-            this.signaturePItem.setUpgradeLevel(this.signaturePItem.upgradeLevel + 1)
+            this.signaturePItem.setUpgradeLevel(this.signaturePItem.currentLevel + 1)
         }
         if (effect.triggers.skillUpgrade) {
-            this.signatureSkill.setUpgradeLevel(this.signatureSkill.upgradeLevel + 1)
+            this.signatureSkill.setUpgradeLevel(this.signatureSkill.currentUpgradeLevel + 1)
         }
         // check for duplicates and replace if a duplicate is found
         effect.abilities.forEach(ea => {
@@ -115,10 +162,10 @@ export default class PIdol implements IPIdol {
             }
         })
         // upgrade abilities
-        effect.abilityUpgrades.forEach(p => {
+        effect.abilityUpgradePositions.forEach(p => {
             this.currentAbilities.forEach(a => {
                 if (a.position === p) {
-                    a.setLevel(a.level + 1)
+                    a.setLevel(a.currentLevel + 1)
                 }
             })
         })
@@ -138,27 +185,25 @@ export default class PIdol implements IPIdol {
 
     private resetTrainingLevel(): undefined {
         this.resetProperties()
-        this.trainingLevel = 0
-        this.setPotentialLevel(this.potentialLevel)
+        this.currentTrainingLevel = 0
+        this.setPotentialLevel(this.currentPotentialLevel)
     }
-
     private increaseTrainingLevel(): undefined {
-        if (this.trainingLevels.length > this.trainingLevel) {
-            const targetLevel: number = this.trainingLevel + 1
+        if (this.trainingLevels.length > this.currentTrainingLevel) {
+            const targetLevel: number = this.currentTrainingLevel + 1
             const targetLevelEffect = this.trainingLevels.find(ul => ul.level === targetLevel)
             targetLevelEffect && this.handleLevelEffect(targetLevelEffect)
-            this.trainingLevel = targetLevel
+            this.currentTrainingLevel = targetLevel
         }
     }
-
     setTrainingLevel(level: number): this {
         const maxLevel = Math.max(...this.trainingLevels.map(tl => tl.level))
         const minLevel = Math.min(...this.trainingLevels.map(tl => tl.level), 0)
         const targetLevel = Math.max(Math.min(level, maxLevel), minLevel)
-        if (targetLevel <= this.trainingLevel && this.trainingLevel !== 0) {
+        if (targetLevel <= this.currentTrainingLevel && this.currentTrainingLevel !== 0) {
             this.resetTrainingLevel()
         }
-        const levelsToIncrement = targetLevel - this.trainingLevel
+        const levelsToIncrement = targetLevel - this.currentTrainingLevel
         for (let i = 0; i < levelsToIncrement; i++) {
             this.increaseTrainingLevel()
         }
@@ -167,27 +212,25 @@ export default class PIdol implements IPIdol {
 
     private resetPotentialLevel(): undefined {
         this.resetProperties()
-        this.potentialLevel = 0
-        this.setTrainingLevel(this.trainingLevel)
+        this.currentPotentialLevel = 0
+        this.setTrainingLevel(this.currentTrainingLevel)
     }
-
     private increasePotentialLevel(): undefined {
-        if (this.potentialLevels.length > this.potentialLevel) {
-            const targetLevel: number = this.potentialLevel + 1
+        if (this.potentialLevels.length > this.currentPotentialLevel) {
+            const targetLevel: number = this.currentPotentialLevel + 1
             const targetLevelEffect = this.potentialLevels.find(ul => ul.level === targetLevel)
             targetLevelEffect && this.handleLevelEffect(targetLevelEffect)
-            this.potentialLevel = targetLevel
+            this.currentPotentialLevel = targetLevel
         }
     }
-
     setPotentialLevel(level: number): this {
         const maxLevel = Math.max(...this.potentialLevels.map(pl => pl.level))
         const minLevel = Math.min(...this.potentialLevels.map(pl => pl.level), 0)
         const targetLevel = Math.max(Math.min(level, maxLevel), minLevel)
-        if (targetLevel <= this.potentialLevel && this.potentialLevel !== 0) {
+        if (targetLevel <= this.currentPotentialLevel && this.currentPotentialLevel !== 0) {
             this.resetPotentialLevel()
         }
-        const levelsToIncrement = targetLevel - this.potentialLevel
+        const levelsToIncrement = targetLevel - this.currentPotentialLevel
         for (let i = 0; i < levelsToIncrement; i++) {
             this.increasePotentialLevel()
         }
@@ -195,10 +238,10 @@ export default class PIdol implements IPIdol {
     }
 }
 
-export interface IPIdol extends PersistentObject {
+export interface IPIdol extends IPersistentObject {
     name: LocaleStringWithRomaji
     visual: PIdolVisual
-    character: IIdol
+    character: ICharacter
     rarity: Rarity
     plan: PIdolPlan
     subplan: PIdolSubplan
@@ -213,7 +256,11 @@ export interface IPIdol extends PersistentObject {
     potentialLevels: IPIdolLevelEffect[]
 }
 
-export type PIdolUpgradeState = {
-    trainingLevel: number,
-    potentialLevel: number
+export type DBPIdol = Omit<IPIdol, "character" | "signatureSkill" | "signaturePItem" | "initialAbilities" | "trainingLevels" | "potentialLevels"> & {
+    character: string
+    signatureSkill: string
+    signaturePItem: string
+    initialAbilities: DBAbility[]
+    trainingLevels: DBPIdolLevelEffect[]
+    potentialLevels: DBPIdolLevelEffect[]
 }

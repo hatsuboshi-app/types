@@ -2,7 +2,7 @@ enum EffectModType {
     Enhance,
     Insert,
     Replace,
-    Evolve,
+    ModifyFlag,
     CostReduce,
     CustomizeLimitIncrease
 }

@@ -1,5 +1,4 @@
-import Nullable from "../type/Nullable"
-import SkillEffectLine, { ISkillEffectLine } from "./SkillEffectLine";
+import SkillEffectLine, { DBSkillEffectLine, ISkillEffectLine } from "./SkillEffectLine";
 import {
     EnhanceEffectMod,
     IInsertEffectMod,
@@ -8,12 +7,15 @@ import {
     ReplaceEffectMod
 } from "./EffectMod"
 import EffectModType from "../enum/EffectModType"
+import SkillFlags from "../type/SkillFlags"
+import { DBSerializable } from "./abstract/DBSerializable"
+import EffectReference, { DBEffectReference, EffectReferenceAsyncPopulateMethods } from "./EffectReference"
 
 type SkillEffectMod =
     EnhanceEffectMod |
     InsertSkillEffectMod |
     ReplaceSkillEffectMod |
-    EvolveSkillEffectMod |
+    ChangeFlagSkillEffectMod |
     CostReduceSkillEffectMod |
     CustomizeLimitIncreaseSkillEffectMod
 
@@ -21,7 +23,15 @@ export type ISkillEffectMod =
     EnhanceEffectMod |
     IInsertSkillEffectMod |
     IReplaceSkillEffectMod |
-    EvolveSkillEffectMod |
+    ChangeFlagSkillEffectMod |
+    CostReduceSkillEffectMod |
+    CustomizeLimitIncreaseSkillEffectMod
+
+export type DBSkillEffectMod =
+    EnhanceEffectMod |
+    DBInsertSkillEffectMod |
+    DBReplaceSkillEffectMod |
+    ChangeFlagSkillEffectMod |
     CostReduceSkillEffectMod |
     CustomizeLimitIncreaseSkillEffectMod
 
@@ -35,13 +45,36 @@ export class InsertSkillEffectMod extends InsertEffectMod {
         super(obj)
         this.line = new SkillEffectLine(obj?.line)
     }
+
+    static async fromDB(obj: DBInsertSkillEffectMod, populate: EffectReferenceAsyncPopulateMethods): Promise<InsertSkillEffectMod> {
+        const rem = new InsertSkillEffectMod({
+            ...obj,
+            refs: [],
+            line: await SkillEffectLine.fromDB(obj.line, populate)
+        })
+        for await (const r of obj.refs) {
+            rem.refs.push(await EffectReference.fromDB(r, populate))
+        }
+        return rem
+    }
+    toDB(): DBInsertSkillEffectMod {
+        return {
+            ...this,
+            refs: this.refs.map(r => r.toDB()),
+            line: this.line.toDB()
+        }
+    }
 }
 
 export interface IInsertSkillEffectMod extends IInsertEffectMod {
     line: ISkillEffectLine
 }
 
-export class ReplaceSkillEffectMod extends ReplaceEffectMod {
+export type DBInsertSkillEffectMod = Omit<IInsertSkillEffectMod, "line"> & {
+    line: DBSkillEffectLine
+}
+
+export class ReplaceSkillEffectMod extends ReplaceEffectMod implements IReplaceEffectMod, DBSerializable<DBReplaceSkillEffectMod> {
     line: SkillEffectLine
 
     constructor()
@@ -51,17 +84,39 @@ export class ReplaceSkillEffectMod extends ReplaceEffectMod {
         super(obj)
         this.line = new SkillEffectLine(obj?.line)
     }
+
+    static async fromDB(obj: DBReplaceSkillEffectMod, populate: EffectReferenceAsyncPopulateMethods): Promise<ReplaceSkillEffectMod> {
+        const rem = new ReplaceSkillEffectMod({
+            ...obj,
+            refs: [],
+            line: await SkillEffectLine.fromDB(obj.line, populate)
+        })
+        for await (const r of obj.refs) {
+            rem.refs.push(await EffectReference.fromDB(r, populate))
+        }
+        return rem
+    }
+    toDB(): DBReplaceSkillEffectMod {
+        return {
+            ...this,
+            refs: this.refs.map(r => r.toDB()),
+            line: this.line.toDB()
+        }
+    }
 }
 
 export interface IReplaceSkillEffectMod extends IReplaceEffectMod {
     line: ISkillEffectLine
 }
 
-export type EvolveSkillEffectMod = {
-    type: EffectModType.Evolve
-    unique: Nullable<boolean>
-    onceOnly: Nullable<boolean>
-    initial: Nullable<boolean>
+export type DBReplaceSkillEffectMod = Omit<IReplaceSkillEffectMod, "refs" | "line"> & {
+    refs: DBEffectReference[]
+    line: DBSkillEffectLine
+}
+
+export type ChangeFlagSkillEffectMod = {
+    type: EffectModType.ModifyFlag
+    flags: Partial<SkillFlags>
 }
 
 export type CostReduceSkillEffectMod = {

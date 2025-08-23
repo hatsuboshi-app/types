@@ -1,31 +1,45 @@
-import PersistentObject from "../../interface/PersistentObject"
-import Effect from "../Effect"
-import AuditionEffectIcon, { DefaultAuditionEffectIcon } from "../../type/AuditionEffectIcon"
+import PersistentObject, { IPersistentObject } from "../abstract/PersistentObject"
+import Effect, { DBEffect, IEffect } from "../Effect"
+import AuditionIcon, { DefaultAuditionIcon } from "../../type/AuditionIcon"
 import LocaleStringWithRomaji, { DefaultLocaleStringWithRomaji } from "../../type/LocaleStringWithRomaji"
+import { DBSerializable } from "../abstract/DBSerializable"
+import { EffectReferenceAsyncPopulateMethods } from "../EffectReference"
 
-export default class AuditionEffect implements IAuditionEffect {
-    id: string
-    createdAt: string
-    updatedAt: string
+export default class AuditionEffect extends PersistentObject implements IAuditionEffect, DBSerializable<DBAuditionEffect> {
     name: LocaleStringWithRomaji
     description: Effect
-    icon: AuditionEffectIcon
+    icon: AuditionIcon
 
     constructor()
     constructor(obj: Partial<IAuditionEffect>)
     constructor(obj?: Partial<IAuditionEffect>)
     constructor(obj?: Partial<IAuditionEffect>) {
-        this.id = obj?.id ?? "ae-000000"
-        this.createdAt = obj?.createdAt ?? new Date().toISOString()
-        this.updatedAt = obj?.updatedAt ?? new Date().toISOString()
+        super(obj, "effect")
         this.name = obj?.name ?? DefaultLocaleStringWithRomaji
-        this.icon = obj?.icon ?? DefaultAuditionEffectIcon
+        this.icon = obj?.icon ?? DefaultAuditionIcon
         this.description = new Effect(obj?.description)
+    }
+
+    static async fromDB(obj: DBAuditionEffect, populate: EffectReferenceAsyncPopulateMethods): Promise<AuditionEffect> {
+        return new AuditionEffect({
+            ...obj,
+            description: await Effect.fromDB(obj.description, populate)
+        })
+    }
+    toDB(): DBAuditionEffect {
+        return {
+            ...this,
+            description: this.description.toDB()
+        }
     }
 }
 
-export interface IAuditionEffect extends PersistentObject {
+export interface IAuditionEffect extends IPersistentObject {
     name: LocaleStringWithRomaji
-    description: Effect
-    icon: AuditionEffectIcon
+    description: IEffect
+    icon: AuditionIcon
+}
+
+export type DBAuditionEffect = Omit<IAuditionEffect, "description"> & {
+    description: DBEffect
 }

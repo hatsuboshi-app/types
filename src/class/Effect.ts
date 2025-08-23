@@ -1,13 +1,14 @@
-import EffectLine, { IEffectLine } from "./EffectLine"
+import EffectLine, { DBEffectLine, IEffectLine } from "./EffectLine"
 import ParsedEffectLine from "../type/ParsedEffectLine"
 import EffectVariable from "../type/EffectVariable"
-import EffectReference from "../type/EffectReference"
+import EffectReference, { DBEffectReference, EffectReferenceAsyncPopulateMethods } from "./EffectReference"
 import type EffectMod from "./EffectMod"
 import EffectModType from "../enum/EffectModType"
 import Locale from "../type/Locale"
-import LocaleString from "../type/LocaleString";
+import LocaleString from "../type/LocaleString"
+import { DBSerializable } from "./abstract/DBSerializable"
 
-export default class Effect implements IEffect {
+export default class Effect implements IEffect, DBSerializable<DBEffect> {
     refs: EffectReference[]
     vars: EffectVariable[]
     lines: EffectLine[]
@@ -28,6 +29,24 @@ export default class Effect implements IEffect {
         obj?.lines?.forEach(l => {
             this.lines.push(new EffectLine(l))
         })
+    }
+
+    static async fromDB(obj: DBEffect, populate: EffectReferenceAsyncPopulateMethods): Promise<Effect> {
+        const e = new Effect({ ...obj, refs: [] })
+        for await (const r of obj.refs) {
+            e.refs.push(await EffectReference.fromDB(r, populate))
+        }
+        for await (const l of obj.lines) {
+            e.lines.push(await EffectLine.fromDB(l))
+        }
+        return e
+    }
+    toDB(): DBEffect {
+        return {
+            ...this,
+            refs: this.refs.map(r => r.toDB()),
+            lines: this.lines.map(l => l.toDB())
+        }
     }
 
     get parsed(): ParsedEffectLine[] {
@@ -133,4 +152,9 @@ export interface IEffect {
     refs: EffectReference[]
     vars: EffectVariable[]
     lines: IEffectLine[]
+}
+
+export type DBEffect = Omit<IEffect, "refs" | "lines"> & {
+    refs: DBEffectReference[]
+    lines: DBEffectLine[]
 }

@@ -1,4 +1,4 @@
-enum AuditionEffectIconColor {
+enum AuditionIconColor {
     Blue = "blue",
     Green = "green",
     Red = "red",
@@ -8,4 +8,4 @@ enum AuditionEffectIconColor {
     FullPower = "fullPower"
 }
 
-export default AuditionEffectIconColor
+export default AuditionIconColor

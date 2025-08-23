@@ -1,15 +1,14 @@
-import PersistentObject from "../../interface/PersistentObject"
-import Effect, { IEffect } from "../Effect"
+import PersistentObject, { IPersistentObject } from "../abstract/PersistentObject"
+import Effect, { DBEffect, IEffect } from "../Effect"
 import Plan from "../../enum/Plan"
 import Rarity from "../../enum/Rarity"
 import PItemSource from "../../enum/PItemSource"
-import AbilityLevel, { IAbilityLevel } from "../AbilityLevel"
+import AbilityLevel, { DBAbilityLevel, IAbilityLevel } from "../AbilityLevel"
 import LocaleStringWithRomaji, { DefaultLocaleStringWithRomaji } from "../../type/LocaleStringWithRomaji"
+import { DBSerializable } from "../abstract/DBSerializable"
+import { EffectReferenceAsyncPopulateMethods } from "../EffectReference"
 
-export default class PItem implements IPItem {
-    id: string
-    createdAt: string
-    updatedAt: string
+export default class PItem extends PersistentObject implements IPItem, DBSerializable<DBPItem> {
     name: LocaleStringWithRomaji
     assetUrl: string
     plan: Plan
@@ -19,7 +18,7 @@ export default class PItem implements IPItem {
     upgradeLevels: AbilityLevel[]
     initialEffect: Effect
     currentEffect: Effect
-    upgradeLevel: number
+    currentLevel: number
 
     constructor()
     constructor(obj: Partial<IPItem>)
@@ -27,9 +26,7 @@ export default class PItem implements IPItem {
     constructor(obj: Partial<IPItem>, upgradeLevel?: number)
     constructor(obj?: Partial<IPItem>, upgradeLevel?: number)
     constructor(obj?: Partial<IPItem>, upgradeLevel?: number) {
-        this.id = obj?.id ?? "it-000000"
-        this.createdAt = obj?.createdAt ?? new Date().toISOString()
-        this.updatedAt = obj?.updatedAt ?? new Date().toISOString()
+        super(obj, "item")
         this.name = obj?.name ?? DefaultLocaleStringWithRomaji
         this.assetUrl = obj?.assetUrl ?? ""
         this.plan = obj?.plan ?? Plan.Free
@@ -46,18 +43,35 @@ export default class PItem implements IPItem {
         this.currentEffect = new Effect(this.initialEffect)
 
         // set modifiable properties
-        this.upgradeLevel = 0
+        this.currentLevel = 0
         if (upgradeLevel && upgradeLevel > 0) {
             this.setUpgradeLevel(upgradeLevel)
+        }
+    }
+
+    static async fromDB(obj: DBPItem, populate: EffectReferenceAsyncPopulateMethods): Promise<PItem> {
+        const pi = new PItem({ ...obj, initialEffect: undefined, upgradeLevels: [] })
+        pi.initialEffect = await Effect.fromDB(obj.initialEffect, populate)
+        for await (const ul of obj.upgradeLevels) {
+            pi.upgradeLevels.push(await AbilityLevel.fromDB(ul, populate))
+        }
+        return pi
+    }
+    toDB(): DBPItem {
+        const { currentEffect, currentLevel, ...trimmed } = this
+        return {
+            ...trimmed,
+            initialEffect: this.initialEffect.toDB(),
+            upgradeLevels: this.upgradeLevels.map(ul => ul.toDB())
         }
     }
 
     get formattedName(): LocaleStringWithRomaji {
         const upgradeSymbol = "+"
         return {
-            ja: this.name.ja + upgradeSymbol.repeat(this.upgradeLevel),
-            ro: this.name.ro + upgradeSymbol.repeat(this.upgradeLevel),
-            en: this.name.en + upgradeSymbol.repeat(this.upgradeLevel)
+            ja: this.name.ja + upgradeSymbol.repeat(this.currentLevel),
+            ro: this.name.ro + upgradeSymbol.repeat(this.currentLevel),
+            en: this.name.en + upgradeSymbol.repeat(this.currentLevel)
         }
     }
 
@@ -67,28 +81,26 @@ export default class PItem implements IPItem {
 
     private resetUpgradeLevel(): undefined {
         this.resetProperties()
-        this.upgradeLevel = 0
+        this.currentLevel = 0
     }
-
     private increaseUpgradeLevel(): undefined {
-        if (this.upgradeLevels.length > this.upgradeLevel) {
-            const targetLevel = this.upgradeLevel + 1
+        if (this.upgradeLevels.length > this.currentLevel) {
+            const targetLevel = this.currentLevel + 1
             const targetLevelEffect = this.upgradeLevels.find(ul => ul.level === targetLevel)
             if (targetLevelEffect) {
                 targetLevelEffect.mods.forEach(m => this.currentEffect.modify(m))
             }
-            this.upgradeLevel = targetLevel
+            this.currentLevel = targetLevel
         }
     }
-
     setUpgradeLevel(level: number): this {
         const maxLevel = Math.max(...this.upgradeLevels.map(ul => ul.level))
         const minLevel = Math.min(...this.upgradeLevels.map(ul => ul.level), 0)
         const targetLevel = Math.max(Math.min(level, maxLevel), minLevel)
-        if (targetLevel <= this.upgradeLevel && this.upgradeLevel !== 0) {
+        if (targetLevel <= this.currentLevel && this.currentLevel !== 0) {
             this.resetUpgradeLevel()
         }
-        const levelsToIncrement = targetLevel - this.upgradeLevel
+        const levelsToIncrement = targetLevel - this.currentLevel
         for (let i = 0; i < levelsToIncrement; i++) {
             this.increaseUpgradeLevel()
         }
@@ -96,7 +108,7 @@ export default class PItem implements IPItem {
     }
 }
 
-export interface IPItem extends PersistentObject {
+export interface IPItem extends IPersistentObject {
     name: LocaleStringWithRomaji
     assetUrl: string
     plan: Plan
@@ -105,4 +117,9 @@ export interface IPItem extends PersistentObject {
     unlockLevel: number
     initialEffect: IEffect
     upgradeLevels: IAbilityLevel[]
+}
+
+export type DBPItem = Omit<IPItem, "initialEffect" | "upgradeLevels"> & {
+    initialEffect: DBEffect
+    upgradeLevels: DBAbilityLevel[]
 }

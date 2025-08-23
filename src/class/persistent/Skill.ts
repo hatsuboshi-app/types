@@ -1,19 +1,23 @@
-import PersistentObject from "../../interface/PersistentObject"
-import SkillEffect, { ISkillEffect } from "../SkillEffect"
+import PersistentObject, { IPersistentObject } from "../abstract/PersistentObject"
+import SkillEffect, { DBSkillEffect, ISkillEffect } from "../SkillEffect"
 import Plan from "../../enum/Plan"
 import SkillCategory from "../../enum/SkillCategory"
 import SkillRarity from "../../enum/SkillRarity"
-import SkillUpgradeLevelEffect, { ISkillUpgradeLevelEffect } from "../SkillUpgradeLevelEffect"
-import SkillCustomize, { ISkillCustomize } from "../SkillCustomize"
+import SkillUpgradeLevelEffect, {
+    DBSkillUpgradeLevelEffect,
+    ISkillUpgradeLevelEffect
+} from "../SkillUpgradeLevelEffect"
+import SkillCustomize, { DBSkillCustomize, ISkillCustomize } from "../SkillCustomize"
 import SkillSource from "../../enum/SkillSource"
 import SkillFlags, { DefaultSkillFlags } from "../../type/SkillFlags"
-import EffectModType from "../../enum/EffectModType";
-import LocaleStringWithRomaji, { DefaultLocaleStringWithRomaji } from "../../type/LocaleStringWithRomaji";
+import EffectModType from "../../enum/EffectModType"
+import LocaleStringWithRomaji, { DefaultLocaleStringWithRomaji } from "../../type/LocaleStringWithRomaji"
+import SkillEffectMod from "../SkillEffectMod"
+import { DBSerializable } from "../abstract/DBSerializable"
+import SkillUpgradeState from "../../type/SkillUpgradeState"
+import { EffectReferenceAsyncPopulateMethods } from "../EffectReference"
 
-export default class Skill implements ISkill {
-    id: string
-    createdAt: string
-    updatedAt: string
+export default class Skill extends PersistentObject implements ISkill, DBSerializable<DBSkill> {
     name: LocaleStringWithRomaji
     assetUrl: string
     plan: Plan
@@ -31,8 +35,8 @@ export default class Skill implements ISkill {
     currentStaminaCost: number
     currentFlags: SkillFlags
     currentEffect: SkillEffect
-    upgradeLevel: number
-    customizeLevels: [number, number][]
+    currentUpgradeLevel: number
+    currentCustomizeLevels: [number, number][]
 
     constructor()
     constructor(obj: Partial<ISkill>)
@@ -40,9 +44,7 @@ export default class Skill implements ISkill {
     constructor(obj: Partial<ISkill>, upgradeState?: Partial<SkillUpgradeState>)
     constructor(obj?: Partial<ISkill>, upgradeState?: Partial<SkillUpgradeState>)
     constructor(obj?: Partial<ISkill>, upgradeState?: Partial<SkillUpgradeState>) {
-        this.id = obj?.id ?? "sk-000000"
-        this.createdAt = obj?.createdAt ?? new Date().toISOString()
-        this.updatedAt = obj?.updatedAt ?? new Date().toISOString()
+        super(obj, "skill")
         this.name = obj?.name ?? DefaultLocaleStringWithRomaji
         this.assetUrl = obj?.assetUrl ?? ""
         this.plan = obj?.plan ?? Plan.Free
@@ -70,23 +72,78 @@ export default class Skill implements ISkill {
         this.currentEffect = this.initialEffect.copy()
 
         // set modifiable properties
-        this.upgradeLevel = 0
+        this.currentUpgradeLevel = 0
         if (upgradeState?.upgradeLevel && upgradeState?.upgradeLevel > 0) {
             this.setUpgradeLevel(upgradeState.upgradeLevel)
         }
-        this.customizeLevels = []
+        this.currentCustomizeLevels = []
         upgradeState?.customizeLevels?.forEach(u => {
             this.setCustomizeLevel(u[0], u[1])
-            this.customizeLevels.push(u)
+            this.currentCustomizeLevels.push(u)
         })
+    }
+
+    static async fromDB(obj: DBSkill, populate: EffectReferenceAsyncPopulateMethods): Promise<Skill> {
+        const s = new Skill({
+            ...obj,
+            upgradeLevels: [],
+            customizeOptions: [],
+            initialEffect: await SkillEffect.fromDB(obj.initialEffect, populate)
+        })
+        for await (const l of obj.upgradeLevels) {
+            s.upgradeLevels.push(await SkillUpgradeLevelEffect.fromDB(l, populate))
+        }
+        for await (const c of obj.customizeOptions) {
+            s.customizeOptions.push(await SkillCustomize.fromDB(c, populate))
+        }
+        return s
+    }
+    toDB(): DBSkill {
+        const {
+            currentUpgradeLevel,
+            currentCustomizeLimit,
+            currentStaminaCost,
+            currentEffect,
+            currentCustomizeLevels,
+            currentFlags,
+            ...trimmed
+        } = this
+        return {
+            ...trimmed,
+            upgradeLevels: this.upgradeLevels.map(ul => ul.toDB()),
+            customizeOptions: this.customizeOptions.map(co => co.toDB()),
+            initialEffect: this.initialEffect.toDB()
+        }
     }
 
     get formattedName(): LocaleStringWithRomaji {
         const upgradeSymbol = "+"
         return {
-            ja: this.name.ja + upgradeSymbol.repeat(this.upgradeLevel),
-            ro: this.name.ro + upgradeSymbol.repeat(this.upgradeLevel),
-            en: this.name.en + upgradeSymbol.repeat(this.upgradeLevel)
+            ja: this.name.ja + upgradeSymbol.repeat(this.currentUpgradeLevel),
+            ro: this.name.ro + upgradeSymbol.repeat(this.currentUpgradeLevel),
+            en: this.name.en + upgradeSymbol.repeat(this.currentUpgradeLevel)
+        }
+    }
+
+    private handleSkillEffectMod(mod: SkillEffectMod): undefined {
+        switch (mod.type) {
+            case EffectModType.Enhance:
+            case EffectModType.Insert:
+            case EffectModType.Replace:
+                // handled at the base effect level
+                this.currentEffect.modify(mod)
+                break
+            case EffectModType.CostReduce:
+                this.currentStaminaCost -= mod.value
+                break
+            case EffectModType.CustomizeLimitIncrease:
+                this.currentCustomizeLimit += mod.value
+                break
+            case EffectModType.ModifyFlag:
+                this.currentFlags.isUnique = mod.flags.isUnique ?? this.currentFlags.isUnique
+                this.currentFlags.isOnceOnly = mod.flags.isOnceOnly ?? this.currentFlags.isOnceOnly
+                this.currentFlags.isInitial = mod.flags.isInitial ?? this.currentFlags.isInitial
+                break
         }
     }
 
@@ -99,51 +156,31 @@ export default class Skill implements ISkill {
 
     private resetUpgradeLevel(): undefined {
         this.resetProperties()
-        this.upgradeLevel = 0
-        this.customizeLevels.forEach(cl => {
+        this.currentUpgradeLevel = 0
+        this.currentCustomizeLevels.forEach(cl => {
             this.setCustomizeLevel(cl[0], cl[1])
         })
     }
-
     private increaseUpgradeLevel(): undefined {
-        if (this.upgradeLevels.length > this.upgradeLevel) {
-            const targetLevel: number = this.upgradeLevel + 1
+        if (this.upgradeLevels.length > this.currentUpgradeLevel) {
+            const targetLevel: number = this.currentUpgradeLevel + 1
             const targetLevelEffect = this.upgradeLevels.find(ul => ul.level === targetLevel)
             if (targetLevelEffect) {
                 targetLevelEffect.mods.forEach(m => {
-                    switch (m.type) {
-                        case EffectModType.Enhance:
-                        case EffectModType.Insert:
-                        case EffectModType.Replace:
-                            // handled at the effect level
-                            this.currentEffect.modify(m)
-                            break
-                        case EffectModType.CostReduce:
-                            this.currentStaminaCost -= m.value
-                            break
-                        case EffectModType.CustomizeLimitIncrease:
-                            this.currentCustomizeLimit += m.value
-                            break
-                        case EffectModType.Evolve:
-                            this.currentFlags.isUnique = m.unique !== null ? m.unique : this.currentFlags.isUnique
-                            this.currentFlags.isOnceOnly = m.onceOnly !== null ? m.onceOnly : this.currentFlags.isOnceOnly
-                            this.currentFlags.isInitial = m.initial !== null ? m.initial : this.currentFlags.isInitial
-                            break
-                    }
+                    this.handleSkillEffectMod(m)
                 })
             }
-            this.upgradeLevel = targetLevel
+            this.currentUpgradeLevel = targetLevel
         }
     }
-
     setUpgradeLevel(level: number): this {
-        const maxLevel = Math.max(...this.upgradeLevels.map(ul => ul.level))
+        const maxLevel = Math.max(...this.upgradeLevels.map(ul => ul.level), 0)
         const minLevel = Math.min(...this.upgradeLevels.map(ul => ul.level), 0)
         const targetLevel = Math.max(Math.min(level, maxLevel), minLevel)
-        if (targetLevel <= this.upgradeLevel && this.upgradeLevel !== 0) {
+        if (targetLevel <= this.currentUpgradeLevel && this.currentUpgradeLevel !== 0) {
             this.resetUpgradeLevel()
         }
-        const levelsToIncrement = targetLevel - this.upgradeLevel
+        const levelsToIncrement = targetLevel - this.currentUpgradeLevel
         for (let i = 0; i < levelsToIncrement; i++) {
             this.increaseUpgradeLevel()
         }
@@ -152,35 +189,39 @@ export default class Skill implements ISkill {
 
     private resetAllCustomizeLevels(): undefined {
         this.resetProperties()
-        this.customizeLevels = []
-        this.setUpgradeLevel(this.upgradeLevel)
+        this.currentCustomizeLevels = []
+        this.setUpgradeLevel(this.currentUpgradeLevel)
     }
-
     private resetCustomizeLevel(pos: number): undefined {
         this.resetProperties()
-        const i = this.customizeLevels.findIndex(cl => cl[0] === pos)
-        if (i !== -1 && i < this.customizeLevels.length) {
-            this.customizeLevels.splice(i, 1)
+        const i = this.currentCustomizeLevels.findIndex(cl => cl[0] === pos)
+        if (i !== -1 && i < this.currentCustomizeLevels.length) {
+            this.currentCustomizeLevels.splice(i, 1)
         }
-        this.setUpgradeLevel(this.upgradeLevel)
-        this.customizeLevels.forEach(cl => {
+        this.setUpgradeLevel(this.currentUpgradeLevel)
+        this.currentCustomizeLevels.forEach(cl => {
             this.setCustomizeLevel(cl[0], cl[1])
         })
     }
-
     private increaseCustomizeLevel(pos: number): undefined {
-        const i = this.customizeLevels.findIndex(cl => cl[0] === pos)
-        if (i !== -1 && i < this.customizeLevels.length) {
-            const currentLevel = this.customizeLevels[i][1]
+        const i = this.currentCustomizeLevels.findIndex(cl => cl[0] === pos)
+        if (i !== -1 && i < this.currentCustomizeLevels.length) {
+            const currentLevel = this.currentCustomizeLevels[i][1]
             const customizeOption = this.customizeOptions.find(c => c.position === pos)
             if (customizeOption && (customizeOption.levels.length > currentLevel)) {
-                console.log(`customize pos ${pos} upgraded`)
-                // logic
-                this.customizeLevels[i][1]++
+                const targetLevel = currentLevel + 1
+                const targetLevelEffect = customizeOption.levels.find(cl => cl.level === targetLevel)
+                if (targetLevelEffect) {
+                    targetLevelEffect.mods.forEach(m => {
+                        this.handleSkillEffectMod(m)
+                    })
+                }
+                this.currentCustomizeLevels[i][1] = targetLevel
             }
         }
     }
-
+    setCustomizeLevel(): this
+    setCustomizeLevel(pos: number, level: number): this
     setCustomizeLevel(pos?: number, level?: number): this {
         if (pos === undefined && level === undefined) {
             this.resetAllCustomizeLevels()
@@ -188,11 +229,11 @@ export default class Skill implements ISkill {
         } else if (pos === undefined || level === undefined) {
             return this
         }
-        const i = this.customizeLevels.findIndex(cl => cl[0] === pos)
-        if (i !== -1 && i < this.customizeLevels.length) {
-            const currentLevel = this.customizeLevels[i][1]
+        const i = this.currentCustomizeLevels.findIndex(cl => cl[0] === pos)
+        if (i !== -1 && i < this.currentCustomizeLevels.length) {
+            const currentLevel = this.currentCustomizeLevels[i][1]
             const customizeOption = this.customizeOptions.find(c => c.position === pos)
-            const maxLevel = Math.max(...(customizeOption?.levels.map(c => c.level) ?? []))
+            const maxLevel = Math.max(...(customizeOption?.levels.map(c => c.level) ?? []), 0)
             const minLevel = Math.min(...(customizeOption?.levels.map(c => c.level) ?? []), 0)
             const targetLevel = Math.max(Math.min(level, maxLevel), minLevel)
             if (targetLevel <= currentLevel && currentLevel !== 0) {
@@ -207,7 +248,7 @@ export default class Skill implements ISkill {
     }
 }
 
-export interface ISkill extends PersistentObject {
+export interface ISkill extends IPersistentObject {
     name: LocaleStringWithRomaji
     assetUrl: string
     plan: Plan
@@ -223,7 +264,8 @@ export interface ISkill extends PersistentObject {
     initialFlags: SkillFlags
 }
 
-export type SkillUpgradeState = {
-    upgradeLevel: number
-    customizeLevels: [number, number][]
+export type DBSkill = Omit<ISkill, "upgradeLevels" | "customizeOptions" | "initialEffect"> & {
+    upgradeLevels: DBSkillUpgradeLevelEffect[]
+    customizeOptions: DBSkillCustomize[]
+    initialEffect: DBSkillEffect
 }
