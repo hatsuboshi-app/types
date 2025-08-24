@@ -99,9 +99,9 @@ export default class PIdol extends PersistentObject implements IPIdol, DBSeriali
     static async fromDB(obj: DBPIdol, populate: PIdolAsyncPopulateMethods): Promise<PIdol> {
         const i = new PIdol({
             ...obj,
-            character: await Character.fromDB(await populate.character(obj.character)),
-            signatureSkill: await Skill.fromDB(await populate.skill(obj.signatureSkill), populate),
-            signaturePItem: await PItem.fromDB(await populate.pItem(obj.signaturePItem), populate),
+            character: await Character.fromDB(await populate.character(obj.character) ?? new Character().toDB()),
+            signatureSkill: await Skill.fromDB(await populate.skill(obj.signatureSkill) ?? new Skill().toDB(), populate),
+            signaturePItem: await PItem.fromDB(await populate.pItem(obj.signaturePItem) ?? new PItem().toDB(), populate),
             initialAbilities: [],
             trainingLevels: [],
             potentialLevels: []

@@ -1,16 +1,17 @@
 abstract class PersistentObject implements IPersistentObject {
+    protected static index = 0
     id: string
     createdAt: string
     updatedAt: string
 
-    constructor()
-    constructor(obj: Partial<IPersistentObject>)
-    constructor(obj?: Partial<IPersistentObject>)
-    constructor(obj: Partial<IPersistentObject>, defaultPrefix: string)
-    constructor(obj: Partial<IPersistentObject>, defaultPrefix?: string)
-    constructor(obj?: Partial<IPersistentObject>, defaultPrefix?: string)
-    constructor(obj?: Partial<IPersistentObject>, defaultPrefix?: string) {
-        this.id = obj?.id ?? `${defaultPrefix}-000000`
+    protected constructor()
+    protected constructor(obj: Partial<IPersistentObject>)
+    protected constructor(obj?: Partial<IPersistentObject>)
+    protected constructor(obj: Partial<IPersistentObject>, defaultPrefix: string)
+    protected constructor(obj: Partial<IPersistentObject>, defaultPrefix?: string)
+    protected constructor(obj?: Partial<IPersistentObject>, defaultPrefix?: string)
+    protected constructor(obj?: Partial<IPersistentObject>, defaultPrefix?: string) {
+        this.id = obj?.id ?? `${defaultPrefix}-${String(PersistentObject.index++).padStart(6, "0")}`
         this.createdAt = obj?.createdAt ?? new Date().toISOString()
         this.updatedAt = obj?.updatedAt ?? new Date().toISOString()
     }

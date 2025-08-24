@@ -19,8 +19,10 @@ export default class SkillEffectLine extends EffectLine implements ISkillEffectL
         return new SkillEffectLine({
             ...obj,
             effectIcon: obj.effectIcon
-                ? await AuditionEffect.fromDB(await populate.auditionEffect(obj.effectIcon), populate)
-                : null
+                ? await AuditionEffect.fromDB(
+                    await populate.auditionEffect(obj.effectIcon) ?? new AuditionEffect().toDB(),
+                    populate
+                ) : null
         })
     }
     toDB(): DBSkillEffectLine {

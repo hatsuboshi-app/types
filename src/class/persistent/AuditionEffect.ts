@@ -1,12 +1,12 @@
 import PersistentObject, { IPersistentObject } from "../abstract/PersistentObject"
 import Effect, { DBEffect, IEffect } from "../Effect"
 import AuditionIcon, { DefaultAuditionIcon } from "../../type/AuditionIcon"
-import LocaleStringWithRomaji, { DefaultLocaleStringWithRomaji } from "../../type/LocaleStringWithRomaji"
 import { DBSerializable } from "../abstract/DBSerializable"
 import { EffectReferenceAsyncPopulateMethods } from "../EffectReference"
+import LocaleString, { DefaultLocaleString } from "../../type/LocaleString"
 
 export default class AuditionEffect extends PersistentObject implements IAuditionEffect, DBSerializable<DBAuditionEffect> {
-    name: LocaleStringWithRomaji
+    name: LocaleString
     description: Effect
     icon: AuditionIcon
 
@@ -15,7 +15,7 @@ export default class AuditionEffect extends PersistentObject implements IAuditio
     constructor(obj?: Partial<IAuditionEffect>)
     constructor(obj?: Partial<IAuditionEffect>) {
         super(obj, "effect")
-        this.name = obj?.name ?? DefaultLocaleStringWithRomaji
+        this.name = obj?.name ?? DefaultLocaleString
         this.icon = obj?.icon ?? DefaultAuditionIcon
         this.description = new Effect(obj?.description)
     }
@@ -35,7 +35,7 @@ export default class AuditionEffect extends PersistentObject implements IAuditio
 }
 
 export interface IAuditionEffect extends IPersistentObject {
-    name: LocaleStringWithRomaji
+    name: LocaleString
     description: IEffect
     icon: AuditionIcon
 }

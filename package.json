@@ -14,7 +14,10 @@
     "author": "HuzzNZ",
     "license": "MIT",
     "devDependencies": {
+        "@types/node": "^24.3.0",
+        "@vitest/coverage-v8": "^3.2.4",
         "tsup": "^8.5.0",
-        "typescript": "^5.8.3"
+        "typescript": "^5.8.3",
+        "vitest": "^3.2.4"
     }
 }

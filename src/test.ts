@@ -43,23 +43,23 @@ const getRefTerminology = (id: string, refId: string): EffectReference => {
 }
 
 const auditionEffects: AuditionEffect[] = [
-    new AuditionEffect({ id: "ae-000001", name: { ja: "体力消費", en: "True Stamina Cost", ro: null }}),
-    new AuditionEffect({ id: "ae-000002", name: { ja: "メンタルスキルカード", en: "Mental Skill Card", ro: null }}),
-    new AuditionEffect({ id: "ae-000003", name: { ja: "集中", en: "Focus", ro: null }}),
-    new AuditionEffect({ id: "ae-000004", name: { ja: "持続効果", en: "Passive Effect", ro: null }}),
-    new AuditionEffect({ id: "ae-000005", name: { ja: "元気", en: "Energy", ro: null }}),
-    new AuditionEffect({ id: "ae-000006", name: { ja: "スキルカード使用数追加", en: "Additional Skill Card Usage", ro: null }}),
+    new AuditionEffect({ id: "ae-000001", name: { ja: "体力消費", en: "True Stamina Cost" }}),
+    new AuditionEffect({ id: "ae-000002", name: { ja: "メンタルスキルカード", en: "Mental Skill Card" }}),
+    new AuditionEffect({ id: "ae-000003", name: { ja: "集中", en: "Focus" }}),
+    new AuditionEffect({ id: "ae-000004", name: { ja: "持続効果", en: "Passive Effect" }}),
+    new AuditionEffect({ id: "ae-000005", name: { ja: "元気", en: "Energy" }}),
+    new AuditionEffect({ id: "ae-000006", name: { ja: "スキルカード使用数追加", en: "Additional Skill Card Usage" }}),
 ]
 
 const auditionTerminologies: AuditionTerminology[] = [
-    new AuditionTerminology({ id: "at-000001", name: { ja: "ターン", en: "Turn", ro: null }, isHighlighted: false }),
-    new AuditionTerminology({ id: "at-000002", name: { ja: "スキルカード", en: "Skill Card", ro: null }, isHighlighted: false }),
-    new AuditionTerminology({ id: "at-000003", name: { ja: "レッソン", en: "Lesson", ro: null }, isHighlighted: false }),
-    new AuditionTerminology({ id: "at-000004", name: { ja: "ボーカル", en: "Vocal", ro: null }, isHighlighted: false }),
-    new AuditionTerminology({ id: "at-000005", name: { ja: "ダンス", en: "Dance", ro: null }, isHighlighted: false }),
-    new AuditionTerminology({ id: "at-000006", name: { ja: "ビジュアル", en: "Visual", ro: null }, isHighlighted: false }),
-    new AuditionTerminology({ id: "at-000007", name: { ja: "SPレッソン", en: "SP Lesson", ro: null }, isHighlighted: false }),
-    new AuditionTerminology({ id: "at-000008", name: { ja: "再抽選", en: "Reroll", ro: null }, isHighlighted: false }),
+    new AuditionTerminology({ id: "at-000001", name: { ja: "ターン", en: "Turn" }, isHighlighted: false }),
+    new AuditionTerminology({ id: "at-000002", name: { ja: "スキルカード", en: "Skill Card" }, isHighlighted: false }),
+    new AuditionTerminology({ id: "at-000003", name: { ja: "レッソン", en: "Lesson" }, isHighlighted: false }),
+    new AuditionTerminology({ id: "at-000004", name: { ja: "ボーカル", en: "Vocal" }, isHighlighted: false }),
+    new AuditionTerminology({ id: "at-000005", name: { ja: "ダンス", en: "Dance" }, isHighlighted: false }),
+    new AuditionTerminology({ id: "at-000006", name: { ja: "ビジュアル", en: "Visual" }, isHighlighted: false }),
+    new AuditionTerminology({ id: "at-000007", name: { ja: "SPレッソン", en: "SP Lesson" }, isHighlighted: false }),
+    new AuditionTerminology({ id: "at-000008", name: { ja: "再抽選", en: "Reroll" }, isHighlighted: false }),
 ]
 
 const kotone: Partial<ICharacter> = {
@@ -310,7 +310,7 @@ const kotoneSkill: Partial<ISkill> = {
                 position: 0,
                 body: {
                     ja: "{r001}{v001}",
-                    en: "{r001} {v001}",
+                    en: "{v001} {r001}",
                 },
                 effectIcon: null
             },
@@ -581,4 +581,3 @@ idol.setTrainingLevel(5).setPotentialLevel(3)
 // console.log()
 // idol.signaturePItem.currentEffect.plaintext.forEach(l => console.log(l))
 
-console.log(idol.signatureSkill.toDB().initialEffect.refs)

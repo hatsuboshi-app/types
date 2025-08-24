@@ -1,12 +1,12 @@
 import EffectReferenceType from "../enum/EffectReferenceType"
 import Nullable from "../type/util/Nullable"
 import AuditionIcon from "../type/AuditionIcon"
-import LocaleStringWithRomaji, { DefaultLocaleStringWithRomaji } from "../type/LocaleStringWithRomaji"
 import { DBSerializable } from "./abstract/DBSerializable"
 import AsyncPopulateMethod from "../type/util/AsyncPopulateMethod"
 import { DBAuditionEffect } from "./persistent/AuditionEffect"
 import { DBAuditionTerminology } from "./persistent/AuditionTerminology"
 import { DBSkill } from "./persistent/Skill"
+import LocaleString, { DefaultLocaleString } from "../type/LocaleString"
 
 export type EffectReferenceAsyncPopulateMethods = {
     auditionEffect: AsyncPopulateMethod<DBAuditionEffect>,
@@ -20,7 +20,7 @@ export default class EffectReference implements IEffectReference, DBSerializable
     refType: EffectReferenceType
     isHighlighted: boolean
     icon: Nullable<AuditionIcon>
-    name: LocaleStringWithRomaji
+    name: LocaleString
 
     constructor()
     constructor(obj: Partial<IEffectReference>)
@@ -31,7 +31,7 @@ export default class EffectReference implements IEffectReference, DBSerializable
         this.refType = obj?.refType ?? EffectReferenceType.Terminology
         this.isHighlighted = obj?.isHighlighted ?? false
         this.icon = obj?.icon ?? null
-        this.name = obj?.name ?? DefaultLocaleStringWithRomaji
+        this.name = obj?.name ?? DefaultLocaleString
     }
 
     static async fromDB(obj: DBEffectReference, populate: EffectReferenceAsyncPopulateMethods): Promise<EffectReference> {
@@ -81,7 +81,7 @@ export interface IEffectReference {
     refType: EffectReferenceType
     isHighlighted: boolean
     icon: Nullable<AuditionIcon>
-    name: LocaleStringWithRomaji
+    name: LocaleString
 }
 
 export type DBEffectReference = Omit<IEffectReference, "isHighlighted" | "icon" | "name">
