@@ -32,7 +32,7 @@ export default class Effect implements IEffect, DBSerializable<DBEffect> {
     }
 
     static async fromDB(obj: DBEffect, populate: EffectReferenceAsyncPopulateMethods): Promise<Effect> {
-        const e = new Effect({ ...obj, refs: [] })
+        const e = new Effect({ ...obj, refs: [], lines: [] })
         for await (const r of obj.refs) {
             e.refs.push(await EffectReference.fromDB(r, populate))
         }

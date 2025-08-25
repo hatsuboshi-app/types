@@ -4,8 +4,3 @@ type EffectVariable = {
 }
 
 export default EffectVariable
-
-export const DefaultEffectVariable: EffectVariable = {
-    id: "v000",
-    value: 0
-}

@@ -18,7 +18,7 @@ export default class PItem extends PersistentObject implements IPItem, DBSeriali
     upgradeLevels: AbilityLevel[]
     initialEffect: Effect
     currentEffect: Effect
-    currentLevel: number
+    currentUpgradeLevel: number
 
     constructor()
     constructor(obj: Partial<IPItem>)
@@ -43,7 +43,7 @@ export default class PItem extends PersistentObject implements IPItem, DBSeriali
         this.currentEffect = new Effect(this.initialEffect)
 
         // set modifiable properties
-        this.currentLevel = 0
+        this.currentUpgradeLevel = 0
         if (upgradeLevel && upgradeLevel > 0) {
             this.setUpgradeLevel(upgradeLevel)
         }
@@ -58,7 +58,7 @@ export default class PItem extends PersistentObject implements IPItem, DBSeriali
         return pi
     }
     toDB(): DBPItem {
-        const { currentEffect, currentLevel, ...trimmed } = this
+        const { currentEffect, currentUpgradeLevel, ...trimmed } = this
         return {
             ...trimmed,
             initialEffect: this.initialEffect.toDB(),
@@ -69,9 +69,9 @@ export default class PItem extends PersistentObject implements IPItem, DBSeriali
     get formattedName(): LocaleStringWithRomaji {
         const upgradeSymbol = "+"
         return {
-            ja: this.name.ja + upgradeSymbol.repeat(this.currentLevel),
-            ro: this.name.ro + upgradeSymbol.repeat(this.currentLevel),
-            en: this.name.en + upgradeSymbol.repeat(this.currentLevel)
+            ja: this.name.ja + upgradeSymbol.repeat(this.currentUpgradeLevel),
+            ro: this.name.ro + upgradeSymbol.repeat(this.currentUpgradeLevel),
+            en: this.name.en + upgradeSymbol.repeat(this.currentUpgradeLevel)
         }
     }
 
@@ -81,26 +81,26 @@ export default class PItem extends PersistentObject implements IPItem, DBSeriali
 
     private resetUpgradeLevel(): undefined {
         this.resetProperties()
-        this.currentLevel = 0
+        this.currentUpgradeLevel = 0
     }
     private increaseUpgradeLevel(): undefined {
-        if (this.upgradeLevels.length > this.currentLevel) {
-            const targetLevel = this.currentLevel + 1
+        if (this.upgradeLevels.length > this.currentUpgradeLevel) {
+            const targetLevel = this.currentUpgradeLevel + 1
             const targetLevelEffect = this.upgradeLevels.find(ul => ul.level === targetLevel)
             if (targetLevelEffect) {
                 targetLevelEffect.mods.forEach(m => this.currentEffect.modify(m))
             }
-            this.currentLevel = targetLevel
+            this.currentUpgradeLevel = targetLevel
         }
     }
     setUpgradeLevel(level: number): this {
         const maxLevel = Math.max(...this.upgradeLevels.map(ul => ul.level))
         const minLevel = Math.min(...this.upgradeLevels.map(ul => ul.level), 0)
         const targetLevel = Math.max(Math.min(level, maxLevel), minLevel)
-        if (targetLevel <= this.currentLevel && this.currentLevel !== 0) {
+        if (targetLevel <= this.currentUpgradeLevel && this.currentUpgradeLevel !== 0) {
             this.resetUpgradeLevel()
         }
-        const levelsToIncrement = targetLevel - this.currentLevel
+        const levelsToIncrement = targetLevel - this.currentUpgradeLevel
         for (let i = 0; i < levelsToIncrement; i++) {
             this.increaseUpgradeLevel()
         }

@@ -1,25 +1,25 @@
 type Result<T> = SuccessResult<T> | FailureResult
 
-type SuccessResult<T> = {
-    status: "success",
+export type SuccessResult<T> = {
+    success: true,
     data: T
 }
 
-type FailureResult = {
-    status: "failure",
+export type FailureResult = {
+    success: false,
     message?: string
 }
 
 export function success<T>(value: T): SuccessResult<T> {
     return {
-        status: "success",
+        success: true,
         data: value
     }
 }
 
 export function fail(message?: string): FailureResult {
     return {
-        status: "failure",
+        success: false,
         message: message
     }
 }

@@ -12,8 +12,8 @@ import Skill, { DBSkill, ISkill } from "./Skill"
 import LocaleStringWithRomaji, { DefaultLocaleStringWithRomaji } from "../../type/LocaleStringWithRomaji"
 import { DBSerializable } from "../abstract/DBSerializable"
 import PIdolUpgradeState from "../../type/PIdolUpgradeState"
-import { EffectReferenceAsyncPopulateMethods } from "../EffectReference";
-import AsyncPopulateMethod from "../../type/util/AsyncPopulateMethod";
+import { EffectReferenceAsyncPopulateMethods } from "../EffectReference"
+import AsyncPopulateMethod from "../../type/util/AsyncPopulateMethod"
 
 export type PIdolAsyncPopulateMethods = EffectReferenceAsyncPopulateMethods & {
     character: AsyncPopulateMethod<DBCharacter>,
@@ -128,13 +128,19 @@ export default class PIdol extends PersistentObject implements IPIdol, DBSeriali
             character,
             signatureSkill,
             signaturePItem,
+            initialAbilities,
+            trainingLevels,
+            potentialLevels,
             ...trimmed
         } = this
         return {
             ...trimmed,
             character: this.character.id,
             signatureSkill: this.signatureSkill.id,
-            signaturePItem: this.signaturePItem.id
+            signaturePItem: this.signaturePItem.id,
+            initialAbilities: this.initialAbilities.map(a => a.toDB()),
+            trainingLevels: this.trainingLevels.map(l => l.toDB()),
+            potentialLevels: this.potentialLevels.map(l => l.toDB())
         }
     }
 
@@ -147,7 +153,7 @@ export default class PIdol extends PersistentObject implements IPIdol, DBSeriali
         this.currentGrowth = PIdol.parameterSetSum(this.currentGrowth, effect.growth)
         this.currentStamina += effect.stamina
         if (effect.triggers.pItemUpgrade) {
-            this.signaturePItem.setUpgradeLevel(this.signaturePItem.currentLevel + 1)
+            this.signaturePItem.setUpgradeLevel(this.signaturePItem.currentUpgradeLevel + 1)
         }
         if (effect.triggers.skillUpgrade) {
             this.signatureSkill.setUpgradeLevel(this.signatureSkill.currentUpgradeLevel + 1)

@@ -125,7 +125,7 @@ export default class Skill extends PersistentObject implements ISkill, DBSeriali
         }
     }
 
-    private handleSkillEffectMod(mod: SkillEffectMod): undefined {
+    private handleSkillEffectMod(mod: SkillEffectMod, fromCustomize: boolean = false): undefined {
         switch (mod.type) {
             case EffectModType.Enhance:
             case EffectModType.Insert:
@@ -144,6 +144,18 @@ export default class Skill extends PersistentObject implements ISkill, DBSeriali
                 this.currentFlags.isOnceOnly = mod.flags.isOnceOnly ?? this.currentFlags.isOnceOnly
                 this.currentFlags.isInitial = mod.flags.isInitial ?? this.currentFlags.isInitial
                 break
+        }
+        // set customize flags
+        if (fromCustomize) {
+            switch (mod.type) {
+                case EffectModType.Enhance:
+                    this.currentEffect.addCustomizedVar(mod.var)
+                    break
+                case EffectModType.Insert:
+                case EffectModType.Replace:
+                    this.currentEffect.addCustomizedLine(mod.line.position)
+                    break
+            }
         }
     }
 
@@ -167,7 +179,7 @@ export default class Skill extends PersistentObject implements ISkill, DBSeriali
             const targetLevelEffect = this.upgradeLevels.find(ul => ul.level === targetLevel)
             if (targetLevelEffect) {
                 targetLevelEffect.mods.forEach(m => {
-                    this.handleSkillEffectMod(m)
+                    this.handleSkillEffectMod(m, false)
                 })
             }
             this.currentUpgradeLevel = targetLevel
@@ -213,7 +225,7 @@ export default class Skill extends PersistentObject implements ISkill, DBSeriali
                 const targetLevelEffect = customizeOption.levels.find(cl => cl.level === targetLevel)
                 if (targetLevelEffect) {
                     targetLevelEffect.mods.forEach(m => {
-                        this.handleSkillEffectMod(m)
+                        this.handleSkillEffectMod(m, true)
                     })
                 }
                 this.currentCustomizeLevels[i][1] = targetLevel

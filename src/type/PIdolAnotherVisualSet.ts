@@ -1,5 +1,5 @@
-import LocaleString, { DefaultLocaleString } from "./LocaleString"
-import PIdolVisualSet, { DefaultPIdolVisualSet } from "./PIdolVisualSet"
+import LocaleString from "./LocaleString"
+import PIdolVisualSet from "./PIdolVisualSet"
 
 type PIdolAnotherVisualSet = PIdolVisualSet & {
     id: string
@@ -9,11 +9,3 @@ type PIdolAnotherVisualSet = PIdolVisualSet & {
 }
 
 export default PIdolAnotherVisualSet
-
-export const DefaultPIdolAnotherVisualSet: PIdolAnotherVisualSet = {
-    ...DefaultPIdolVisualSet,
-    id: "a000",
-    order: 0,
-    name: DefaultLocaleString,
-    description: DefaultLocaleString
-}

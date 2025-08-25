@@ -3,7 +3,7 @@ import AuditionEffect from "./persistent/AuditionEffect"
 import SkillEffectLine, { DBSkillEffectLine, ISkillEffectLine } from "./SkillEffectLine"
 import Nullable from "../type/util/Nullable"
 import { DBSerializable } from "./abstract/DBSerializable";
-import { EffectReferenceAsyncPopulateMethods } from "./EffectReference";
+import EffectReference, { DBEffectReference, EffectReferenceAsyncPopulateMethods } from "./EffectReference";
 
 export default class SkillEffect extends Effect implements ISkillEffect, DBSerializable<DBSkillEffect> {
     lines: SkillEffectLine[]
@@ -34,7 +34,10 @@ export default class SkillEffect extends Effect implements ISkillEffect, DBSeria
     }
 
     static async fromDB(obj: DBSkillEffect, populate: EffectReferenceAsyncPopulateMethods): Promise<SkillEffect> {
-        const se = new SkillEffect({ ...obj, lines: [] })
+        const se = new SkillEffect({ ...obj, lines: [], refs: [] })
+        for await (const r of obj.refs) {
+            se.refs.push(await EffectReference.fromDB(r, populate))
+        }
         for await (const l of obj.lines) {
             se.lines.push(await SkillEffectLine.fromDB(l, populate))
         }
@@ -54,6 +57,16 @@ export default class SkillEffect extends Effect implements ISkillEffect, DBSeria
             .map(l => l.effectIcon).filter(e => e !== null)
     }
 
+    addCustomizedVar(v: string) {
+        const i = this.customizedVars.findIndex(cv => cv === v)
+        if (i === -1) this.customizedVars.push(v)
+    }
+
+    addCustomizedLine(l: number) {
+        const i = this.customizedLines.findIndex(cl => cl === l)
+        if (i === -1) this.customizedLines.push(l)
+    }
+
     copy(): SkillEffect {
         return new SkillEffect(JSON.parse(JSON.stringify(this)))
     }
@@ -70,6 +83,7 @@ export interface ISkillEffect extends IEffect {
     costVar: Nullable<string>
 }
 
-export type DBSkillEffect = Omit<ISkillEffect, "lines"> & {
+export type DBSkillEffect = Omit<ISkillEffect, "lines" | "refs"> & {
+    refs: DBEffectReference[]
     lines: DBSkillEffectLine[]
 }
