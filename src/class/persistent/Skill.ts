@@ -1,20 +1,20 @@
 import PersistentObject, { IPersistentObject } from "../abstract/PersistentObject"
-import SkillEffect, { DBSkillEffect, ISkillEffect } from "../regular/SkillEffect"
+import SkillEffect, { DBSkillEffect, ISkillEffect } from "../transient/SkillEffect"
 import Plan from "../../enum/Plan"
 import SkillCategory from "../../enum/SkillCategory"
 import SkillRarity from "../../enum/SkillRarity"
 import SkillUpgradeLevelEffect, {
     DBSkillUpgradeLevelEffect,
     ISkillUpgradeLevelEffect
-} from "../regular/SkillUpgradeLevelEffect"
-import SkillCustomize, { DBSkillCustomize, ISkillCustomize } from "../regular/SkillCustomize"
+} from "../transient/SkillUpgradeLevelEffect"
+import SkillCustomize, { DBSkillCustomize, ISkillCustomize } from "../transient/SkillCustomize"
 import SkillSource from "../../enum/SkillSource"
 import SkillFlags, { DefaultSkillFlags } from "../../type/SkillFlags"
 import EffectModType from "../../enum/EffectModType"
 import LocaleStringWithRomaji, { DefaultLocaleStringWithRomaji } from "../../type/LocaleStringWithRomaji"
-import SkillEffectMod from "../regular/SkillEffectMod"
+import SkillEffectMod from "../transient/SkillEffectMod"
 import SkillUpgradeState from "../../type/SkillUpgradeState"
-import { EffectReferenceAsyncPopulateMethods } from "../regular/EffectReference"
+import { EffectReferenceAsyncPopulateMethods } from "../transient/EffectReference"
 
 export default class Skill extends PersistentObject<ISkill, DBSkill> implements ISkill {
     name: LocaleStringWithRomaji

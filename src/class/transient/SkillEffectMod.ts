@@ -9,7 +9,7 @@ import {
 import EffectModType from "../../enum/EffectModType"
 import SkillFlags from "../../type/SkillFlags"
 import EffectReference, { DBEffectReference, EffectReferenceAsyncPopulateMethods } from "./EffectReference"
-import RegularObject from "../interface/RegularObject"
+import TransientObject from "../../interface/TransientObject"
 
 type SkillEffectMod =
     EnhanceEffectMod |
@@ -37,7 +37,7 @@ export type DBSkillEffectMod =
 
 // InsertSkillEffectMod //
 
-export class InsertSkillEffectMod extends InsertEffectMod implements IInsertSkillEffectMod, RegularObject<IInsertSkillEffectMod, DBInsertSkillEffectMod> {
+export class InsertSkillEffectMod extends InsertEffectMod implements IInsertSkillEffectMod, TransientObject<IInsertSkillEffectMod, DBInsertSkillEffectMod> {
     line: SkillEffectLine
 
     constructor()
@@ -85,7 +85,7 @@ export type DBInsertSkillEffectMod = Omit<IInsertSkillEffectMod, "line"> & {
 
 // ReplaceSkillEffectMod //
 
-export class ReplaceSkillEffectMod extends ReplaceEffectMod implements IReplaceEffectMod, RegularObject<IReplaceSkillEffectMod, DBReplaceSkillEffectMod> {
+export class ReplaceSkillEffectMod extends ReplaceEffectMod implements IReplaceEffectMod, TransientObject<IReplaceSkillEffectMod, DBReplaceSkillEffectMod> {
     line: SkillEffectLine
 
     constructor()

@@ -1,11 +1,11 @@
 import PersistentObject, { IPersistentObject } from "../abstract/PersistentObject"
-import Effect, { DBEffect, IEffect } from "../regular/Effect"
+import Effect, { DBEffect, IEffect } from "../transient/Effect"
 import Plan from "../../enum/Plan"
 import Rarity from "../../enum/Rarity"
 import PItemSource from "../../enum/PItemSource"
-import AbilityLevel, { DBAbilityLevel, IAbilityLevel } from "../regular/AbilityLevel"
+import AbilityLevel, { DBAbilityLevel, IAbilityLevel } from "../transient/AbilityLevel"
 import LocaleStringWithRomaji, { DefaultLocaleStringWithRomaji } from "../../type/LocaleStringWithRomaji"
-import { EffectReferenceAsyncPopulateMethods } from "../regular/EffectReference"
+import { EffectReferenceAsyncPopulateMethods } from "../transient/EffectReference"
 
 export default class PItem extends PersistentObject<IPItem, DBPItem> implements IPItem {
     name: LocaleStringWithRomaji

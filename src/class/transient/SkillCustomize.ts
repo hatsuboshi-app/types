@@ -4,9 +4,9 @@ import SkillCustomizeLevelEffect, {
     ISkillCustomizeLevelEffect
 } from "./SkillCustomizeLevelEffect"
 import { EffectReferenceAsyncPopulateMethods } from "./EffectReference"
-import RegularObject from "../interface/RegularObject"
+import TransientObject from "../../interface/TransientObject"
 
-export default class SkillCustomize implements ISkillCustomize, RegularObject<ISkillCustomize, DBSkillCustomize> {
+export default class SkillCustomize implements ISkillCustomize, TransientObject<ISkillCustomize, DBSkillCustomize> {
     position: number
     levels: SkillCustomizeLevelEffect[]
     typeRefId: string

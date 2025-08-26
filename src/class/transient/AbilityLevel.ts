@@ -1,9 +1,9 @@
 import EffectMod, { DBEffectMod, IEffectMod, InsertEffectMod, ReplaceEffectMod } from "./EffectMod"
 import EffectModType from "../../enum/EffectModType"
 import { EffectReferenceAsyncPopulateMethods } from "./EffectReference"
-import RegularObject from "../interface/RegularObject"
+import TransientObject from "../../interface/TransientObject"
 
-export default class AbilityLevel implements IAbilityLevel, RegularObject<IAbilityLevel, DBAbilityLevel> {
+export default class AbilityLevel implements IAbilityLevel, TransientObject<IAbilityLevel, DBAbilityLevel> {
     level: number
     mods: EffectMod[]
 

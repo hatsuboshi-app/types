@@ -2,9 +2,9 @@ import ParameterSet, { DefaultParameterSet } from "../../type/ParameterSet"
 import Ability, { DBAbility, IAbility } from "./Ability"
 import PIdolLevelEffectTriggers from "../../type/PIdolLevelEffectTriggers"
 import { EffectReferenceAsyncPopulateMethods } from "./EffectReference"
-import RegularObject from "../interface/RegularObject"
+import TransientObject from "../../interface/TransientObject"
 
-export default class PIdolLevelEffect implements IPIdolLevelEffect, RegularObject<IPIdolLevelEffect, DBPIdolLevelEffect> {
+export default class PIdolLevelEffect implements IPIdolLevelEffect, TransientObject<IPIdolLevelEffect, DBPIdolLevelEffect> {
     level: number
     parameter: ParameterSet
     growth: ParameterSet

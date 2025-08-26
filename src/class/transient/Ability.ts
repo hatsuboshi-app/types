@@ -2,9 +2,9 @@ import AbilityLevel, { DBAbilityLevel, IAbilityLevel } from "./AbilityLevel"
 import AbilityIcon, { DefaultAbilityIcon } from "../../type/AbilityIcon"
 import Effect, { DBEffect, IEffect } from "./Effect"
 import { EffectReferenceAsyncPopulateMethods } from "./EffectReference"
-import RegularObject from "../interface/RegularObject"
+import TransientObject from "../../interface/TransientObject"
 
-export default class Ability implements IAbility, RegularObject<IAbility, DBAbility> {
+export default class Ability implements IAbility, TransientObject<IAbility, DBAbility> {
     icon: AbilityIcon
     position: number
     initialEffect: Effect

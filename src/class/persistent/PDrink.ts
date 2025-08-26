@@ -1,9 +1,9 @@
 import PersistentObject, { IPersistentObject } from "../abstract/PersistentObject"
 import Plan from "../../enum/Plan"
 import Rarity from "../../enum/Rarity"
-import Effect, { DBEffect, IEffect } from "../regular/Effect"
+import Effect, { DBEffect, IEffect } from "../transient/Effect"
 import LocaleStringWithRomaji, { DefaultLocaleStringWithRomaji } from "../../type/LocaleStringWithRomaji"
-import { EffectReferenceAsyncPopulateMethods } from "../regular/EffectReference"
+import { EffectReferenceAsyncPopulateMethods } from "../transient/EffectReference"
 
 export default class PDrink extends PersistentObject<IPDrink, DBPDrink> implements IPDrink {
     name: LocaleStringWithRomaji

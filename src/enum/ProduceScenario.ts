@@ -1,4 +1,4 @@
-enum ProduceScenario {
+ enum ProduceScenario {
     Hajime = "hajime",
     NextIdolAudition = "nia"
 }

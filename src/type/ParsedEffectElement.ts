@@ -1,5 +1,5 @@
 import ParsedEffectElementType from "../enum/ParsedEffectElementType"
-import EffectReference from "../class/regular/EffectReference"
+import EffectReference from "../class/transient/EffectReference"
 import EffectVariable from "./EffectVariable"
 
 type ParsedEffectElement =

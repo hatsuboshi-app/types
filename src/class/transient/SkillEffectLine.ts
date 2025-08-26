@@ -2,9 +2,9 @@ import EffectLine, { IEffectLine } from "./EffectLine"
 import AuditionEffect, { IAuditionEffect } from "../persistent/AuditionEffect"
 import Nullable from "../../type/util/Nullable"
 import { EffectReferenceAsyncPopulateMethods } from "./EffectReference"
-import RegularObject from "../interface/RegularObject"
+import TransientObject from "../../interface/TransientObject"
 
-export default class SkillEffectLine extends EffectLine implements ISkillEffectLine, RegularObject<ISkillEffectLine, DBSkillEffectLine> {
+export default class SkillEffectLine extends EffectLine implements ISkillEffectLine, TransientObject<ISkillEffectLine, DBSkillEffectLine> {
     effectIcon: Nullable<AuditionEffect>
 
     constructor()

@@ -1,7 +1,7 @@
 {
-    "name": "hatsuboshi-types",
-    "version": "1.0.0",
-    "description": "Typing definitions for Hatsuboshi App.",
+    "name": "@hatsuboshi/types",
+    "version": "0.1.0",
+    "description": "Type definitions for Hatsuboshi App.",
     "main": "dist/index.js",
     "module": "dist/index.mjs",
     "types": "dist/index.d.ts",
@@ -9,7 +9,7 @@
         "dist"
     ],
     "scripts": {
-        "build": "tsup src"
+        "build": "tsup src --minify"
     },
     "author": "HuzzNZ",
     "license": "MIT",
@@ -19,5 +19,8 @@
         "tsup": "^8.5.0",
         "typescript": "^5.8.3",
         "vitest": "^3.2.4"
+    },
+    "publishConfig": {
+        "access": "public"
     }
 }

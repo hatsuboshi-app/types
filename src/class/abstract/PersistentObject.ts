@@ -1,6 +1,6 @@
-import RegularObject from "../interface/RegularObject"
+import TransientObject from "../../interface/TransientObject"
 
-abstract class PersistentObject<I extends IPersistentObject, D extends IPersistentObject> implements IPersistentObject, RegularObject<I, D> {
+abstract class PersistentObject<I extends IPersistentObject, D extends IPersistentObject> implements IPersistentObject, TransientObject<I, D> {
     protected static index = 0
     id: string
     createdAt: string

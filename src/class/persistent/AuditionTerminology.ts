@@ -1,8 +1,8 @@
 import PersistentObject, { IPersistentObject } from "../abstract/PersistentObject"
-import Effect, { DBEffect, IEffect } from "../regular/Effect"
+import Effect, { DBEffect, IEffect } from "../transient/Effect"
 import Nullable from "../../type/util/Nullable"
 import AuditionIcon from "../../type/AuditionIcon"
-import { EffectReferenceAsyncPopulateMethods } from "../regular/EffectReference"
+import { EffectReferenceAsyncPopulateMethods } from "../transient/EffectReference"
 import LocaleString, { DefaultLocaleString } from "../../type/LocaleString"
 
 export default class AuditionTerminology extends PersistentObject<IAuditionTerminology, DBAuditionTerminology> implements IAuditionTerminology {
