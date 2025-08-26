@@ -1,12 +1,11 @@
 import PersistentObject, { IPersistentObject } from "../abstract/PersistentObject"
 import Plan from "../../enum/Plan"
 import Rarity from "../../enum/Rarity"
-import Effect, { DBEffect, IEffect } from "../Effect"
+import Effect, { DBEffect, IEffect } from "../regular/Effect"
 import LocaleStringWithRomaji, { DefaultLocaleStringWithRomaji } from "../../type/LocaleStringWithRomaji"
-import { DBSerializable } from "../abstract/DBSerializable"
-import { EffectReferenceAsyncPopulateMethods } from "../EffectReference"
+import { EffectReferenceAsyncPopulateMethods } from "../regular/EffectReference"
 
-export default class PDrink extends PersistentObject implements IPDrink, DBSerializable<DBPDrink> {
+export default class PDrink extends PersistentObject<IPDrink, DBPDrink> implements IPDrink {
     name: LocaleStringWithRomaji
     assetUrl: string
     plan: Plan
@@ -18,6 +17,7 @@ export default class PDrink extends PersistentObject implements IPDrink, DBSeria
     constructor(obj: Partial<IPDrink>)
     constructor(obj?: Partial<IPDrink>)
     constructor(obj?: Partial<IPDrink>) {
+        obj = structuredClone(obj)
         super(obj, "drink")
         this.name = obj?.name ?? DefaultLocaleStringWithRomaji
         this.assetUrl = obj?.assetUrl ?? ""
@@ -26,18 +26,37 @@ export default class PDrink extends PersistentObject implements IPDrink, DBSeria
         this.unlockLevel = obj?.unlockLevel ?? 0
         this.effect = new Effect(obj?.effect)
     }
-
     static async fromDB(obj: DBPDrink, populate: EffectReferenceAsyncPopulateMethods): Promise<PDrink> {
         return new PDrink({
             ...obj,
             effect: await Effect.fromDB(obj.effect, populate)
         })
     }
+
     toDB(): DBPDrink {
-        return {
-            ...this,
+        return structuredClone({
+            ...super.toPersistentDB(),
+            name: this.name,
+            assetUrl: this.assetUrl,
+            plan: this.plan,
+            rarity: this.rarity,
+            unlockLevel: this.unlockLevel,
             effect: this.effect.toDB()
-        }
+        })
+    }
+    toJSON(): IPDrink {
+        return structuredClone({
+            ...super.toPersistentJSON(),
+            name: this.name,
+            assetUrl: this.assetUrl,
+            plan: this.plan,
+            rarity: this.rarity,
+            unlockLevel: this.unlockLevel,
+            effect: this.effect.toJSON()
+        })
+    }
+    copy(): PDrink {
+        return new PDrink(this.toJSON())
     }
 }
 

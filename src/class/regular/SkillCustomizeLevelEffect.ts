@@ -4,19 +4,22 @@ import SkillEffectMod, {
     ISkillEffectMod,
     ReplaceSkillEffectMod
 } from "./SkillEffectMod"
-import EffectModType from "../enum/EffectModType"
-import { DBSerializable } from "./abstract/DBSerializable"
+import EffectModType from "../../enum/EffectModType"
 import { EffectReferenceAsyncPopulateMethods } from "./EffectReference"
+import RegularObject from "../interface/RegularObject"
 
-export default class SkillUpgradeLevelEffect implements ISkillUpgradeLevelEffect, DBSerializable<DBSkillUpgradeLevelEffect> {
+export default class SkillCustomizeLevelEffect implements ISkillCustomizeLevelEffect, RegularObject<ISkillCustomizeLevelEffect, DBSkillCustomizeLevelEffect> {
     level: number
+    cost: number
     mods: SkillEffectMod[]
 
     constructor()
-    constructor(obj: Partial<ISkillUpgradeLevelEffect>)
-    constructor(obj?: Partial<ISkillUpgradeLevelEffect>)
-    constructor(obj?: Partial<ISkillUpgradeLevelEffect>) {
+    constructor(obj: Partial<ISkillCustomizeLevelEffect>)
+    constructor(obj?: Partial<ISkillCustomizeLevelEffect>)
+    constructor(obj?: Partial<ISkillCustomizeLevelEffect>) {
+        obj = structuredClone(obj)
         this.level = obj?.level ?? 0
+        this.cost = obj?.cost ?? 0
         this.mods = []
         obj?.mods?.forEach(m => {
             switch (m.type) {
@@ -34,9 +37,8 @@ export default class SkillUpgradeLevelEffect implements ISkillUpgradeLevelEffect
             }
         })
     }
-
-    static async fromDB(obj: DBSkillUpgradeLevelEffect, populate: EffectReferenceAsyncPopulateMethods): Promise<SkillUpgradeLevelEffect> {
-        const ule = new SkillUpgradeLevelEffect({
+    static async fromDB(obj: DBSkillCustomizeLevelEffect, populate: EffectReferenceAsyncPopulateMethods): Promise<SkillCustomizeLevelEffect> {
+        const ule = new SkillCustomizeLevelEffect({
             ...obj,
             mods: []
         })
@@ -58,9 +60,11 @@ export default class SkillUpgradeLevelEffect implements ISkillUpgradeLevelEffect
         }
         return ule
     }
-    toDB(): DBSkillUpgradeLevelEffect {
-        return {
-            ...this,
+
+    toDB(): DBSkillCustomizeLevelEffect {
+        return structuredClone({
+            level: this.level,
+            cost: this.cost,
             mods: this.mods.map(m => {
                 switch (m.type) {
                     case EffectModType.Enhance:
@@ -73,15 +77,37 @@ export default class SkillUpgradeLevelEffect implements ISkillUpgradeLevelEffect
                         return m.toDB()
                 }
             })
-        }
+        })
+    }
+    toJSON(): ISkillCustomizeLevelEffect {
+        return structuredClone({
+            level: this.level,
+            cost: this.cost,
+            mods: this.mods.map(m => {
+                switch (m.type) {
+                    case EffectModType.Enhance:
+                    case EffectModType.ModifyFlag:
+                    case EffectModType.CostReduce:
+                    case EffectModType.CustomizeLimitIncrease:
+                        return m
+                    case EffectModType.Insert:
+                    case EffectModType.Replace:
+                        return m.toJSON()
+                }
+            })
+        })
+    }
+    copy(): SkillCustomizeLevelEffect {
+        return new SkillCustomizeLevelEffect(this.toJSON())
     }
 }
 
-export interface ISkillUpgradeLevelEffect {
+export interface ISkillCustomizeLevelEffect {
     level: number
+    cost: number
     mods: ISkillEffectMod[]
 }
 
-export type DBSkillUpgradeLevelEffect = Omit<ISkillUpgradeLevelEffect, "mods"> & {
+export type DBSkillCustomizeLevelEffect = Omit<ISkillCustomizeLevelEffect, "mods"> & {
     mods: DBSkillEffectMod[]
 }

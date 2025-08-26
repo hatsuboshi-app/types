@@ -1,23 +1,22 @@
 import PersistentObject, { IPersistentObject } from "../abstract/PersistentObject"
-import SkillEffect, { DBSkillEffect, ISkillEffect } from "../SkillEffect"
+import SkillEffect, { DBSkillEffect, ISkillEffect } from "../regular/SkillEffect"
 import Plan from "../../enum/Plan"
 import SkillCategory from "../../enum/SkillCategory"
 import SkillRarity from "../../enum/SkillRarity"
 import SkillUpgradeLevelEffect, {
     DBSkillUpgradeLevelEffect,
     ISkillUpgradeLevelEffect
-} from "../SkillUpgradeLevelEffect"
-import SkillCustomize, { DBSkillCustomize, ISkillCustomize } from "../SkillCustomize"
+} from "../regular/SkillUpgradeLevelEffect"
+import SkillCustomize, { DBSkillCustomize, ISkillCustomize } from "../regular/SkillCustomize"
 import SkillSource from "../../enum/SkillSource"
 import SkillFlags, { DefaultSkillFlags } from "../../type/SkillFlags"
 import EffectModType from "../../enum/EffectModType"
 import LocaleStringWithRomaji, { DefaultLocaleStringWithRomaji } from "../../type/LocaleStringWithRomaji"
-import SkillEffectMod from "../SkillEffectMod"
-import { DBSerializable } from "../abstract/DBSerializable"
+import SkillEffectMod from "../regular/SkillEffectMod"
 import SkillUpgradeState from "../../type/SkillUpgradeState"
-import { EffectReferenceAsyncPopulateMethods } from "../EffectReference"
+import { EffectReferenceAsyncPopulateMethods } from "../regular/EffectReference"
 
-export default class Skill extends PersistentObject implements ISkill, DBSerializable<DBSkill> {
+export default class Skill extends PersistentObject<ISkill, DBSkill> implements ISkill {
     name: LocaleStringWithRomaji
     assetUrl: string
     plan: Plan
@@ -44,6 +43,7 @@ export default class Skill extends PersistentObject implements ISkill, DBSeriali
     constructor(obj: Partial<ISkill>, upgradeState?: Partial<SkillUpgradeState>)
     constructor(obj?: Partial<ISkill>, upgradeState?: Partial<SkillUpgradeState>)
     constructor(obj?: Partial<ISkill>, upgradeState?: Partial<SkillUpgradeState>) {
+        obj = structuredClone(obj)
         super(obj, "skill")
         this.name = obj?.name ?? DefaultLocaleStringWithRomaji
         this.assetUrl = obj?.assetUrl ?? ""
@@ -82,7 +82,6 @@ export default class Skill extends PersistentObject implements ISkill, DBSeriali
             this.currentCustomizeLevels.push(u)
         })
     }
-
     static async fromDB(obj: DBSkill, populate: EffectReferenceAsyncPopulateMethods): Promise<Skill> {
         const s = new Skill({
             ...obj,
@@ -98,30 +97,56 @@ export default class Skill extends PersistentObject implements ISkill, DBSeriali
         }
         return s
     }
+
     toDB(): DBSkill {
-        const {
-            currentUpgradeLevel,
-            currentCustomizeLimit,
-            currentStaminaCost,
-            currentEffect,
-            currentCustomizeLevels,
-            currentFlags,
-            ...trimmed
-        } = this
-        return {
-            ...trimmed,
+        return structuredClone({
+            ...super.toPersistentDB(),
+            name: this.name,
+            assetUrl: this.assetUrl,
+            plan: this.plan,
+            rarity: this.rarity,
+            unlockLevel: this.unlockLevel,
+            category: this.category,
+            source: this.source,
             upgradeLevels: this.upgradeLevels.map(ul => ul.toDB()),
             customizeOptions: this.customizeOptions.map(co => co.toDB()),
-            initialEffect: this.initialEffect.toDB()
-        }
+            initialCustomizeLimit: this.initialCustomizeLimit,
+            initialStaminaCost: this.initialStaminaCost,
+            initialEffect: this.initialEffect.toDB(),
+            initialFlags: this.initialFlags,
+        })
+    }
+    toJSON(): ISkill {
+        return structuredClone({
+            ...super.toPersistentJSON(),
+            name: this.name,
+            assetUrl: this.assetUrl,
+            plan: this.plan,
+            rarity: this.rarity,
+            unlockLevel: this.unlockLevel,
+            category: this.category,
+            source: this.source,
+            upgradeLevels: this.upgradeLevels.map(ul => ul.toJSON()),
+            customizeOptions: this.customizeOptions.map(co => co.toJSON()),
+            initialCustomizeLimit: this.initialCustomizeLimit,
+            initialStaminaCost: this.initialStaminaCost,
+            initialEffect: this.initialEffect.toJSON(),
+            initialFlags: this.initialFlags,
+        })
+    }
+    copy(): Skill {
+        return new Skill(
+            this.toJSON(),
+            { upgradeLevel: this.currentUpgradeLevel, customizeLevels: this.currentCustomizeLevels }
+        )
     }
 
     get formattedName(): LocaleStringWithRomaji {
-        const upgradeSymbol = "+"
+        const upgradeSymbol = "+".repeat(this.currentUpgradeLevel)
         return {
-            ja: this.name.ja + upgradeSymbol.repeat(this.currentUpgradeLevel),
-            ro: this.name.ro + upgradeSymbol.repeat(this.currentUpgradeLevel),
-            en: this.name.en + upgradeSymbol.repeat(this.currentUpgradeLevel)
+            ja: this.name.ja + upgradeSymbol,
+            ro: this.name.ro + upgradeSymbol,
+            en: this.name.en + upgradeSymbol
         }
     }
 
@@ -158,14 +183,12 @@ export default class Skill extends PersistentObject implements ISkill, DBSeriali
             }
         }
     }
-
     private resetProperties(): undefined {
         this.currentCustomizeLimit = structuredClone(this.initialCustomizeLimit)
         this.currentStaminaCost = structuredClone(this.initialStaminaCost)
         this.currentFlags = structuredClone(this.initialFlags)
         this.currentEffect = this.initialEffect.copy()
     }
-
     private resetUpgradeLevel(): undefined {
         this.resetProperties()
         this.currentUpgradeLevel = 0
@@ -198,7 +221,6 @@ export default class Skill extends PersistentObject implements ISkill, DBSeriali
         }
         return this
     }
-
     private resetAllCustomizeLevels(): undefined {
         this.resetProperties()
         this.currentCustomizeLevels = []

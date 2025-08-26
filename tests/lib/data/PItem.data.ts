@@ -22,8 +22,8 @@ const PItemDataset: DBPItem[] = [
             "refs": [
                 {
                     "id": "r001",
-                    "refId": "effect-000002",
-                    "refType": 1
+                    "refId": "terminology-000009",
+                    "refType": 0
                 },
                 {
                     "id": "r002",
@@ -114,7 +114,7 @@ const PItemDataset: DBPItem[] = [
                 {
                     "position": 4,
                     "body": {
-                        "ja": "（{r007}中{v007}回）",
+                        "ja": "（{r007}内{v007}回）",
                         "en": "({v007} time{plural_s@v007} per {r007})"
                     }
                 }

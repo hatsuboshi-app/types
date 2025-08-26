@@ -4,15 +4,14 @@ import Rarity from "../../enum/Rarity"
 import PIdolPlan from "../../enum/PIdolPlan"
 import PIdolSubplan from "../../enum/PIdolSubplan"
 import ParameterSet, { DefaultParameterSet } from "../../type/ParameterSet"
-import PIdolLevelEffect, { DBPIdolLevelEffect, IPIdolLevelEffect } from "../PIdolLevelEffect"
+import PIdolLevelEffect, { DBPIdolLevelEffect, IPIdolLevelEffect } from "../regular/PIdolLevelEffect"
 import PItem, { DBPItem, IPItem } from "./PItem"
-import Ability, { DBAbility, IAbility } from "../Ability"
+import Ability, { DBAbility, IAbility } from "../regular/Ability"
 import PIdolVisual, { DefaultPIdolVisual } from "../../type/PIdolVisual"
 import Skill, { DBSkill, ISkill } from "./Skill"
 import LocaleStringWithRomaji, { DefaultLocaleStringWithRomaji } from "../../type/LocaleStringWithRomaji"
-import { DBSerializable } from "../abstract/DBSerializable"
 import PIdolUpgradeState from "../../type/PIdolUpgradeState"
-import { EffectReferenceAsyncPopulateMethods } from "../EffectReference"
+import { EffectReferenceAsyncPopulateMethods } from "../regular/EffectReference"
 import AsyncPopulateMethod from "../../type/util/AsyncPopulateMethod"
 
 export type PIdolAsyncPopulateMethods = EffectReferenceAsyncPopulateMethods & {
@@ -21,7 +20,7 @@ export type PIdolAsyncPopulateMethods = EffectReferenceAsyncPopulateMethods & {
     pItem: AsyncPopulateMethod<DBPItem>
 }
 
-export default class PIdol extends PersistentObject implements IPIdol, DBSerializable<DBPIdol> {
+export default class PIdol extends PersistentObject<IPIdol, DBPIdol> implements IPIdol {
     name: LocaleStringWithRomaji
     visual: PIdolVisual
     character: Character
@@ -50,6 +49,7 @@ export default class PIdol extends PersistentObject implements IPIdol, DBSeriali
     constructor(obj: Partial<IPIdol>, upgradeState?: Partial<PIdolUpgradeState>)
     constructor(obj?: Partial<IPIdol>, upgradeState?: Partial<PIdolUpgradeState>)
     constructor(obj?: Partial<IPIdol>, upgradeState?: Partial<PIdolUpgradeState>) {
+        obj = structuredClone(obj)
         super(obj, "idol")
         this.name = obj?.name ?? DefaultLocaleStringWithRomaji
         this.visual = obj?.visual ?? DefaultPIdolVisual
@@ -95,8 +95,7 @@ export default class PIdol extends PersistentObject implements IPIdol, DBSeriali
             this.setPotentialLevel(upgradeState.potentialLevel)
         }
     }
-
-    static async fromDB(obj: DBPIdol, populate: PIdolAsyncPopulateMethods): Promise<PIdol> {
+    static async fromDB(obj: DBPIdol, populate: PIdolAsyncPopulateMethods, upgradeState?: Partial<PIdolUpgradeState>): Promise<PIdol> {
         const i = new PIdol({
             ...obj,
             character: await Character.fromDB(await populate.character(obj.character) ?? new Character().toDB()),
@@ -105,7 +104,7 @@ export default class PIdol extends PersistentObject implements IPIdol, DBSeriali
             initialAbilities: [],
             trainingLevels: [],
             potentialLevels: []
-        })
+        }, upgradeState)
         for await (const a of obj.initialAbilities) {
             i.initialAbilities.push(await Ability.fromDB(a, populate))
         }
@@ -117,37 +116,56 @@ export default class PIdol extends PersistentObject implements IPIdol, DBSeriali
         }
         return i
     }
+
     toDB(): DBPIdol {
-        const {
-            currentTrainingLevel,
-            currentPotentialLevel,
-            currentAbilities,
-            currentParameter,
-            currentStamina,
-            currentGrowth,
-            character,
-            signatureSkill,
-            signaturePItem,
-            initialAbilities,
-            trainingLevels,
-            potentialLevels,
-            ...trimmed
-        } = this
-        return {
-            ...trimmed,
+        return structuredClone({
+            ...super.toPersistentDB(),
+            name: this.name,
+            visual: this.visual,
             character: this.character.id,
+            rarity: this.rarity,
+            plan: this.plan,
+            subplan: this.subplan,
+            isWelfare: this.isWelfare,
             signatureSkill: this.signatureSkill.id,
             signaturePItem: this.signaturePItem.id,
+            initialStamina: this.initialStamina,
+            initialParameter: this.initialParameter,
+            initialGrowth: this.initialGrowth,
             initialAbilities: this.initialAbilities.map(a => a.toDB()),
             trainingLevels: this.trainingLevels.map(l => l.toDB()),
             potentialLevels: this.potentialLevels.map(l => l.toDB())
-        }
+        })
+    }
+    toJSON(): IPIdol {
+        return structuredClone({
+            ...super.toPersistentJSON(),
+            name: this.name,
+            visual: this.visual,
+            character: this.character.toJSON(),
+            rarity: this.rarity,
+            plan: this.plan,
+            subplan: this.subplan,
+            isWelfare: this.isWelfare,
+            signatureSkill: this.signatureSkill.toJSON(),
+            signaturePItem: this.signaturePItem.toJSON(),
+            initialStamina: this.initialStamina,
+            initialParameter: this.initialParameter,
+            initialGrowth: this.initialGrowth,
+            initialAbilities: this.initialAbilities.map(a => a.toJSON()),
+            trainingLevels: this.trainingLevels.map(l => l.toJSON()),
+            potentialLevels: this.potentialLevels.map(l => l.toJSON())
+        })
+    }
+    copy(): PIdol {
+        return new PIdol(this.toJSON(),
+            { trainingLevel: this.currentTrainingLevel, potentialLevel: this.currentPotentialLevel }
+        )
     }
 
     private static parameterSetSum(p1: ParameterSet, p2: ParameterSet): ParameterSet {
         return { vo: p1.vo + p2.vo, da: p1.da + p2.da, vi: p1.vi + p2.vi }
     }
-
     private handleLevelEffect(effect: PIdolLevelEffect): undefined {
         this.currentParameter = PIdol.parameterSetSum(this.currentParameter, effect.parameter)
         this.currentGrowth = PIdol.parameterSetSum(this.currentGrowth, effect.growth)
@@ -176,7 +194,6 @@ export default class PIdol extends PersistentObject implements IPIdol, DBSeriali
             })
         })
     }
-
     private resetProperties(): undefined {
         this.currentStamina = structuredClone(this.initialStamina)
         this.currentParameter = structuredClone(this.initialParameter)
@@ -188,7 +205,6 @@ export default class PIdol extends PersistentObject implements IPIdol, DBSeriali
         this.signaturePItem.setUpgradeLevel(0)
         this.signatureSkill.setUpgradeLevel(0)
     }
-
     private resetTrainingLevel(): undefined {
         this.resetProperties()
         this.currentTrainingLevel = 0
@@ -215,7 +231,6 @@ export default class PIdol extends PersistentObject implements IPIdol, DBSeriali
         }
         return this
     }
-
     private resetPotentialLevel(): undefined {
         this.resetProperties()
         this.currentPotentialLevel = 0

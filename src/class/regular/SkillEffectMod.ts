@@ -1,4 +1,4 @@
-import SkillEffectLine, { DBSkillEffectLine, ISkillEffectLine } from "./SkillEffectLine";
+import SkillEffectLine, { DBSkillEffectLine, ISkillEffectLine } from "./SkillEffectLine"
 import {
     EnhanceEffectMod,
     IInsertEffectMod,
@@ -6,10 +6,10 @@ import {
     IReplaceEffectMod,
     ReplaceEffectMod
 } from "./EffectMod"
-import EffectModType from "../enum/EffectModType"
-import SkillFlags from "../type/SkillFlags"
-import { DBSerializable } from "./abstract/DBSerializable"
+import EffectModType from "../../enum/EffectModType"
+import SkillFlags from "../../type/SkillFlags"
 import EffectReference, { DBEffectReference, EffectReferenceAsyncPopulateMethods } from "./EffectReference"
+import RegularObject from "../interface/RegularObject"
 
 type SkillEffectMod =
     EnhanceEffectMod |
@@ -35,17 +35,19 @@ export type DBSkillEffectMod =
     CostReduceSkillEffectMod |
     CustomizeLimitIncreaseSkillEffectMod
 
-export class InsertSkillEffectMod extends InsertEffectMod {
+// InsertSkillEffectMod //
+
+export class InsertSkillEffectMod extends InsertEffectMod implements IInsertSkillEffectMod, RegularObject<IInsertSkillEffectMod, DBInsertSkillEffectMod> {
     line: SkillEffectLine
 
     constructor()
     constructor(obj: Partial<IInsertSkillEffectMod>)
     constructor(obj?: Partial<IInsertSkillEffectMod>)
     constructor(obj?: Partial<IInsertSkillEffectMod>) {
+        obj = structuredClone(obj)
         super(obj)
         this.line = new SkillEffectLine(obj?.line)
     }
-
     static async fromDB(obj: DBInsertSkillEffectMod, populate: EffectReferenceAsyncPopulateMethods): Promise<InsertSkillEffectMod> {
         const rem = new InsertSkillEffectMod({
             ...obj,
@@ -57,34 +59,43 @@ export class InsertSkillEffectMod extends InsertEffectMod {
         }
         return rem
     }
+
     toDB(): DBInsertSkillEffectMod {
-        return {
-            ...this,
-            refs: this.refs.map(r => r.toDB()),
+        return structuredClone({
+            ...super.toJSON(),
             line: this.line.toDB()
-        }
+        })
+    }
+    toJSON(): IInsertSkillEffectMod {
+        return structuredClone({
+            ...super.toJSON(),
+            line: this.line.toJSON()
+        })
+    }
+    copy(): InsertSkillEffectMod {
+        return new InsertSkillEffectMod(this.toJSON())
     }
 }
-
 export interface IInsertSkillEffectMod extends IInsertEffectMod {
     line: ISkillEffectLine
 }
-
 export type DBInsertSkillEffectMod = Omit<IInsertSkillEffectMod, "line"> & {
     line: DBSkillEffectLine
 }
 
-export class ReplaceSkillEffectMod extends ReplaceEffectMod implements IReplaceEffectMod, DBSerializable<DBReplaceSkillEffectMod> {
+// ReplaceSkillEffectMod //
+
+export class ReplaceSkillEffectMod extends ReplaceEffectMod implements IReplaceEffectMod, RegularObject<IReplaceSkillEffectMod, DBReplaceSkillEffectMod> {
     line: SkillEffectLine
 
     constructor()
     constructor(obj: Partial<IReplaceSkillEffectMod>)
     constructor(obj?: Partial<IReplaceSkillEffectMod>)
     constructor(obj?: Partial<IReplaceSkillEffectMod>) {
+        obj = structuredClone(obj)
         super(obj)
         this.line = new SkillEffectLine(obj?.line)
     }
-
     static async fromDB(obj: DBReplaceSkillEffectMod, populate: EffectReferenceAsyncPopulateMethods): Promise<ReplaceSkillEffectMod> {
         const rem = new ReplaceSkillEffectMod({
             ...obj,
@@ -96,19 +107,26 @@ export class ReplaceSkillEffectMod extends ReplaceEffectMod implements IReplaceE
         }
         return rem
     }
+
     toDB(): DBReplaceSkillEffectMod {
-        return {
-            ...this,
-            refs: this.refs.map(r => r.toDB()),
+        return structuredClone({
+            ...super.toDB(),
             line: this.line.toDB()
-        }
+        })
+    }
+    toJSON(): IReplaceSkillEffectMod {
+        return structuredClone({
+            ...super.toJSON(),
+            line: this.line.toJSON()
+        })
+    }
+    copy(): ReplaceSkillEffectMod {
+        return new ReplaceSkillEffectMod(this.toJSON())
     }
 }
-
 export interface IReplaceSkillEffectMod extends IReplaceEffectMod {
     line: ISkillEffectLine
 }
-
 export type DBReplaceSkillEffectMod = Omit<IReplaceSkillEffectMod, "refs" | "line"> & {
     refs: DBEffectReference[]
     line: DBSkillEffectLine

@@ -1,11 +1,10 @@
 import PersistentObject, { IPersistentObject } from "../abstract/PersistentObject"
-import Effect, { DBEffect, IEffect } from "../Effect"
+import Effect, { DBEffect, IEffect } from "../regular/Effect"
 import AuditionIcon, { DefaultAuditionIcon } from "../../type/AuditionIcon"
-import { DBSerializable } from "../abstract/DBSerializable"
-import { EffectReferenceAsyncPopulateMethods } from "../EffectReference"
+import { EffectReferenceAsyncPopulateMethods } from "../regular/EffectReference"
 import LocaleString, { DefaultLocaleString } from "../../type/LocaleString"
 
-export default class AuditionEffect extends PersistentObject implements IAuditionEffect, DBSerializable<DBAuditionEffect> {
+export default class AuditionEffect extends PersistentObject<IAuditionEffect, DBAuditionEffect> implements IAuditionEffect {
     name: LocaleString
     description: Effect
     icon: AuditionIcon
@@ -14,23 +13,37 @@ export default class AuditionEffect extends PersistentObject implements IAuditio
     constructor(obj: Partial<IAuditionEffect>)
     constructor(obj?: Partial<IAuditionEffect>)
     constructor(obj?: Partial<IAuditionEffect>) {
+        obj = structuredClone(obj)
         super(obj, "effect")
         this.name = obj?.name ?? DefaultLocaleString
         this.icon = obj?.icon ?? DefaultAuditionIcon
         this.description = new Effect(obj?.description)
     }
-
     static async fromDB(obj: DBAuditionEffect, populate: EffectReferenceAsyncPopulateMethods): Promise<AuditionEffect> {
         return new AuditionEffect({
             ...obj,
             description: await Effect.fromDB(obj.description, populate)
         })
     }
+
     toDB(): DBAuditionEffect {
-        return {
-            ...this,
-            description: this.description.toDB()
-        }
+        return structuredClone({
+            ...super.toPersistentDB(),
+            name: this.name,
+            description: this.description.toDB(),
+            icon: this.icon,
+        })
+    }
+    toJSON(): IAuditionEffect {
+        return structuredClone({
+            ...super.toPersistentJSON(),
+            name: this.name,
+            description: this.description.toJSON(),
+            icon: this.icon
+        })
+    }
+    copy(): AuditionEffect {
+        return new AuditionEffect(this.toJSON())
     }
 }
 

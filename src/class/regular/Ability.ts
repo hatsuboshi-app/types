@@ -1,10 +1,10 @@
 import AbilityLevel, { DBAbilityLevel, IAbilityLevel } from "./AbilityLevel"
-import AbilityIcon, { DefaultAbilityIcon } from "../type/AbilityIcon"
+import AbilityIcon, { DefaultAbilityIcon } from "../../type/AbilityIcon"
 import Effect, { DBEffect, IEffect } from "./Effect"
-import { DBSerializable } from "./abstract/DBSerializable";
-import { EffectReferenceAsyncPopulateMethods } from "./EffectReference";
+import { EffectReferenceAsyncPopulateMethods } from "./EffectReference"
+import RegularObject from "../interface/RegularObject"
 
-export default class Ability implements IAbility, DBSerializable<DBAbility> {
+export default class Ability implements IAbility, RegularObject<IAbility, DBAbility> {
     icon: AbilityIcon
     position: number
     initialEffect: Effect
@@ -18,6 +18,7 @@ export default class Ability implements IAbility, DBSerializable<DBAbility> {
     constructor(obj: Partial<IAbility>, level?: number)
     constructor(obj?: Partial<IAbility>, level?: number)
     constructor(obj?: Partial<IAbility>, level?: number) {
+        obj = structuredClone(obj)
         this.icon = obj?.icon ?? DefaultAbilityIcon
         this.position = obj?.position ?? 0
         this.initialEffect = new Effect(obj?.initialEffect)
@@ -27,7 +28,7 @@ export default class Ability implements IAbility, DBSerializable<DBAbility> {
         })
 
         // initialize modifiable properties
-        this.currentEffect = new Effect(JSON.parse(JSON.stringify(this.initialEffect)))
+        this.currentEffect = this.initialEffect.copy()
 
         // set modifiable properties
         this.currentLevel = 0
@@ -35,28 +36,41 @@ export default class Ability implements IAbility, DBSerializable<DBAbility> {
             this.setLevel(level)
         }
     }
-
-    static async fromDB(obj: DBAbility, populate: EffectReferenceAsyncPopulateMethods): Promise<Ability> {
-        const a = new Ability({ ...obj, initialEffect: undefined, levels: [] })
-        a.initialEffect = await Effect.fromDB(obj.initialEffect, populate)
+    static async fromDB(obj: DBAbility, populate: EffectReferenceAsyncPopulateMethods, level?: number): Promise<Ability> {
+        const a = new Ability({
+            ...obj,
+            initialEffect: await Effect.fromDB(obj.initialEffect, populate),
+            levels: []
+        }, level)
         for await (const al of obj.levels) {
             a.levels.push(await AbilityLevel.fromDB(al, populate))
         }
         return a
     }
+
     toDB(): DBAbility {
-        const { currentEffect, currentLevel, ...trimmed } = this
-        return {
-            ...trimmed,
+        return structuredClone({
+            icon: this.icon,
+            position: this.position,
             initialEffect: this.initialEffect.toDB(),
             levels: this.levels.map(l => l.toDB())
-        }
+        })
+    }
+    toJSON(): IAbility {
+        return structuredClone({
+            icon: this.icon,
+            position: this.position,
+            initialEffect: this.initialEffect.toJSON(),
+            levels: this.levels.map(l => l.toJSON())
+        })
+    }
+    copy(): Ability {
+        return new Ability(this.toJSON(), this.currentLevel)
     }
 
     private resetProperties(): undefined {
-        this.currentEffect = new Effect(JSON.parse(JSON.stringify(this.initialEffect)))
+        this.currentEffect = this.initialEffect.copy()
     }
-
     private resetLevel(): undefined {
         this.resetProperties()
         this.currentLevel = 0
@@ -83,10 +97,6 @@ export default class Ability implements IAbility, DBSerializable<DBAbility> {
             this.increaseLevel()
         }
         return this
-    }
-
-    copy(): Ability {
-        return new Ability(JSON.parse(JSON.stringify(this)))
     }
 }
 

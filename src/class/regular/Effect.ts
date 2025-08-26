@@ -1,14 +1,18 @@
 import EffectLine, { DBEffectLine, IEffectLine } from "./EffectLine"
-import ParsedEffectLine from "../type/ParsedEffectLine"
-import EffectVariable from "../type/EffectVariable"
-import EffectReference, { DBEffectReference, EffectReferenceAsyncPopulateMethods } from "./EffectReference"
+import ParsedEffectLine from "../../type/ParsedEffectLine"
+import EffectVariable from "../../type/EffectVariable"
+import EffectReference, {
+    DBEffectReference,
+    EffectReferenceAsyncPopulateMethods,
+    IEffectReference
+} from "./EffectReference"
 import type EffectMod from "./EffectMod"
-import EffectModType from "../enum/EffectModType"
-import Locale from "../type/Locale"
-import LocaleString from "../type/LocaleString"
-import { DBSerializable } from "./abstract/DBSerializable"
+import EffectModType from "../../enum/EffectModType"
+import Locale from "../../type/Locale"
+import LocaleString from "../../type/LocaleString"
+import RegularObject from "../interface/RegularObject"
 
-export default class Effect implements IEffect, DBSerializable<DBEffect> {
+export default class Effect implements IEffect, RegularObject<IEffect, DBEffect> {
     refs: EffectReference[]
     vars: EffectVariable[]
     lines: EffectLine[]
@@ -17,9 +21,10 @@ export default class Effect implements IEffect, DBSerializable<DBEffect> {
     constructor(obj: Partial<IEffect>)
     constructor(obj?: Partial<IEffect>)
     constructor(obj?: Partial<IEffect>) {
+        obj = structuredClone(obj)
         this.refs = []
         obj?.refs?.forEach(r => {
-            this.refs.push(r)
+            this.refs.push(new EffectReference(r))
         })
         this.vars = []
         obj?.vars?.forEach(v => {
@@ -30,9 +35,12 @@ export default class Effect implements IEffect, DBSerializable<DBEffect> {
             this.lines.push(new EffectLine(l))
         })
     }
-
     static async fromDB(obj: DBEffect, populate: EffectReferenceAsyncPopulateMethods): Promise<Effect> {
-        const e = new Effect({ ...obj, refs: [], lines: [] })
+        const e = new Effect({
+            ...obj,
+            refs: [],
+            lines: []
+        })
         for await (const r of obj.refs) {
             e.refs.push(await EffectReference.fromDB(r, populate))
         }
@@ -41,12 +49,23 @@ export default class Effect implements IEffect, DBSerializable<DBEffect> {
         }
         return e
     }
+
     toDB(): DBEffect {
-        return {
-            ...this,
+        return structuredClone({
             refs: this.refs.map(r => r.toDB()),
+            vars: this.vars,
             lines: this.lines.map(l => l.toDB())
-        }
+        })
+    }
+    toJSON(): IEffect {
+        return structuredClone({
+            refs: this.refs.map(r => r.toJSON()),
+            vars: this.vars,
+            lines: this.lines.map(l => l.toJSON())
+        })
+    }
+    copy(): Effect {
+        return new Effect(this.toJSON())
     }
 
     get parsed(): ParsedEffectLine[] {
@@ -91,7 +110,7 @@ export default class Effect implements IEffect, DBSerializable<DBEffect> {
         )
     }
 
-    modify(mod: EffectMod): undefined {
+    modify(mod: EffectMod): this {
         switch (mod.type) {
             case EffectModType.Enhance:
                 const ei = this.vars.findIndex(v => v.id === mod.var)
@@ -145,11 +164,12 @@ export default class Effect implements IEffect, DBSerializable<DBEffect> {
                 }
                 break
         }
+        return this
     }
 }
 
 export interface IEffect {
-    refs: EffectReference[]
+    refs: IEffectReference[]
     vars: EffectVariable[]
     lines: IEffectLine[]
 }

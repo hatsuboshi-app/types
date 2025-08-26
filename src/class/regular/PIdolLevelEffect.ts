@@ -1,10 +1,10 @@
-import ParameterSet, { DefaultParameterSet } from "../type/ParameterSet"
+import ParameterSet, { DefaultParameterSet } from "../../type/ParameterSet"
 import Ability, { DBAbility, IAbility } from "./Ability"
-import PIdolLevelEffectTriggers from "../type/PIdolLevelEffectTriggers"
-import { DBSerializable } from "./abstract/DBSerializable";
-import { EffectReferenceAsyncPopulateMethods } from "./EffectReference";
+import PIdolLevelEffectTriggers from "../../type/PIdolLevelEffectTriggers"
+import { EffectReferenceAsyncPopulateMethods } from "./EffectReference"
+import RegularObject from "../interface/RegularObject"
 
-export default class PIdolLevelEffect implements IPIdolLevelEffect, DBSerializable<DBPIdolLevelEffect> {
+export default class PIdolLevelEffect implements IPIdolLevelEffect, RegularObject<IPIdolLevelEffect, DBPIdolLevelEffect> {
     level: number
     parameter: ParameterSet
     growth: ParameterSet
@@ -17,6 +17,7 @@ export default class PIdolLevelEffect implements IPIdolLevelEffect, DBSerializab
     constructor(obj: Partial<IPIdolLevelEffect>)
     constructor(obj?: Partial<IPIdolLevelEffect>)
     constructor(obj?: Partial<IPIdolLevelEffect>) {
+        obj = structuredClone(obj)
         this.level = obj?.level ?? 0
         this.parameter = obj?.parameter ?? DefaultParameterSet
         this.growth = obj?.growth ?? DefaultParameterSet
@@ -31,19 +32,41 @@ export default class PIdolLevelEffect implements IPIdolLevelEffect, DBSerializab
             this.abilities.push(new Ability(a))
         })
     }
-
     static async fromDB(obj: DBPIdolLevelEffect, populate: EffectReferenceAsyncPopulateMethods): Promise<PIdolLevelEffect> {
-        const ile = new PIdolLevelEffect({ ...obj, abilities: [] })
+        const ile = new PIdolLevelEffect({
+            ...obj,
+            abilities: []
+        })
         for await (const a of obj.abilities) {
             ile.abilities.push(await Ability.fromDB(a, populate))
         }
         return ile
     }
+
     toDB(): DBPIdolLevelEffect {
-        return {
-            ...this,
+        return structuredClone({
+            level: this.level,
+            parameter: this.parameter,
+            growth: this.growth,
+            stamina: this.stamina,
+            triggers: this.triggers,
+            abilityUpgradePositions: this.abilityUpgradePositions,
             abilities: this.abilities.map(a => a.toDB())
-        }
+        })
+    }
+    toJSON(): IPIdolLevelEffect {
+        return structuredClone({
+            level: this.level,
+            parameter: this.parameter,
+            growth: this.growth,
+            stamina: this.stamina,
+            triggers: this.triggers,
+            abilityUpgradePositions: this.abilityUpgradePositions,
+            abilities: this.abilities.map(a => a.toJSON())
+        })
+    }
+    copy(): PIdolLevelEffect {
+        return new PIdolLevelEffect(this.toJSON())
     }
 }
 

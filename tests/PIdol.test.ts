@@ -1,16 +1,12 @@
-import { expect, expectTypeOf, test } from "vitest"
-import { getPIdolById, populateMethods, } from "./lib/api"
 import { PIdol } from "../src"
 import ParameterSet from "../src/type/ParameterSet"
-import Ability from "../src/class/Ability"
+import Ability from "../src/class/regular/Ability"
 import { DBPIdol } from "../src/class/persistent/PIdol"
+import { expect, expectTypeOf, test } from "vitest"
+import { getPIdolById, populateMethods } from "./lib/api"
 
 test("default constructor", async () => {
     expect(new PIdol().id).toBeTruthy()
-})
-
-test("regular constructor", async () => {
-    expect(new PIdol({ ...await PIdol.fromDB(await getPIdolById("idol-000001"), populateMethods) }).id).toBe("idol-000001")
 })
 
 test("object serializes to db", async () => {
@@ -22,6 +18,27 @@ test("object reinstantiates from db", async () => {
     const r1 = await PIdol.fromDB(await getPIdolById("idol-000001"), populateMethods)
     const r2 = await PIdol.fromDB(r1.toDB(), populateMethods)
     expect(r1).toStrictEqual<PIdol>(r2)
+})
+
+test("object reconstructs from json", async () => {
+    const r1 = await PIdol.fromDB(await getPIdolById("idol-000001"), populateMethods)
+    const r2 = r1.copy()
+    const r3 = new PIdol(r1.toJSON())
+    const r4 = new PIdol(JSON.parse(JSON.stringify(r1.toJSON())))
+    expect(r1).toStrictEqual(r2)
+    expect(r1).toStrictEqual(r3)
+    expect(r1).toStrictEqual(r4)
+})
+
+test("object reconstructs from json (upgraded)", async () => {
+    const r = await PIdol.fromDB(await getPIdolById("idol-000001"), populateMethods)
+    r.setTrainingLevel(6).setPotentialLevel(4)
+    const ru1 = new PIdol(r.toJSON(), { trainingLevel: r.currentTrainingLevel, potentialLevel: r.currentPotentialLevel })
+    const ru2 = r.copy()
+    expect(r).toStrictEqual(ru1)
+    expect(r).toStrictEqual(ru2)
+    const rn = new PIdol(r.toJSON())
+    expect(r).not.toStrictEqual(rn)
 })
 
 test("potential / training levels upgrade", async () => {
@@ -79,6 +96,7 @@ test("potential / training levels downgrade", async () => {
 
 test("potential / training levels reset", async () => {
     const r = await PIdol.fromDB(await getPIdolById("idol-000001"), populateMethods)
+    const r2 = await PIdol.fromDB(await getPIdolById("idol-000001"), populateMethods)
     expect(r.currentParameter).toStrictEqual<ParameterSet>({ vo: 65, da: 65, vi: 95 })
     expect(r.currentGrowth).toStrictEqual<ParameterSet>({ vo: 8.0, da: 24.5, vi: 22.5 })
     expect(r.currentStamina).toBe(31)
@@ -95,4 +113,5 @@ test("potential / training levels reset", async () => {
     expect(r.currentAbilities.length).toBe(0)
     expect(r.signatureSkill.currentUpgradeLevel).toBe(0)
     expect(r.signaturePItem.currentUpgradeLevel).toBe(0)
+    expect(r).toStrictEqual(r2)
 })

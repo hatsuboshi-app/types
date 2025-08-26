@@ -1,0 +1,3 @@
+interface Duplicable {
+    copy(): Duplicable
+}

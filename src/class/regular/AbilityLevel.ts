@@ -1,14 +1,9 @@
-import EffectMod, {
-    DBEffectMod,
-    IEffectMod,
-    InsertEffectMod,
-    ReplaceEffectMod
-} from "./EffectMod"
-import EffectModType from "../enum/EffectModType"
-import { DBSerializable } from "./abstract/DBSerializable"
+import EffectMod, { DBEffectMod, IEffectMod, InsertEffectMod, ReplaceEffectMod } from "./EffectMod"
+import EffectModType from "../../enum/EffectModType"
 import { EffectReferenceAsyncPopulateMethods } from "./EffectReference"
+import RegularObject from "../interface/RegularObject"
 
-export default class AbilityLevel implements IAbilityLevel, DBSerializable<DBAbilityLevel> {
+export default class AbilityLevel implements IAbilityLevel, RegularObject<IAbilityLevel, DBAbilityLevel> {
     level: number
     mods: EffectMod[]
 
@@ -16,6 +11,7 @@ export default class AbilityLevel implements IAbilityLevel, DBSerializable<DBAbi
     constructor(obj?: IAbilityLevel)
     constructor(obj: IAbilityLevel)
     constructor(obj?: IAbilityLevel) {
+        obj = structuredClone(obj)
         this.level = obj?.level ?? 0
         this.mods = []
         obj?.mods?.forEach(m => {
@@ -32,9 +28,11 @@ export default class AbilityLevel implements IAbilityLevel, DBSerializable<DBAbi
             }
         })
     }
-
     static async fromDB(obj: DBAbilityLevel, populate: EffectReferenceAsyncPopulateMethods): Promise<AbilityLevel> {
-        const al = new AbilityLevel({ ...obj, mods: [] })
+        const al = new AbilityLevel({
+            ...obj,
+            mods: []
+        })
         for await (const em of obj.mods) {
             switch (em.type) {
                 case EffectModType.Enhance:
@@ -50,9 +48,10 @@ export default class AbilityLevel implements IAbilityLevel, DBSerializable<DBAbi
         }
         return al
     }
+
     toDB(): DBAbilityLevel {
-        return {
-            ...this,
+        return structuredClone({
+            level: this.level,
             mods: this.mods.map(m => {
                 switch (m.type) {
                     case EffectModType.Enhance:
@@ -62,7 +61,24 @@ export default class AbilityLevel implements IAbilityLevel, DBSerializable<DBAbi
                         return m.toDB()
                 }
             })
-        }
+        })
+    }
+    toJSON(): IAbilityLevel {
+        return structuredClone({
+            level: this.level,
+            mods: this.mods.map(m => {
+                switch (m.type) {
+                    case EffectModType.Enhance:
+                        return m
+                    case EffectModType.Replace:
+                    case EffectModType.Insert:
+                        return m.toJSON()
+                }
+            })
+        })
+    }
+    copy(): AbilityLevel {
+        return new AbilityLevel(this.toJSON())
     }
 }
 

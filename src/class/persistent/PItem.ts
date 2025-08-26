@@ -1,14 +1,13 @@
 import PersistentObject, { IPersistentObject } from "../abstract/PersistentObject"
-import Effect, { DBEffect, IEffect } from "../Effect"
+import Effect, { DBEffect, IEffect } from "../regular/Effect"
 import Plan from "../../enum/Plan"
 import Rarity from "../../enum/Rarity"
 import PItemSource from "../../enum/PItemSource"
-import AbilityLevel, { DBAbilityLevel, IAbilityLevel } from "../AbilityLevel"
+import AbilityLevel, { DBAbilityLevel, IAbilityLevel } from "../regular/AbilityLevel"
 import LocaleStringWithRomaji, { DefaultLocaleStringWithRomaji } from "../../type/LocaleStringWithRomaji"
-import { DBSerializable } from "../abstract/DBSerializable"
-import { EffectReferenceAsyncPopulateMethods } from "../EffectReference"
+import { EffectReferenceAsyncPopulateMethods } from "../regular/EffectReference"
 
-export default class PItem extends PersistentObject implements IPItem, DBSerializable<DBPItem> {
+export default class PItem extends PersistentObject<IPItem, DBPItem> implements IPItem {
     name: LocaleStringWithRomaji
     assetUrl: string
     plan: Plan
@@ -26,6 +25,7 @@ export default class PItem extends PersistentObject implements IPItem, DBSeriali
     constructor(obj: Partial<IPItem>, upgradeLevel?: number)
     constructor(obj?: Partial<IPItem>, upgradeLevel?: number)
     constructor(obj?: Partial<IPItem>, upgradeLevel?: number) {
+        obj = structuredClone(obj)
         super(obj, "item")
         this.name = obj?.name ?? DefaultLocaleStringWithRomaji
         this.assetUrl = obj?.assetUrl ?? ""
@@ -40,7 +40,7 @@ export default class PItem extends PersistentObject implements IPItem, DBSeriali
         })
 
         // initialize modifiable properties
-        this.currentEffect = new Effect(this.initialEffect)
+        this.currentEffect = this.initialEffect.copy()
 
         // set modifiable properties
         this.currentUpgradeLevel = 0
@@ -48,22 +48,46 @@ export default class PItem extends PersistentObject implements IPItem, DBSeriali
             this.setUpgradeLevel(upgradeLevel)
         }
     }
-
-    static async fromDB(obj: DBPItem, populate: EffectReferenceAsyncPopulateMethods): Promise<PItem> {
-        const pi = new PItem({ ...obj, initialEffect: undefined, upgradeLevels: [] })
-        pi.initialEffect = await Effect.fromDB(obj.initialEffect, populate)
+    static async fromDB(obj: DBPItem, populate: EffectReferenceAsyncPopulateMethods, upgradeLevel?: number): Promise<PItem> {
+        const pi = new PItem({
+            ...obj,
+            initialEffect: { ...await Effect.fromDB(obj.initialEffect, populate) },
+            upgradeLevels: []
+        }, upgradeLevel)
         for await (const ul of obj.upgradeLevels) {
             pi.upgradeLevels.push(await AbilityLevel.fromDB(ul, populate))
         }
         return pi
     }
+
     toDB(): DBPItem {
-        const { currentEffect, currentUpgradeLevel, ...trimmed } = this
-        return {
-            ...trimmed,
+        return structuredClone({
+            ...super.toPersistentDB(),
+            name: this.name,
+            assetUrl: this.assetUrl,
+            plan: this.plan,
+            rarity: this.rarity,
+            source: this.source,
+            unlockLevel: this.unlockLevel,
+            upgradeLevels: this.upgradeLevels.map(ul => ul.toDB()),
             initialEffect: this.initialEffect.toDB(),
-            upgradeLevels: this.upgradeLevels.map(ul => ul.toDB())
-        }
+        })
+    }
+    toJSON(): IPItem {
+        return structuredClone({
+            ...this.toPersistentJSON(),
+            name: this.name,
+            assetUrl: this.assetUrl,
+            plan: this.plan,
+            rarity: this.rarity,
+            source: this.source,
+            unlockLevel: this.unlockLevel,
+            upgradeLevels: this.upgradeLevels,
+            initialEffect: this.initialEffect.toJSON(),
+        })
+    }
+    copy(): PItem {
+        return new PItem(this.toJSON(), this.currentUpgradeLevel)
     }
 
     get formattedName(): LocaleStringWithRomaji {
@@ -76,9 +100,8 @@ export default class PItem extends PersistentObject implements IPItem, DBSeriali
     }
 
     private resetProperties(): undefined {
-        this.currentEffect = this.initialEffect
+        this.currentEffect = this.initialEffect.copy()
     }
-
     private resetUpgradeLevel(): undefined {
         this.resetProperties()
         this.currentUpgradeLevel = 0

@@ -1,11 +1,11 @@
 import Effect, { IEffect } from "./Effect"
-import AuditionEffect from "./persistent/AuditionEffect"
+import AuditionEffect from "../persistent/AuditionEffect"
 import SkillEffectLine, { DBSkillEffectLine, ISkillEffectLine } from "./SkillEffectLine"
-import Nullable from "../type/util/Nullable"
-import { DBSerializable } from "./abstract/DBSerializable";
-import EffectReference, { DBEffectReference, EffectReferenceAsyncPopulateMethods } from "./EffectReference";
+import Nullable from "../../type/util/Nullable"
+import EffectReference, { DBEffectReference, EffectReferenceAsyncPopulateMethods } from "./EffectReference"
+import RegularObject from "../interface/RegularObject"
 
-export default class SkillEffect extends Effect implements ISkillEffect, DBSerializable<DBSkillEffect> {
+export default class SkillEffect extends Effect implements ISkillEffect, RegularObject<ISkillEffect, DBSkillEffect> {
     lines: SkillEffectLine[]
     customizedVars: string[]
     customizedLines: number[]
@@ -19,6 +19,7 @@ export default class SkillEffect extends Effect implements ISkillEffect, DBSeria
     constructor(obj: Partial<ISkillEffect>)
     constructor(obj?: Partial<ISkillEffect>)
     constructor(obj?: Partial<ISkillEffect>) {
+        obj = structuredClone(obj)
         super(obj)
         this.lines = []
         obj?.lines?.forEach(l => {
@@ -32,9 +33,12 @@ export default class SkillEffect extends Effect implements ISkillEffect, DBSeria
         this.costRef = obj?.costRef ?? null
         this.costVar = obj?.costVar ?? null
     }
-
     static async fromDB(obj: DBSkillEffect, populate: EffectReferenceAsyncPopulateMethods): Promise<SkillEffect> {
-        const se = new SkillEffect({ ...obj, lines: [], refs: [] })
+        const se = new SkillEffect({
+            ...obj,
+            lines: [],
+            refs: []
+        })
         for await (const r of obj.refs) {
             se.refs.push(await EffectReference.fromDB(r, populate))
         }
@@ -43,12 +47,35 @@ export default class SkillEffect extends Effect implements ISkillEffect, DBSeria
         }
         return se
     }
+
     toDB(): DBSkillEffect {
-        return {
-            ...this,
-            refs: this.refs.map(r => r.toDB()),
-            lines: this.lines.map(l => l.toDB())
-        }
+        return structuredClone({
+            ...super.toDB(),
+            lines: this.lines.map(l => l.toDB()),
+            customizedVars: this.customizedVars,
+            customizedLines: this.customizedLines,
+            energyGainVar: this.energyGainVar,
+            scoreGainVar: this.scoreGainVar,
+            scoreGainMultiplier: this.scoreGainMultiplier,
+            costRef: this.costRef,
+            costVar: this.costVar
+        })
+    }
+    toJSON(): ISkillEffect {
+        return structuredClone({
+            ...super.toJSON(),
+            lines: this.lines.map(l => l.toJSON()),
+            customizedVars: this.customizedVars,
+            customizedLines: this.customizedLines,
+            energyGainVar: this.energyGainVar,
+            scoreGainVar: this.scoreGainVar,
+            scoreGainMultiplier: this.scoreGainMultiplier,
+            costRef: this.costRef,
+            costVar: this.costVar
+        })
+    }
+    copy(): SkillEffect {
+        return new SkillEffect(this.toJSON())
     }
 
     get effectIcons(): AuditionEffect[] {
@@ -61,14 +88,9 @@ export default class SkillEffect extends Effect implements ISkillEffect, DBSeria
         const i = this.customizedVars.findIndex(cv => cv === v)
         if (i === -1) this.customizedVars.push(v)
     }
-
     addCustomizedLine(l: number) {
         const i = this.customizedLines.findIndex(cl => cl === l)
         if (i === -1) this.customizedLines.push(l)
-    }
-
-    copy(): SkillEffect {
-        return new SkillEffect(JSON.parse(JSON.stringify(this)))
     }
 }
 

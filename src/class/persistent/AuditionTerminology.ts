@@ -1,12 +1,11 @@
 import PersistentObject, { IPersistentObject } from "../abstract/PersistentObject"
-import Effect, { DBEffect } from "../Effect"
+import Effect, { DBEffect, IEffect } from "../regular/Effect"
 import Nullable from "../../type/util/Nullable"
 import AuditionIcon from "../../type/AuditionIcon"
-import { DBSerializable } from "../abstract/DBSerializable"
-import { EffectReferenceAsyncPopulateMethods } from "../EffectReference"
+import { EffectReferenceAsyncPopulateMethods } from "../regular/EffectReference"
 import LocaleString, { DefaultLocaleString } from "../../type/LocaleString"
 
-export default class AuditionTerminology extends PersistentObject implements IAuditionTerminology, DBSerializable<DBAuditionTerminology> {
+export default class AuditionTerminology extends PersistentObject<IAuditionTerminology, DBAuditionTerminology> implements IAuditionTerminology {
     name: LocaleString
     description: Effect
     icon: Nullable<AuditionIcon>
@@ -16,30 +15,46 @@ export default class AuditionTerminology extends PersistentObject implements IAu
     constructor(obj: Partial<IAuditionTerminology>)
     constructor(obj?: Partial<IAuditionTerminology>)
     constructor(obj?: Partial<IAuditionTerminology>) {
+        obj = structuredClone(obj)
         super(obj, "terminology")
         this.name = obj?.name ?? DefaultLocaleString
         this.isHighlighted = obj?.isHighlighted ??  false
         this.description = new Effect(obj?.description)
         this.icon = obj?.icon ?? null
     }
-
     static async fromDB(obj: DBAuditionTerminology, populate: EffectReferenceAsyncPopulateMethods): Promise<AuditionTerminology> {
         return new AuditionTerminology({
             ...obj,
             description: await Effect.fromDB(obj.description, populate)
         })
     }
+
     toDB(): DBAuditionTerminology {
-        return {
-            ...this,
-            description: this.description.toDB()
-        }
+        return structuredClone({
+            ...super.toPersistentDB(),
+            name: this.name,
+            description: this.description.toDB(),
+            icon: this.icon,
+            isHighlighted: this.isHighlighted,
+        })
+    }
+    toJSON(): IAuditionTerminology {
+        return structuredClone({
+            ...super.toPersistentDB(),
+            name: this.name,
+            description: this.description.toJSON(),
+            icon: this.icon,
+            isHighlighted: this.isHighlighted,
+        })
+    }
+    copy(): AuditionTerminology {
+        return new AuditionTerminology(this.toJSON())
     }
 }
 
 export interface IAuditionTerminology extends IPersistentObject {
     name: LocaleString
-    description: Effect
+    description: IEffect
     isHighlighted: boolean
     icon: Nullable<AuditionIcon>
 }

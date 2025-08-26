@@ -3,9 +3,8 @@ import LocaleString, { DefaultLocaleString } from "../../type/LocaleString"
 import CharacterColor, { DefaultCharacterColor } from "../../type/CharacterColor"
 import CharacterDetail, { DefaultCharacterDetail } from "../../type/CharacterDetail"
 import CharacterTrueEndBonus from "../../type/CharacterTrueEndBonus"
-import { DBSerializable } from "../abstract/DBSerializable";
 
-export default class Character extends PersistentObject implements ICharacter, DBSerializable<DBCharacter> {
+export default class Character extends PersistentObject<ICharacter, DBCharacter> implements ICharacter {
     lastName: LocaleString
     firstName: LocaleString
     isPlayable: boolean
@@ -18,6 +17,7 @@ export default class Character extends PersistentObject implements ICharacter, D
     constructor(obj: Partial<ICharacter>)
     constructor(obj?: Partial<ICharacter>)
     constructor(obj?: Partial<ICharacter>) {
+        obj = structuredClone(obj)
         super(obj, "character")
         this.lastName = obj?.lastName ?? DefaultLocaleString
         this.firstName = obj?.firstName ?? DefaultLocaleString
@@ -30,12 +30,36 @@ export default class Character extends PersistentObject implements ICharacter, D
             this.trueEndBonuses.push(teb)
         })
     }
-
     static async fromDB(obj: DBCharacter): Promise<Character> {
         return new Character(obj)
     }
+
     toDB(): DBCharacter {
-        return { ...this }
+        return structuredClone({
+            ...super.toPersistentDB(),
+            lastName: this.lastName,
+            firstName: this.firstName,
+            isPlayable: this.isPlayable,
+            color: this.color,
+            assetUrl: this.assetUrl,
+            detail: this.detail,
+            trueEndBonuses: this.trueEndBonuses
+        })
+    }
+    toJSON(): ICharacter {
+        return structuredClone({
+            ...super.toPersistentJSON(),
+            lastName: this.lastName,
+            firstName: this.firstName,
+            isPlayable: this.isPlayable,
+            color: this.color,
+            assetUrl: this.assetUrl,
+            detail: this.detail,
+            trueEndBonuses: this.trueEndBonuses
+        })
+    }
+    copy(): Character {
+        return new Character(this.toJSON())
     }
 }
 

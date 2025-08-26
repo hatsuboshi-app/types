@@ -1,27 +1,16 @@
-import EffectModType from "../enum/EffectModType"
+import EffectModType from "../../enum/EffectModType"
 import EffectLine, { DBEffectLine, IEffectLine } from "./EffectLine"
 import EffectReference, {
     DBEffectReference,
     EffectReferenceAsyncPopulateMethods,
     IEffectReference
 } from "./EffectReference"
-import EffectVariable from "../type/EffectVariable"
-import { DBSerializable } from "./abstract/DBSerializable"
+import EffectVariable from "../../type/EffectVariable"
+import RegularObject from "../interface/RegularObject"
 
-type EffectMod =
-    EnhanceEffectMod |
-    InsertEffectMod |
-    ReplaceEffectMod
-
-export type IEffectMod =
-    EnhanceEffectMod |
-    IInsertEffectMod |
-    IReplaceEffectMod
-
-export type DBEffectMod =
-    EnhanceEffectMod |
-    DBInsertEffectMod |
-    DBReplaceEffectMod
+type EffectMod = EnhanceEffectMod | InsertEffectMod | ReplaceEffectMod
+export type IEffectMod = EnhanceEffectMod | IInsertEffectMod | IReplaceEffectMod
+export type DBEffectMod = EnhanceEffectMod | DBInsertEffectMod | DBReplaceEffectMod
 
 // EnhanceEffectMod //
 
@@ -33,7 +22,7 @@ export type EnhanceEffectMod = {
 
 // InsertEffectMod //
 
-export class InsertEffectMod implements IInsertEffectMod {
+export class InsertEffectMod implements IInsertEffectMod, RegularObject<IInsertEffectMod, DBInsertEffectMod> {
     type: EffectModType.Insert
     refs: EffectReference[]
     vars: EffectVariable[]
@@ -43,6 +32,7 @@ export class InsertEffectMod implements IInsertEffectMod {
     constructor(obj: Partial<IInsertEffectMod>)
     constructor(obj?: Partial<IInsertEffectMod>)
     constructor(obj?: Partial<IInsertEffectMod>) {
+        obj = structuredClone(obj)
         this.type = EffectModType.Insert
         this.refs = []
         obj?.refs?.forEach(r => this.refs.push(new EffectReference(r)))
@@ -50,7 +40,6 @@ export class InsertEffectMod implements IInsertEffectMod {
         obj?.vars?.forEach(v => this.vars.push(v))
         this.line = new EffectLine(obj?.line)
     }
-
     static async fromDB(obj: DBInsertEffectMod, populate: EffectReferenceAsyncPopulateMethods): Promise<InsertEffectMod> {
         const iem = new InsertEffectMod({
             ...obj,
@@ -63,22 +52,32 @@ export class InsertEffectMod implements IInsertEffectMod {
         return iem
     }
 
-    toDB(): IInsertEffectMod {
-        return {
-            ...this,
+    toDB(): DBInsertEffectMod {
+        return structuredClone({
+            type: this.type,
             refs: this.refs.map(r => r.toDB()),
+            vars: this.vars,
             line: this.line.toDB()
-        }
+        })
+    }
+    toJSON(): IInsertEffectMod {
+        return structuredClone({
+            type: this.type,
+            refs: this.refs.map(r => r.toJSON()),
+            vars: this.vars,
+            line: this.line.toJSON()
+        })
+    }
+    copy(): InsertEffectMod {
+        return new InsertEffectMod(this.toJSON())
     }
 }
-
 export interface IInsertEffectMod {
     type: EffectModType.Insert
     refs: IEffectReference[]
     vars: EffectVariable[]
     line: IEffectLine
 }
-
 export type DBInsertEffectMod = Omit<IInsertEffectMod, "refs" | "line"> & {
     refs: DBEffectReference[]
     line: DBEffectLine
@@ -86,7 +85,7 @@ export type DBInsertEffectMod = Omit<IInsertEffectMod, "refs" | "line"> & {
 
 // ReplaceEffectMod //
 
-export class ReplaceEffectMod implements IReplaceEffectMod, DBSerializable<DBReplaceEffectMod> {
+export class ReplaceEffectMod implements IReplaceEffectMod, RegularObject<IReplaceEffectMod, DBReplaceEffectMod> {
     type: EffectModType.Replace
     refs: EffectReference[]
     vars: EffectVariable[]
@@ -96,6 +95,7 @@ export class ReplaceEffectMod implements IReplaceEffectMod, DBSerializable<DBRep
     constructor(obj: Partial<IReplaceEffectMod>)
     constructor(obj?: Partial<IReplaceEffectMod>)
     constructor(obj?: Partial<IReplaceEffectMod>) {
+        obj = structuredClone(obj)
         this.type = EffectModType.Replace
         this.refs = []
         obj?.refs?.forEach(r => this.refs.push(new EffectReference(r)))
@@ -103,7 +103,6 @@ export class ReplaceEffectMod implements IReplaceEffectMod, DBSerializable<DBRep
         obj?.vars?.forEach(v => this.vars.push(v))
         this.line = new EffectLine(obj?.line)
     }
-
     static async fromDB(obj: DBReplaceEffectMod, populate: EffectReferenceAsyncPopulateMethods): Promise<ReplaceEffectMod> {
         const rem = new ReplaceEffectMod({
             ...obj,
@@ -117,21 +116,31 @@ export class ReplaceEffectMod implements IReplaceEffectMod, DBSerializable<DBRep
     }
 
     toDB(): DBReplaceEffectMod {
-        return {
-            ...this,
+        return structuredClone({
+            type: this.type,
             refs: this.refs.map(r => r.toDB()),
+            vars: this.vars,
             line: this.line.toDB()
-        }
+        })
+    }
+    toJSON(): IReplaceEffectMod {
+        return structuredClone({
+            type: this.type,
+            refs: this.refs.map(r => r.toJSON()),
+            vars: this.vars,
+            line: this.line.toJSON()
+        })
+    }
+    copy(): ReplaceEffectMod {
+        return new ReplaceEffectMod(this.toJSON())
     }
 }
-
 export interface IReplaceEffectMod {
     type: EffectModType.Replace
     refs: IEffectReference[]
     vars: EffectVariable[]
     line: IEffectLine
 }
-
 export type DBReplaceEffectMod = Omit<IReplaceEffectMod, "refs" | "line"> & {
     refs: DBEffectReference[]
     line: DBEffectLine

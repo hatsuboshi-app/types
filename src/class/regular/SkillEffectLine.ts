@@ -1,20 +1,20 @@
 import EffectLine, { IEffectLine } from "./EffectLine"
-import AuditionEffect, { IAuditionEffect } from "./persistent/AuditionEffect"
-import Nullable from "../type/util/Nullable"
-import { DBSerializable } from "./abstract/DBSerializable"
+import AuditionEffect, { IAuditionEffect } from "../persistent/AuditionEffect"
+import Nullable from "../../type/util/Nullable"
 import { EffectReferenceAsyncPopulateMethods } from "./EffectReference"
+import RegularObject from "../interface/RegularObject"
 
-export default class SkillEffectLine extends EffectLine implements ISkillEffectLine, DBSerializable<DBSkillEffectLine> {
+export default class SkillEffectLine extends EffectLine implements ISkillEffectLine, RegularObject<ISkillEffectLine, DBSkillEffectLine> {
     effectIcon: Nullable<AuditionEffect>
 
     constructor()
     constructor(obj: Partial<ISkillEffectLine>)
     constructor(obj?: Partial<ISkillEffectLine>)
     constructor(obj?: Partial<ISkillEffectLine>) {
+        obj = structuredClone(obj)
         super(obj)
         this.effectIcon = obj?.effectIcon ? new AuditionEffect(obj?.effectIcon) : null
     }
-
     static async fromDB(obj: DBSkillEffectLine, populate: EffectReferenceAsyncPopulateMethods): Promise<SkillEffectLine> {
         return new SkillEffectLine({
             ...obj,
@@ -22,18 +22,25 @@ export default class SkillEffectLine extends EffectLine implements ISkillEffectL
                 ? await AuditionEffect.fromDB(
                     await populate.auditionEffect(obj.effectIcon) ?? new AuditionEffect().toDB(),
                     populate
-                ) : null
+                )
+                : null
         })
     }
-    toDB(): DBSkillEffectLine {
-        return {
-            ...this,
-            effectIcon: this.effectIcon?.id ?? null
-        }
-    }
 
+    toDB(): DBSkillEffectLine {
+        return structuredClone({
+            ...super.toDB(),
+            effectIcon: this.effectIcon?.id ?? null
+        })
+    }
+    toJSON(): ISkillEffectLine {
+        return structuredClone({
+            ...super.toJSON(),
+            effectIcon: this.effectIcon?.toJSON() ?? null
+        })
+    }
     copy(): SkillEffectLine {
-        return new SkillEffectLine(JSON.parse(JSON.stringify(this)))
+        return new SkillEffectLine(this.toJSON())
     }
 }
 

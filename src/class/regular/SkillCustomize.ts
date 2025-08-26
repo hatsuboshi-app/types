@@ -1,12 +1,12 @@
-import LocaleString, { DefaultLocaleString } from "../type/LocaleString"
+import LocaleString, { DefaultLocaleString } from "../../type/LocaleString"
 import SkillCustomizeLevelEffect, {
     DBSkillCustomizeLevelEffect,
     ISkillCustomizeLevelEffect
 } from "./SkillCustomizeLevelEffect"
-import { DBSerializable } from "./abstract/DBSerializable"
 import { EffectReferenceAsyncPopulateMethods } from "./EffectReference"
+import RegularObject from "../interface/RegularObject"
 
-export default class SkillCustomize implements ISkillCustomize, DBSerializable<DBSkillCustomize> {
+export default class SkillCustomize implements ISkillCustomize, RegularObject<ISkillCustomize, DBSkillCustomize> {
     position: number
     levels: SkillCustomizeLevelEffect[]
     typeRefId: string
@@ -16,12 +16,12 @@ export default class SkillCustomize implements ISkillCustomize, DBSerializable<D
     constructor(obj: Partial<ISkillCustomize>)
     constructor(obj?: Partial<ISkillCustomize>)
     constructor(obj?: Partial<ISkillCustomize>) {
+        obj = structuredClone(obj)
         this.position = obj?.position ?? 0
         this.levels = []
         this.typeRefId = obj?.typeRefId ?? ""
         this.description =  obj?.description ?? DefaultLocaleString
     }
-
     static async fromDB(obj: DBSkillCustomize, populate: EffectReferenceAsyncPopulateMethods): Promise<SkillCustomize> {
         const sc = new SkillCustomize({
             ...obj,
@@ -32,11 +32,25 @@ export default class SkillCustomize implements ISkillCustomize, DBSerializable<D
         }
         return sc
     }
+
     toDB(): DBSkillCustomize {
-        return {
-            ...this,
-            levels: this.levels.map(l => l.toDB())
-        }
+        return structuredClone({
+            position: this.position,
+            levels: this.levels.map(l => l.toDB()),
+            typeRefId: this.typeRefId,
+            description: this.description,
+        })
+    }
+    toJSON(): ISkillCustomize {
+        return structuredClone({
+            position: this.position,
+            levels: this.levels.map(l => l.toJSON()),
+            typeRefId: this.typeRefId,
+            description: this.description,
+        })
+    }
+    copy(): SkillCustomize {
+        return new SkillCustomize(this.toJSON())
     }
 }
 
