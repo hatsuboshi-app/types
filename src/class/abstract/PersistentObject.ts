@@ -22,6 +22,10 @@ abstract class PersistentObject<I extends IPersistentObject, D extends IPersiste
     abstract toJSON(): I
     abstract copy(): PersistentObject<I, D>
 
+    get dbRef(): string {
+        return this.id
+    }
+
     protected toPersistentJSON(): IPersistentObject {
         return {
             id: this.id,
