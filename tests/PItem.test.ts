@@ -1,7 +1,6 @@
-import { expect, expectTypeOf, test } from "vitest"
+import { DBPItem, PItem, EffectVariable } from "../src"
 import { getPItemById, populateMethods } from "./lib/api"
-import PItem, { DBPItem } from "../src/class/persistent/PItem"
-import EffectVariable from "../src/type/EffectVariable";
+import { expect, expectTypeOf, test } from "vitest"
 
 test("default constructor", async () => {
     expect(new PItem().id).toBeTruthy()

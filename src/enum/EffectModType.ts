@@ -1,3 +1,6 @@
+/**
+ * The type of modification on the effects of a skill.
+ */
 enum EffectModType {
     Enhance = 0,
     Insert = 1,

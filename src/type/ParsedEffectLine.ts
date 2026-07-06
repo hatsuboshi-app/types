@@ -2,7 +2,10 @@ import ParsedEffectElement from "./ParsedEffectElement"
 
 type ParsedEffectLine = {
     position: number
-    elements: ParsedEffectElement[]
+    localeElements: {
+        ja: ParsedEffectElement[],
+        en: ParsedEffectElement[]
+    }
 }
 
 export default ParsedEffectLine

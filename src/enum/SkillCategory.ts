@@ -1,3 +1,6 @@
+/**
+ * The category that a skill card belongs to.
+ */
 enum SkillCategory {
     Active = "active",
     Mental = "mental",

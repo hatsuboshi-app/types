@@ -1,3 +1,6 @@
+/**
+ * The type of an element composing of a parsed effect body line.
+ */
 enum ParsedEffectElementType {
     Reference = 0,
     Variable = 1,

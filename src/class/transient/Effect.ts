@@ -11,6 +11,8 @@ import EffectModType from "../../enum/EffectModType"
 import Locale from "../../type/Locale"
 import LocaleString from "../../type/LocaleString"
 import TransientObject from "../../interface/TransientObject"
+import ParsedEffectElementType from "../../enum/ParsedEffectElementType";
+import ParsedEffectElement from "../../type/ParsedEffectElement";
 
 export default class Effect implements IEffect, TransientObject<IEffect, DBEffect> {
     refs: EffectReference[]
@@ -68,45 +70,85 @@ export default class Effect implements IEffect, TransientObject<IEffect, DBEffec
         return new Effect(this.toJSON())
     }
 
+    private parsePlural(refString: string): string {
+        try {
+            const v = this.vars.find(v => v.id === refString.split("@")[1])
+            if (!v) return ""
+            if (v.value === 1 || v.value === -1) return ""
+            return refString.split("@")[0].split("_")[1]
+        } catch (_) {
+            return ""
+        }
+    }
+
     get parsed(): ParsedEffectLine[] {
-        // implement
-        return []
+        const lines: ParsedEffectLine[] = []
+        const stripBraces = (str: string) => {
+            return str.replace("{", "").replace("}", "")
+        }
+        const getParsedLine = (l: EffectLine, loc: Locale): ParsedEffectElement[] => {
+            const line = l.body[loc]
+            if (line == null) return []
+            return line.split(/(\{[^}]*})/).filter(Boolean).map(i => {
+                let ele: ParsedEffectElement
+                if (i.startsWith("{")) {
+                    const id = stripBraces(i)
+                    // Test for Reference
+                    const ref = this.refs.find(r => r.id === id)
+                    // Test for Variable
+                    const v = this.vars.find(va => va.id === id)
+                    // If both fail, treat as string
+                    if (ref) ele = { type: ParsedEffectElementType.Reference, body: ref }
+                    else if (v) ele = { type: ParsedEffectElementType.Variable, body: v }
+                    else ele = { type: ParsedEffectElementType.String, body: i }
+                } else {
+                    if (i.includes("plural")) {
+                        ele = { type: ParsedEffectElementType.String, body: this.parsePlural(stripBraces(i)) }
+                    } else {
+                        ele = { type: ParsedEffectElementType.String, body: i }
+                    }
+                }
+                return ele
+            })
+        }
+        for (const l of this.lines.sort((a, b) => a.position - b.position)) {
+            const pl: ParsedEffectLine = {
+                position: l.position,
+                localeElements: {
+                    ja: getParsedLine(l, "ja"),
+                    en: getParsedLine(l, "en"),
+                }
+            }
+            lines.push(pl)
+        }
+        return lines
     }
 
     get plaintext(): LocaleString[] {
         const getLocLine = (l: EffectLine, loc: Locale) => {
-                const line = l.body[loc]
-                if (line != null) {
-                    return line.replace(/\{(.*?)}/g, (_, m) => {
-                        if (m.includes("plural")) {
-                            try {
-                                const v = this.vars.find(v => v.id === m.split("@")[1])
-                                if (!v) return ""
-                                if (v.value === 1 || v.value === -1) return ""
-                                return m.split("@")[0].split("_")[1]
-                            } catch (_) {
-                                return ""
-                            }
-                        } else {
-                            return (
-                                this.refs.find(r => r.id === m)?.name[loc] ??
-                                this.vars.find(v => v.id === m)?.value.toString() ?? ""
-                            )
-                        }
-                    })
+            const line = l.body[loc]
+            if (line == null) return ""
+            return line.replace(/\{(.*?)}/g, (_, m) => {
+                if (m.includes("plural")) {
+                    return this.parsePlural(m)
                 } else {
-                    return ""
-                }
-            }
-        return (
-            this.lines
-            .sort((a, b) => a.position - b.position)
-            .map(el => {
-                return {
-                    en: getLocLine(el, "en"),
-                    ja: getLocLine(el, "ja")
+                    return (
+                        this.refs.find(r => r.id === m)?.name[loc] ??
+                        this.vars.find(v => v.id === m)?.value.toString() ?? ""
+                    )
                 }
             })
+        }
+
+        return (
+            this.lines
+                .sort((a, b) => a.position - b.position)
+                .map(el => {
+                    return {
+                        en: getLocLine(el, "en"),
+                        ja: getLocLine(el, "ja")
+                    }
+                })
         )
     }
 

@@ -1,3 +1,6 @@
+/**
+ * The color for the background of audition effect icons.
+ */
 enum AuditionIconColor {
     Blue = "blue",
     Green = "green",

@@ -1,3 +1,6 @@
+/**
+ * The game-defined recommended subplan of a PIdol.
+ */
 enum PIdolSubplan {
     Impression = "impression",
     Motivation = "motivation",

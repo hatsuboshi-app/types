@@ -1,4 +1,7 @@
- enum ProduceScenario {
+/**
+ * In-game produce scenarios.
+ */
+enum ProduceScenario {
     Hajime = "hajime",
     NextIdolAudition = "nia"
 }

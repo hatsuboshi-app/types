@@ -1,9 +1,6 @@
-import { PIdol } from "../src"
-import ParameterSet from "../src/type/ParameterSet"
-import Ability from "../src/class/regular/Ability"
-import { DBPIdol } from "../src/class/persistent/PIdol"
-import { expect, expectTypeOf, test } from "vitest"
+import { Ability, DBPIdol, PIdol, ParameterSet } from "../src"
 import { getPIdolById, populateMethods } from "./lib/api"
+import { expect, expectTypeOf, test } from "vitest"
 
 test("default constructor", async () => {
     expect(new PIdol().id).toBeTruthy()
@@ -33,7 +30,10 @@ test("object reconstructs from json", async () => {
 test("object reconstructs from json (upgraded)", async () => {
     const r = await PIdol.fromDB(await getPIdolById("idol-000001"), populateMethods)
     r.setTrainingLevel(6).setPotentialLevel(4)
-    const ru1 = new PIdol(r.toJSON(), { trainingLevel: r.currentTrainingLevel, potentialLevel: r.currentPotentialLevel })
+    const ru1 = new PIdol(r.toJSON(), {
+        trainingLevel: r.currentTrainingLevel,
+        potentialLevel: r.currentPotentialLevel
+    })
     const ru2 = r.copy()
     expect(r).toStrictEqual(ru1)
     expect(r).toStrictEqual(ru2)

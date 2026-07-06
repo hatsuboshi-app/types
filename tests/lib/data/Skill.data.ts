@@ -67,8 +67,8 @@ const SkillDataset: DBSkill[] = [
                 },
                 {
                     "id": "r002",
-                    "refId": "effect-000002",
-                    "refType": 1
+                    "refId": "terminology-000009",
+                    "refType": 0
                 },
                 {
                     "id": "r003",

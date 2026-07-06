@@ -1,3 +1,6 @@
+/**
+ * The color for the background of Support Card ability icons.
+ */
 enum AbilityIconColor {
     Blue = "blue",
     Green = "green",

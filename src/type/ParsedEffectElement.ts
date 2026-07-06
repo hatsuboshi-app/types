@@ -18,7 +18,7 @@ type VariableParsedEffectElement = {
 }
 
 type StringParsedEffectElement = {
-    type: ParsedEffectElementType.String;
+    type: ParsedEffectElementType.String
     body: string
 }
 
