@@ -11,6 +11,8 @@ jobs:
   publish:
     permissions:
       contents: write
+      issues: write
+      pull-requests: write
       id-token: write
     runs-on: ubuntu-latest
     steps:
