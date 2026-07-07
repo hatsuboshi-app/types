@@ -1,4 +1,4 @@
-import { DBPIdol } from "../../../src/class/persistent/PIdol"
+import { DBPIdol } from "../../../src"
 import AbilityIconColor from "../../../src/enum/AbilityIconColor"
 import Rarity from "../../../src/enum/Rarity"
 import PIdolPlan from "../../../src/enum/PIdolPlan"
@@ -43,7 +43,7 @@ const PIdolDataset: DBPIdol[] = [
             "vi": 22.5
         },
         "character": "character-000001",
-        "signatureSkill": "skill-000001",
+        "signatureSkill": ["skill-000001"],
         "signaturePItem": "item-000001",
         "initialAbilities": [],
         "trainingLevels": [
@@ -340,7 +340,8 @@ const PIdolDataset: DBPIdol[] = [
                 ],
                 "abilities": []
             }
-        ]
+        ],
+        "primaStellaUpgrade": null
     }
 ]
 

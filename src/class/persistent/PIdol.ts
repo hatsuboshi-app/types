@@ -223,7 +223,7 @@ export default class PIdol extends PersistentObject<IPIdol, DBPIdol> implements 
             this.currentAbilities.push(a.copy())
         })
         this.signaturePItem.setUpgradeLevel(0)
-        for (let i = 0; i <= this.signatureSkill.length; i++) {
+        for (let i = 0; i < this.signatureSkill.length; i++) {
             this.signatureSkill[i].setUpgradeLevel(0)
         }
     }
