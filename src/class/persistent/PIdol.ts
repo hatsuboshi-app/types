@@ -13,8 +13,8 @@ import LocaleStringWithRomaji, { DefaultLocaleStringWithRomaji } from "../../typ
 import PIdolUpgradeState from "../../type/PIdolUpgradeState"
 import { EffectReferenceAsyncPopulateMethods } from "../transient/EffectReference"
 import AsyncPopulateMethod from "../../type/util/AsyncPopulateMethod"
-import PrimaStellaUpgrade, { DBPrimaStellaUpgrade, IPrimaStellaUpgrade } from "../transient/PrimaStellaUpgrade";
-import Nullable from "../../type/util/Nullable";
+import PrimaStellaUpgrade, { DBPrimaStellaUpgrade, IPrimaStellaUpgrade } from "../transient/PrimaStellaUpgrade"
+import Nullable from "../../type/util/Nullable"
 
 export type PIdolAsyncPopulateMethods = EffectReferenceAsyncPopulateMethods & {
     character: AsyncPopulateMethod<DBCharacter>,
