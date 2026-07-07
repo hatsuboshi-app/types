@@ -9,7 +9,8 @@
         "dist"
     ],
     "scripts": {
-        "build": "tsup src --minify"
+        "build": "tsup src --minify",
+        "test": "vitest --run tests/"
     },
     "author": "HuzzNZ",
     "license": "MIT",
@@ -22,5 +23,8 @@
     },
     "publishConfig": {
         "access": "public"
+    },
+    "release": {
+        "branches": ["main"]
     }
 }
