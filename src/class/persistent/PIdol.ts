@@ -13,6 +13,8 @@ import LocaleStringWithRomaji, { DefaultLocaleStringWithRomaji } from "../../typ
 import PIdolUpgradeState from "../../type/PIdolUpgradeState"
 import { EffectReferenceAsyncPopulateMethods } from "../transient/EffectReference"
 import AsyncPopulateMethod from "../../type/util/AsyncPopulateMethod"
+import PrimaStellaUpgrade, { DBPrimaStellaUpgrade, IPrimaStellaUpgrade } from "../transient/PrimaStellaUpgrade"
+import Nullable from "../../type/util/Nullable"
 
 export type PIdolAsyncPopulateMethods = EffectReferenceAsyncPopulateMethods & {
     character: AsyncPopulateMethod<DBCharacter>,
@@ -28,7 +30,7 @@ export default class PIdol extends PersistentObject<IPIdol, DBPIdol> implements 
     plan: PIdolPlan
     subplan: PIdolSubplan
     isWelfare: boolean
-    signatureSkill: Skill
+    signatureSkill: Skill[]
     signaturePItem: PItem
     initialStamina: number
     initialParameter: ParameterSet
@@ -36,6 +38,7 @@ export default class PIdol extends PersistentObject<IPIdol, DBPIdol> implements 
     initialAbilities: Ability[]
     trainingLevels: PIdolLevelEffect[]
     potentialLevels: PIdolLevelEffect[]
+    primaStellaUpgrade: Nullable<PrimaStellaUpgrade>
     currentStamina: number
     currentParameter: ParameterSet
     currentGrowth: ParameterSet
@@ -58,7 +61,10 @@ export default class PIdol extends PersistentObject<IPIdol, DBPIdol> implements 
         this.plan = obj?.plan ?? PIdolPlan.Logic
         this.subplan = obj?.subplan ?? PIdolSubplan.Impression
         this.isWelfare = obj?.isWelfare ?? false
-        this.signatureSkill = new Skill(obj?.signatureSkill)
+        this.signatureSkill = []
+        obj?.signatureSkill?.forEach(s => {
+            this.signatureSkill.push(new Skill(s))
+        })
         this.signaturePItem = new PItem(obj?.signaturePItem)
         this.initialStamina = obj?.initialStamina ?? 0
         this.initialParameter = obj?.initialParameter ?? DefaultParameterSet
@@ -75,6 +81,7 @@ export default class PIdol extends PersistentObject<IPIdol, DBPIdol> implements 
         obj?.potentialLevels?.forEach(pl => {
             this.potentialLevels.push(new PIdolLevelEffect(pl))
         })
+        this.primaStellaUpgrade = obj?.primaStellaUpgrade ? new PrimaStellaUpgrade(obj.primaStellaUpgrade) : null
 
         // initialize modifiable properties
         this.currentStamina = structuredClone(this.initialStamina)
@@ -99,12 +106,16 @@ export default class PIdol extends PersistentObject<IPIdol, DBPIdol> implements 
         const i = new PIdol({
             ...obj,
             character: await Character.fromDB(await populate.character(obj.character) ?? new Character().toDB()),
-            signatureSkill: await Skill.fromDB(await populate.skill(obj.signatureSkill) ?? new Skill().toDB(), populate),
+            signatureSkill: [],
             signaturePItem: await PItem.fromDB(await populate.pItem(obj.signaturePItem) ?? new PItem().toDB(), populate),
             initialAbilities: [],
             trainingLevels: [],
-            potentialLevels: []
+            potentialLevels: [],
+            primaStellaUpgrade: obj.primaStellaUpgrade ? await PrimaStellaUpgrade.fromDB(obj.primaStellaUpgrade, populate) : null
         }, upgradeState)
+        for await (const s of obj.signatureSkill) {
+            i.signatureSkill.push(await Skill.fromDB(await populate.skill(s), populate))
+        }
         for await (const a of obj.initialAbilities) {
             i.initialAbilities.push(await Ability.fromDB(a, populate))
         }
@@ -127,14 +138,15 @@ export default class PIdol extends PersistentObject<IPIdol, DBPIdol> implements 
             plan: this.plan,
             subplan: this.subplan,
             isWelfare: this.isWelfare,
-            signatureSkill: this.signatureSkill.id,
+            signatureSkill: this.signatureSkill.map(s => s.id),
             signaturePItem: this.signaturePItem.id,
             initialStamina: this.initialStamina,
             initialParameter: this.initialParameter,
             initialGrowth: this.initialGrowth,
             initialAbilities: this.initialAbilities.map(a => a.toDB()),
             trainingLevels: this.trainingLevels.map(l => l.toDB()),
-            potentialLevels: this.potentialLevels.map(l => l.toDB())
+            potentialLevels: this.potentialLevels.map(l => l.toDB()),
+            primaStellaUpgrade: this.primaStellaUpgrade?.toDB() ?? null
         })
     }
     toJSON(): IPIdol {
@@ -147,14 +159,15 @@ export default class PIdol extends PersistentObject<IPIdol, DBPIdol> implements 
             plan: this.plan,
             subplan: this.subplan,
             isWelfare: this.isWelfare,
-            signatureSkill: this.signatureSkill.toJSON(),
+            signatureSkill: this.signatureSkill.map(s => s.toJSON()),
             signaturePItem: this.signaturePItem.toJSON(),
             initialStamina: this.initialStamina,
             initialParameter: this.initialParameter,
             initialGrowth: this.initialGrowth,
             initialAbilities: this.initialAbilities.map(a => a.toJSON()),
             trainingLevels: this.trainingLevels.map(l => l.toJSON()),
-            potentialLevels: this.potentialLevels.map(l => l.toJSON())
+            potentialLevels: this.potentialLevels.map(l => l.toJSON()),
+            primaStellaUpgrade: this.primaStellaUpgrade?.toJSON() ?? null
         })
     }
     copy(): PIdol {
@@ -174,7 +187,14 @@ export default class PIdol extends PersistentObject<IPIdol, DBPIdol> implements 
             this.signaturePItem.setUpgradeLevel(this.signaturePItem.currentUpgradeLevel + 1)
         }
         if (effect.triggers.skillUpgrade) {
-            this.signatureSkill.setUpgradeLevel(this.signatureSkill.currentUpgradeLevel + 1)
+            if (this.signatureSkill.length >= 1) {
+                this.signatureSkill[0].setUpgradeLevel(this.signatureSkill[0].currentUpgradeLevel + 1)
+            }
+        }
+        if (effect.triggers.skill2Upgrade) {
+            if (this.signatureSkill.length >= 2) {
+                this.signatureSkill[1].setUpgradeLevel(this.signatureSkill[1].currentUpgradeLevel + 1)
+            }
         }
         // check for duplicates and replace if a duplicate is found
         effect.abilities.forEach(ea => {
@@ -203,7 +223,9 @@ export default class PIdol extends PersistentObject<IPIdol, DBPIdol> implements 
             this.currentAbilities.push(a.copy())
         })
         this.signaturePItem.setUpgradeLevel(0)
-        this.signatureSkill.setUpgradeLevel(0)
+        for (let i = 0; i < this.signatureSkill.length; i++) {
+            this.signatureSkill[i].setUpgradeLevel(0)
+        }
     }
     private resetTrainingLevel(): undefined {
         this.resetProperties()
@@ -267,7 +289,7 @@ export interface IPIdol extends IPersistentObject {
     plan: PIdolPlan
     subplan: PIdolSubplan
     isWelfare: boolean
-    signatureSkill: ISkill
+    signatureSkill: ISkill[]
     signaturePItem: IPItem
     initialStamina: number
     initialParameter: ParameterSet
@@ -275,13 +297,15 @@ export interface IPIdol extends IPersistentObject {
     initialAbilities: IAbility[]
     trainingLevels: IPIdolLevelEffect[]
     potentialLevels: IPIdolLevelEffect[]
+    primaStellaUpgrade: Nullable<IPrimaStellaUpgrade>
 }
 
-export type DBPIdol = Omit<IPIdol, "character" | "signatureSkill" | "signaturePItem" | "initialAbilities" | "trainingLevels" | "potentialLevels"> & {
+export type DBPIdol = Omit<IPIdol, "character" | "signatureSkill" | "signaturePItem" | "initialAbilities" | "trainingLevels" | "potentialLevels" | "primaStellaUpgrade"> & {
     character: string
-    signatureSkill: string
+    signatureSkill: string[]
     signaturePItem: string
     initialAbilities: DBAbility[]
     trainingLevels: DBPIdolLevelEffect[]
     potentialLevels: DBPIdolLevelEffect[]
+    primaStellaUpgrade: Nullable<DBPrimaStellaUpgrade>
 }

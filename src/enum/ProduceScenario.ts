@@ -3,7 +3,8 @@
  */
 enum ProduceScenario {
     Hajime = "hajime",
-    NextIdolAudition = "nia"
+    NextIdolAudition = "nia",
+    HatsuboshiIdolFestival = "hif"
 }
 
 export default ProduceScenario

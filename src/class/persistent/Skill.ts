@@ -15,6 +15,7 @@ import LocaleStringWithRomaji, { DefaultLocaleStringWithRomaji } from "../../typ
 import SkillEffectMod from "../transient/SkillEffectMod"
 import SkillUpgradeState from "../../type/SkillUpgradeState"
 import { EffectReferenceAsyncPopulateMethods } from "../transient/EffectReference"
+import SkillConsolidatedRarity from "../../enum/SkillConsolidatedRarity"
 
 export default class Skill extends PersistentObject<ISkill, DBSkill> implements ISkill {
     name: LocaleStringWithRomaji
@@ -147,6 +148,20 @@ export default class Skill extends PersistentObject<ISkill, DBSkill> implements 
             ja: this.name.ja + upgradeSymbol,
             ro: this.name.ro + upgradeSymbol,
             en: this.name.en + upgradeSymbol
+        }
+    }
+    get consolidatedRarity(): SkillConsolidatedRarity {
+        switch (this.rarity) {
+            case SkillRarity.N:
+                return SkillConsolidatedRarity.N
+            case SkillRarity.RLow: case SkillRarity.RHigh:
+                return SkillConsolidatedRarity.R
+            case SkillRarity.SRLow: case SkillRarity.SRHigh:
+                return SkillConsolidatedRarity.SR
+            case SkillRarity.SSR:
+                return SkillConsolidatedRarity.SSR
+            case SkillRarity.Legend:
+                return SkillConsolidatedRarity.Legend
         }
     }
 

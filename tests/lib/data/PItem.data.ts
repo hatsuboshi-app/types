@@ -1,4 +1,4 @@
-import { DBPItem } from "../../../src/class/persistent/PItem"
+import { DBPItem } from "../../../src"
 import Plan from "../../../src/enum/Plan"
 import Rarity from "../../../src/enum/Rarity"
 import PItemSource from "../../../src/enum/PItemSource"

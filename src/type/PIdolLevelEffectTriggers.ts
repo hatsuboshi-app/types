@@ -3,6 +3,7 @@ type PIdolLevelEffectTriggers = {
     altOutfitUnlock: boolean
     skillCustomizeUnlock: boolean
     skillUpgrade: boolean
+    skill2Upgrade: boolean
     pItemUpgrade: boolean
 }
 
