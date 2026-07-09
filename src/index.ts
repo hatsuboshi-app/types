@@ -63,6 +63,7 @@ import PIdolVisual from "./type/PIdolVisual"
 import PIdolVisualSet from "./type/PIdolVisualSet"
 import SkillFlags from "./type/SkillFlags"
 import SkillUpgradeState from "./type/SkillUpgradeState"
+import SortOption, { decodeSortOptions, encodeSortOptions } from "./type/utility/SortOption"
 
 export {
     // Interfaces
@@ -99,7 +100,8 @@ export {
     // Utility Types & Functions
     AsyncPopulateMethod,
     Nullable,
-    Result, success, fail,
+    Result,                     success, fail,
+    SortOption,                 encodeSortOptions, decodeSortOptions,
 
     // Enums
     AbilityIconColor,
