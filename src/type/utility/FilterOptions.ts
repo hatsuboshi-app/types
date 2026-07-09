@@ -3,14 +3,12 @@ export type DateFilterOptions = Partial<{
     after: string
 }>
 
-export type StringFilterOptions = Partial<{
-    type: "Search"
+export type StringFilterOptions = { type: "Search" } & Partial<{
     search: string
     method: "simple" | "regex"
 }>
 
-export type IncompleteLocaleFilterOptions = Partial<{
-    type: "IncompleteLocale"
+export type IncompleteLocaleFilterOptions = { type: "IncompleteLocale" } & Partial<{
     missingJa: boolean
     missingEn: boolean
     missingRo: boolean
