@@ -19,6 +19,7 @@ import SkillEffect, { DBSkillEffect, ISkillEffect } from "./class/transient/Skil
 import SkillEffectLine, { DBSkillEffectLine, ISkillEffectLine } from "./class/transient/SkillEffectLine"
 import SkillEffectMod, { DBSkillEffectMod, ISkillEffectMod } from "./class/transient/SkillEffectMod"
 import SkillUpgradeLevelEffect, { DBSkillUpgradeLevelEffect, ISkillUpgradeLevelEffect } from "./class/transient/SkillUpgradeLevelEffect"
+import Paginator, { IPaginator } from "./class/utility/Paginator"
 import DBSerializable from "./interface/DBSerializable"
 import Duplicable from "./interface/Duplicable"
 import JSONSerializable from "./interface/JSONSerializable"
@@ -91,6 +92,9 @@ export {
     SkillEffectLine,            ISkillEffectLine,            DBSkillEffectLine,
     SkillEffectMod,             ISkillEffectMod,             DBSkillEffectMod,
     SkillUpgradeLevelEffect,    ISkillUpgradeLevelEffect,    DBSkillUpgradeLevelEffect,
+
+    // Utility Classses
+    Paginator,                  IPaginator,
 
     // Utility Types & Functions
     AsyncPopulateMethod,
