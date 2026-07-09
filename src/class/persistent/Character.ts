@@ -1,8 +1,9 @@
-import PersistentObject, { IPersistentObject } from "../abstract/PersistentObject"
+import PersistentObject, { IPersistentObject, PersistentObjectFilterOptions } from "../abstract/PersistentObject"
 import LocaleString, { DefaultLocaleString } from "../../type/LocaleString"
 import CharacterColor, { DefaultCharacterColor } from "../../type/CharacterColor"
 import CharacterDetail, { DefaultCharacterDetail } from "../../type/CharacterDetail"
 import CharacterTrueEndBonus from "../../type/CharacterTrueEndBonus"
+import { LocaleStringFilterOptions } from "../../type/utility/FilterOptions";
 
 export default class Character extends PersistentObject<ICharacter, DBCharacter> implements ICharacter {
     lastName: LocaleString
@@ -74,3 +75,8 @@ export interface ICharacter extends IPersistentObject {
 }
 
 export type DBCharacter = ICharacter
+
+export type CharacterFilterOptions = PersistentObjectFilterOptions & Partial<{
+    name: LocaleStringFilterOptions
+    isPlayable: boolean
+}>

@@ -1,4 +1,4 @@
-import PersistentObject, { IPersistentObject } from "../abstract/PersistentObject"
+import PersistentObject, { IPersistentObject, PersistentObjectFilterOptions } from "../abstract/PersistentObject"
 import SkillEffect, { DBSkillEffect, ISkillEffect } from "../transient/SkillEffect"
 import Plan from "../../enum/Plan"
 import SkillCategory from "../../enum/SkillCategory"
@@ -16,6 +16,7 @@ import SkillEffectMod from "../transient/SkillEffectMod"
 import SkillUpgradeState from "../../type/SkillUpgradeState"
 import { EffectReferenceAsyncPopulateMethods } from "../transient/EffectReference"
 import SkillConsolidatedRarity from "../../enum/SkillConsolidatedRarity"
+import { EnumFilterOptions, LocaleStringFilterOptions, NumberFilterOptions } from "../../type/utility/FilterOptions"
 
 export default class Skill extends PersistentObject<ISkill, DBSkill> implements ISkill {
     name: LocaleStringWithRomaji
@@ -318,3 +319,13 @@ export type DBSkill = Omit<ISkill, "upgradeLevels" | "customizeOptions" | "initi
     customizeOptions: DBSkillCustomize[]
     initialEffect: DBSkillEffect
 }
+
+export type SkillFilterOptions = PersistentObjectFilterOptions & Partial<{
+    name: LocaleStringFilterOptions
+    plan: EnumFilterOptions<Plan>
+    rarity: EnumFilterOptions<SkillRarity>
+    category: EnumFilterOptions<SkillCategory>
+    source: EnumFilterOptions<SkillSource>
+    unlockLevel: NumberFilterOptions
+    isCustomizable: boolean
+}>

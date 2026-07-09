@@ -1,4 +1,4 @@
-import PersistentObject, { IPersistentObject } from "../abstract/PersistentObject"
+import PersistentObject, { IPersistentObject, PersistentObjectFilterOptions } from "../abstract/PersistentObject"
 import Effect, { DBEffect, IEffect } from "../transient/Effect"
 import Plan from "../../enum/Plan"
 import Rarity from "../../enum/Rarity"
@@ -6,6 +6,7 @@ import PItemSource from "../../enum/PItemSource"
 import AbilityLevel, { DBAbilityLevel, IAbilityLevel } from "../transient/AbilityLevel"
 import LocaleStringWithRomaji, { DefaultLocaleStringWithRomaji } from "../../type/LocaleStringWithRomaji"
 import { EffectReferenceAsyncPopulateMethods } from "../transient/EffectReference"
+import { EnumFilterOptions, LocaleStringFilterOptions, NumberFilterOptions } from "../../type/utility/FilterOptions";
 
 export default class PItem extends PersistentObject<IPItem, DBPItem> implements IPItem {
     name: LocaleStringWithRomaji
@@ -146,3 +147,11 @@ export type DBPItem = Omit<IPItem, "initialEffect" | "upgradeLevels"> & {
     initialEffect: DBEffect
     upgradeLevels: DBAbilityLevel[]
 }
+
+export type PItemFilterOptions = PersistentObjectFilterOptions & Partial<{
+    name: LocaleStringFilterOptions
+    plan: EnumFilterOptions<Plan>
+    rarity: EnumFilterOptions<Rarity>
+    source: EnumFilterOptions<PItemSource>
+    unlockLevel: NumberFilterOptions
+}>

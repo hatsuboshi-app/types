@@ -1,11 +1,19 @@
-import PIdol, { DBPIdol, IPIdol } from "./class/persistent/PIdol"
-import AuditionEffect, { DBAuditionEffect, IAuditionEffect } from "./class/persistent/AuditionEffect"
-import AuditionTerminology, { DBAuditionTerminology, IAuditionTerminology } from "./class/persistent/AuditionTerminology"
-import Character, { DBCharacter, ICharacter } from "./class/persistent/Character"
-import PDrink, { DBPDrink, IPDrink } from "./class/persistent/PDrink"
-import PItem, { DBPItem, IPItem } from "./class/persistent/PItem"
-import Skill, { DBSkill, ISkill } from "./class/persistent/Skill"
-import SupportCard, { DBSupportCard, ISupportCard } from "./class/persistent/SupportCard"
+import PIdol, { DBPIdol, IPIdol, PIdolFilterOptions } from "./class/persistent/PIdol"
+import AuditionEffect, {
+    AuditionEffectFilterOptions,
+    DBAuditionEffect,
+    IAuditionEffect
+} from "./class/persistent/AuditionEffect"
+import AuditionTerminology, {
+    AuditionTerminologyFilterOptions,
+    DBAuditionTerminology,
+    IAuditionTerminology
+} from "./class/persistent/AuditionTerminology"
+import Character, { CharacterFilterOptions, DBCharacter, ICharacter } from "./class/persistent/Character"
+import PDrink, { DBPDrink, IPDrink, PDrinkFilterOptions } from "./class/persistent/PDrink"
+import PItem, { DBPItem, IPItem, PItemFilterOptions } from "./class/persistent/PItem"
+import Skill, { DBSkill, ISkill, SkillFilterOptions } from "./class/persistent/Skill"
+import SupportCard, { DBSupportCard, ISupportCard, SupportCardFilterOptions } from "./class/persistent/SupportCard"
 import Ability, { DBAbility, IAbility } from "./class/transient/Ability"
 import AbilityLevel, { DBAbilityLevel, IAbilityLevel } from "./class/transient/AbilityLevel"
 import Effect, { DBEffect, IEffect } from "./class/transient/Effect"
@@ -64,20 +72,26 @@ import PIdolVisualSet from "./type/PIdolVisualSet"
 import SkillFlags from "./type/SkillFlags"
 import SkillUpgradeState from "./type/SkillUpgradeState"
 import SortOption, { decodeSortOptions, encodeSortOptions } from "./type/utility/SortOption"
+import {
+    DateFilterOptions,
+    EnumFilterOptions,
+    LocaleStringFilterOptions,
+    NumberFilterOptions
+} from "./type/utility/FilterOptions"
 
 export {
     // Interfaces
     DBSerializable, Duplicable, JSONSerializable, TransientObject,
 
     // Persistent Classes
-    PIdol,                      IPIdol,                      DBPIdol,
-    AuditionEffect,             IAuditionEffect,             DBAuditionEffect,
-    AuditionTerminology,        IAuditionTerminology,        DBAuditionTerminology,
-    Character,                  ICharacter,                  DBCharacter,
-    PDrink,                     IPDrink,                     DBPDrink,
-    PItem,                      IPItem,                      DBPItem,
-    Skill,                      ISkill,                      DBSkill,
-    SupportCard,                ISupportCard,                DBSupportCard,
+    PIdol,                      IPIdol,                      DBPIdol,                   PIdolFilterOptions,
+    AuditionEffect,             IAuditionEffect,             DBAuditionEffect,          AuditionEffectFilterOptions,
+    AuditionTerminology,        IAuditionTerminology,        DBAuditionTerminology,     AuditionTerminologyFilterOptions,
+    Character,                  ICharacter,                  DBCharacter,               CharacterFilterOptions,
+    PDrink,                     IPDrink,                     DBPDrink,                  PDrinkFilterOptions,
+    PItem,                      IPItem,                      DBPItem,                   PItemFilterOptions,
+    Skill,                      ISkill,                      DBSkill,                   SkillFilterOptions,
+    SupportCard,                ISupportCard,                DBSupportCard,             SupportCardFilterOptions,
 
     // Transient Classes
     Ability,                    IAbility,                    DBAbility,
@@ -102,6 +116,10 @@ export {
     Nullable,
     Result,                     success, fail,
     SortOption,                 encodeSortOptions, decodeSortOptions,
+    NumberFilterOptions,
+    DateFilterOptions,
+    EnumFilterOptions,
+    LocaleStringFilterOptions,
 
     // Enums
     AbilityIconColor,

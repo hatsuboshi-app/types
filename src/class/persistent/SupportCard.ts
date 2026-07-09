@@ -1,4 +1,4 @@
-import PersistentObject, { IPersistentObject } from "../abstract/PersistentObject"
+import PersistentObject, { IPersistentObject, PersistentObjectFilterOptions } from "../abstract/PersistentObject"
 
 export default class SupportCard extends PersistentObject<ISupportCard, ISupportCard> implements ISupportCard {
     // implement
@@ -27,3 +27,5 @@ export interface ISupportCard extends IPersistentObject {
 }
 
 export type DBSupportCard = ISupportCard
+
+export type SupportCardFilterOptions = PersistentObjectFilterOptions
