@@ -1,6 +1,6 @@
 import PersistentObject, { IPersistentObject } from "../abstract/PersistentObject"
 import Effect, { DBEffect, IEffect } from "../transient/Effect"
-import Nullable from "../../type/util/Nullable"
+import Nullable from "../../type/utility/Nullable"
 import AuditionIcon from "../../type/AuditionIcon"
 import { EffectReferenceAsyncPopulateMethods } from "../transient/EffectReference"
 import LocaleString, { DefaultLocaleString } from "../../type/LocaleString"

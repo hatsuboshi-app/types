@@ -12,9 +12,9 @@ import Skill, { DBSkill, ISkill } from "./Skill"
 import LocaleStringWithRomaji, { DefaultLocaleStringWithRomaji } from "../../type/LocaleStringWithRomaji"
 import PIdolUpgradeState from "../../type/PIdolUpgradeState"
 import { EffectReferenceAsyncPopulateMethods } from "../transient/EffectReference"
-import AsyncPopulateMethod from "../../type/util/AsyncPopulateMethod"
+import AsyncPopulateMethod from "../../type/utility/AsyncPopulateMethod"
 import PrimaStellaUpgrade, { DBPrimaStellaUpgrade, IPrimaStellaUpgrade } from "../transient/PrimaStellaUpgrade"
-import Nullable from "../../type/util/Nullable"
+import Nullable from "../../type/utility/Nullable"
 
 export type PIdolAsyncPopulateMethods = EffectReferenceAsyncPopulateMethods & {
     character: AsyncPopulateMethod<DBCharacter>,

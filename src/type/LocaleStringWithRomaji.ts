@@ -1,4 +1,4 @@
-import Nullable from "./util/Nullable"
+import Nullable from "./utility/Nullable"
 import LocaleString, { DefaultLocaleString } from "./LocaleString"
 
 
