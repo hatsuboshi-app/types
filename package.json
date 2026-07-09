@@ -9,7 +9,7 @@
         "dist"
     ],
     "scripts": {
-        "build": "tsup src",
+        "build": "tsup src --minify",
         "postbuild": "tsc --emitDeclarationOnly --declarationDir dist",
         "test": "vitest --run tests/"
     },
