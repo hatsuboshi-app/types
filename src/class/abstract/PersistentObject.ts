@@ -1,6 +1,7 @@
 import TransientObject from "../../interface/TransientObject"
+import { DateFilterOptions } from "../../type/utility/FilterOptions";
 
-abstract class PersistentObject<I extends IPersistentObject, D extends IPersistentObject> implements IPersistentObject, TransientObject<I, D> {
+export default abstract class PersistentObject<I extends IPersistentObject, D extends IPersistentObject> implements IPersistentObject, TransientObject<I, D> {
     protected static index = 0
     id: string
     createdAt: string
@@ -48,4 +49,7 @@ export interface IPersistentObject {
     updatedAt: string
 }
 
-export default PersistentObject
+export type PersistentObjectFilterOptions = Partial<{
+    createdAt: DateFilterOptions,
+    updatedAt: DateFilterOptions
+}>

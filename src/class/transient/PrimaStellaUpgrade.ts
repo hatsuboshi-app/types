@@ -3,7 +3,7 @@ import Ability, { DBAbility, IAbility } from "./Ability"
 import PIdolVisualSet, { DefaultPIdolVisualSet } from "../../type/PIdolVisualSet"
 import TransientObject from "../../interface/TransientObject"
 import { EffectReferenceAsyncPopulateMethods } from "./EffectReference"
-import AsyncPopulateMethod from "../../type/util/AsyncPopulateMethod"
+import AsyncPopulateMethod from "../../type/utility/AsyncPopulateMethod"
 
 export type PSUpgradeAsyncPopulateMethods = EffectReferenceAsyncPopulateMethods & {
     skill: AsyncPopulateMethod<DBSkill>

@@ -1,7 +1,7 @@
 import Effect, { IEffect } from "./Effect"
 import AuditionEffect from "../persistent/AuditionEffect"
 import SkillEffectLine, { DBSkillEffectLine, ISkillEffectLine } from "./SkillEffectLine"
-import Nullable from "../../type/util/Nullable"
+import Nullable from "../../type/utility/Nullable"
 import EffectReference, { DBEffectReference, EffectReferenceAsyncPopulateMethods } from "./EffectReference"
 import TransientObject from "../../interface/TransientObject"
 

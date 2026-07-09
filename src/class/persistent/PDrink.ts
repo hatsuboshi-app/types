@@ -1,9 +1,10 @@
-import PersistentObject, { IPersistentObject } from "../abstract/PersistentObject"
+import PersistentObject, { IPersistentObject, PersistentObjectFilterOptions } from "../abstract/PersistentObject"
 import Plan from "../../enum/Plan"
 import Rarity from "../../enum/Rarity"
 import Effect, { DBEffect, IEffect } from "../transient/Effect"
 import LocaleStringWithRomaji, { DefaultLocaleStringWithRomaji } from "../../type/LocaleStringWithRomaji"
 import { EffectReferenceAsyncPopulateMethods } from "../transient/EffectReference"
+import { EnumFilterOptions, LocaleStringFilterOptions, NumberFilterOptions } from "../../type/utility/FilterOptions";
 
 export default class PDrink extends PersistentObject<IPDrink, DBPDrink> implements IPDrink {
     name: LocaleStringWithRomaji
@@ -72,3 +73,10 @@ export interface IPDrink extends IPersistentObject {
 export type DBPDrink = Omit<IPDrink, "effect"> & {
     effect: DBEffect
 }
+
+export type PDrinkFilterOptions = PersistentObjectFilterOptions & Partial<{
+    name: LocaleStringFilterOptions,
+    plan: EnumFilterOptions<Plan>,
+    rarity: EnumFilterOptions<Rarity>,
+    unlockLevel: NumberFilterOptions
+}>

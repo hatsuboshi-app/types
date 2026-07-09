@@ -1,4 +1,4 @@
-import PersistentObject, { IPersistentObject } from "../abstract/PersistentObject"
+import PersistentObject, { IPersistentObject, PersistentObjectFilterOptions } from "../abstract/PersistentObject"
 import Character, { DBCharacter, ICharacter } from "./Character"
 import Rarity from "../../enum/Rarity"
 import PIdolPlan from "../../enum/PIdolPlan"
@@ -12,9 +12,10 @@ import Skill, { DBSkill, ISkill } from "./Skill"
 import LocaleStringWithRomaji, { DefaultLocaleStringWithRomaji } from "../../type/LocaleStringWithRomaji"
 import PIdolUpgradeState from "../../type/PIdolUpgradeState"
 import { EffectReferenceAsyncPopulateMethods } from "../transient/EffectReference"
-import AsyncPopulateMethod from "../../type/util/AsyncPopulateMethod"
+import AsyncPopulateMethod from "../../type/utility/AsyncPopulateMethod"
 import PrimaStellaUpgrade, { DBPrimaStellaUpgrade, IPrimaStellaUpgrade } from "../transient/PrimaStellaUpgrade"
-import Nullable from "../../type/util/Nullable"
+import Nullable from "../../type/utility/Nullable"
+import { EnumFilterOptions, LocaleStringFilterOptions } from "../../type/utility/FilterOptions";
 
 export type PIdolAsyncPopulateMethods = EffectReferenceAsyncPopulateMethods & {
     character: AsyncPopulateMethod<DBCharacter>,
@@ -309,3 +310,13 @@ export type DBPIdol = Omit<IPIdol, "character" | "signatureSkill" | "signaturePI
     potentialLevels: DBPIdolLevelEffect[]
     primaStellaUpgrade: Nullable<DBPrimaStellaUpgrade>
 }
+
+export type PIdolFilterOptions = PersistentObjectFilterOptions & Partial<{
+    name: LocaleStringFilterOptions
+    character: EnumFilterOptions<string>
+    rarity: EnumFilterOptions<Rarity>
+    plan: EnumFilterOptions<PIdolPlan>
+    isWelfare: boolean
+    hasPrimaStellaUpgrade: boolean
+    hasTrainingLv7: boolean
+}>

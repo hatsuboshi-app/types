@@ -1,9 +1,10 @@
-import PersistentObject, { IPersistentObject } from "../abstract/PersistentObject"
+import PersistentObject, { IPersistentObject, PersistentObjectFilterOptions } from "../abstract/PersistentObject"
 import Effect, { DBEffect, IEffect } from "../transient/Effect"
-import Nullable from "../../type/util/Nullable"
+import Nullable from "../../type/utility/Nullable"
 import AuditionIcon from "../../type/AuditionIcon"
 import { EffectReferenceAsyncPopulateMethods } from "../transient/EffectReference"
 import LocaleString, { DefaultLocaleString } from "../../type/LocaleString"
+import { LocaleStringFilterOptions } from "../../type/utility/FilterOptions";
 
 export default class AuditionTerminology extends PersistentObject<IAuditionTerminology, DBAuditionTerminology> implements IAuditionTerminology {
     name: LocaleString
@@ -62,3 +63,7 @@ export interface IAuditionTerminology extends IPersistentObject {
 export type DBAuditionTerminology = Omit<IAuditionTerminology, "description"> & {
     description: DBEffect
 }
+
+export type AuditionTerminologyFilterOptions = PersistentObjectFilterOptions & Partial<{
+    name: LocaleStringFilterOptions
+}>

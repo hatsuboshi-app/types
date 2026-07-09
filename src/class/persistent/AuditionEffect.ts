@@ -1,8 +1,9 @@
-import PersistentObject, { IPersistentObject } from "../abstract/PersistentObject"
+import PersistentObject, { IPersistentObject, PersistentObjectFilterOptions } from "../abstract/PersistentObject"
 import Effect, { DBEffect, IEffect } from "../transient/Effect"
 import AuditionIcon, { DefaultAuditionIcon } from "../../type/AuditionIcon"
 import { EffectReferenceAsyncPopulateMethods } from "../transient/EffectReference"
 import LocaleString, { DefaultLocaleString } from "../../type/LocaleString"
+import { LocaleStringFilterOptions } from "../../type/utility/FilterOptions"
 
 export default class AuditionEffect extends PersistentObject<IAuditionEffect, DBAuditionEffect> implements IAuditionEffect {
     name: LocaleString
@@ -56,3 +57,7 @@ export interface IAuditionEffect extends IPersistentObject {
 export type DBAuditionEffect = Omit<IAuditionEffect, "description"> & {
     description: DBEffect
 }
+
+export type AuditionEffectFilterOptions = PersistentObjectFilterOptions & Partial<{
+    name: LocaleStringFilterOptions
+}>

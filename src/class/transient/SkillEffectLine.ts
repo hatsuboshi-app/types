@@ -1,6 +1,6 @@
 import EffectLine, { IEffectLine } from "./EffectLine"
 import AuditionEffect, { IAuditionEffect } from "../persistent/AuditionEffect"
-import Nullable from "../../type/util/Nullable"
+import Nullable from "../../type/utility/Nullable"
 import { EffectReferenceAsyncPopulateMethods } from "./EffectReference"
 import TransientObject from "../../interface/TransientObject"
 
