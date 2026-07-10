@@ -1,6 +1,7 @@
 import Nullable from "../../type/utility/Nullable"
+import JSONSerializable from "../../interface/JSONSerializable"
 
-export default class Paginator<K extends T, T extends {}> implements IPaginator<T> {
+export default class Paginator<K extends T & JSONSerializable<T>, T extends {}> implements IPaginator<T>, JSONSerializable<IPaginator<T>> {
     readonly data: K[]
     readonly meta: {
         currentPage: number,
@@ -29,6 +30,13 @@ export default class Paginator<K extends T, T extends {}> implements IPaginator<
             nextPageLocation: obj?.meta?.nextPageLocation ?? null
         }
         this.meta.totalPages = obj?.meta?.totalPages ?? Math.ceil(this.meta.totalItems / this.meta.pageSize)
+    }
+
+    toJSON(): IPaginator<T> {
+        return {
+            data: this.data.map(d => d.toJSON()),
+            meta: this.meta
+        }
     }
 }
 
