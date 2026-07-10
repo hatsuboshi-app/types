@@ -1,7 +1,7 @@
 import Nullable from "../../type/utility/Nullable"
 
-export default class Paginator<T extends {}> implements IPaginator<T> {
-    readonly data: T[]
+export default class Paginator<K extends T, T extends {}> implements IPaginator<T> {
+    readonly data: K[]
     readonly meta: {
         currentPage: number,
         pageSize: number,
@@ -11,9 +11,9 @@ export default class Paginator<T extends {}> implements IPaginator<T> {
         nextPageLocation: Nullable<string>
     }
 
-    constructor(type: (new(obj: object) => T))
-    constructor(type: (new(obj: object) => T), obj: Partial<IPaginator<T>>)
-    constructor(type: (new(obj: object) => T), obj?: Partial<IPaginator<T>>) {
+    constructor(type: (new(obj: T) => K))
+    constructor(type: (new(obj: T) => K), obj: Partial<IPaginator<T>>)
+    constructor(type: (new(obj: T) => K), obj?: Partial<IPaginator<T>>) {
         this.data = []
         if (obj?.data) {
             obj.data.forEach(v => {
