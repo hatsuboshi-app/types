@@ -1,4 +1,3 @@
-import Nullable from "../../type/utility/Nullable"
 import JSONSerializable from "../../interface/JSONSerializable"
 
 export default class Paginator<K extends T & JSONSerializable<T>, T extends {}> implements IPaginator<T>, JSONSerializable<IPaginator<T>> {
@@ -7,9 +6,7 @@ export default class Paginator<K extends T & JSONSerializable<T>, T extends {}> 
         currentPage: number,
         pageSize: number,
         totalItems: number,
-        totalPages: number,
-        prevPageLocation: Nullable<string>,
-        nextPageLocation: Nullable<string>
+        totalPages: number
     }
 
     constructor(type: (new(obj: T) => K))
@@ -26,8 +23,6 @@ export default class Paginator<K extends T & JSONSerializable<T>, T extends {}> 
             pageSize: obj?.meta?.pageSize ?? 15,
             totalItems: obj?.meta?.totalItems ?? this.data.length,
             totalPages: 0,  // updated later in constructor
-            prevPageLocation: obj?.meta?.prevPageLocation ?? null,
-            nextPageLocation: obj?.meta?.nextPageLocation ?? null
         }
         this.meta.totalPages = obj?.meta?.totalPages ?? Math.ceil(this.meta.totalItems / this.meta.pageSize)
     }
@@ -46,8 +41,6 @@ export interface IPaginator<T extends {}> {
         currentPage: number,
         pageSize: number,
         totalItems: number,
-        totalPages: number,
-        prevPageLocation: Nullable<string>,
-        nextPageLocation: Nullable<string>
+        totalPages: number
     }
 }
