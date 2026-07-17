@@ -50,15 +50,11 @@ export default class PItem extends PersistentObject<IPItem, DBPItem> implements 
         }
     }
     static async fromDB(obj: DBPItem, populate: EffectReferenceAsyncPopulateMethods, upgradeLevel?: number): Promise<PItem> {
-        const pi = new PItem({
-            ...obj,
-            initialEffect: { ...await Effect.fromDB(obj.initialEffect, populate) },
-            upgradeLevels: []
-        }, upgradeLevel)
-        for await (const ul of obj.upgradeLevels) {
-            pi.upgradeLevels.push(await AbilityLevel.fromDB(ul, populate))
-        }
-        return pi
+        const [initialEffect, upgradeLevels] = await Promise.all([
+            Effect.fromDB(obj.initialEffect, populate),
+            Promise.all(obj.upgradeLevels.map(ul => AbilityLevel.fromDB(ul, populate)))
+        ])
+        return new PItem({ ...obj, initialEffect, upgradeLevels }, upgradeLevel)
     }
 
     toDB(): DBPItem {

@@ -38,18 +38,11 @@ export default class Effect implements IEffect, TransientObject<IEffect, DBEffec
         })
     }
     static async fromDB(obj: DBEffect, populate: EffectReferenceAsyncPopulateMethods): Promise<Effect> {
-        const e = new Effect({
-            ...obj,
-            refs: [],
-            lines: []
-        })
-        for await (const r of obj.refs) {
-            e.refs.push(await EffectReference.fromDB(r, populate))
-        }
-        for await (const l of obj.lines) {
-            e.lines.push(await EffectLine.fromDB(l))
-        }
-        return e
+        const [refs, lines] = await Promise.all([
+            Promise.all(obj.refs.map(r => EffectReference.fromDB(r, populate))),
+            Promise.all(obj.lines.map(l => EffectLine.fromDB(l, populate)))
+        ])
+        return new Effect({ ...obj, refs, lines })
     }
 
     toDB(): DBEffect {

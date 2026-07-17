@@ -23,14 +23,10 @@ export default class SkillCustomize implements ISkillCustomize, TransientObject<
         this.description =  obj?.description ?? DefaultLocaleString
     }
     static async fromDB(obj: DBSkillCustomize, populate: EffectReferenceAsyncPopulateMethods): Promise<SkillCustomize> {
-        const sc = new SkillCustomize({
-            ...obj,
-            levels: []
-        })
-        for await (const l of obj.levels) {
-            sc.levels.push(await SkillCustomizeLevelEffect.fromDB(l, populate))
-        }
-        return sc
+        const levels = await Promise.all(obj.levels.map(l => {
+            return SkillCustomizeLevelEffect.fromDB(l, populate)
+        }))
+        return new SkillCustomize({ ...obj, levels })
     }
 
     toDB(): DBSkillCustomize {

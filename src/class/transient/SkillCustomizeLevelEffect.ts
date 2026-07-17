@@ -38,27 +38,20 @@ export default class SkillCustomizeLevelEffect implements ISkillCustomizeLevelEf
         })
     }
     static async fromDB(obj: DBSkillCustomizeLevelEffect, populate: EffectReferenceAsyncPopulateMethods): Promise<SkillCustomizeLevelEffect> {
-        const ule = new SkillCustomizeLevelEffect({
-            ...obj,
-            mods: []
-        })
-        for await (const m of obj.mods) {
+        const mods = await Promise.all(obj.mods.map(m => {
             switch (m.type) {
                 case EffectModType.Enhance:
                 case EffectModType.CostReduce:
                 case EffectModType.CustomizeLimitIncrease:
                 case EffectModType.ModifyFlag:
-                    ule.mods.push(m)
-                    break
+                    return m
                 case EffectModType.Replace:
-                    ule.mods.push(await ReplaceSkillEffectMod.fromDB(m, populate))
-                    break
+                    return ReplaceSkillEffectMod.fromDB(m, populate)
                 case EffectModType.Insert:
-                    ule.mods.push(await InsertSkillEffectMod.fromDB(m, populate))
-                    break
+                    return InsertSkillEffectMod.fromDB(m, populate)
             }
-        }
-        return ule
+        }))
+        return new SkillCustomizeLevelEffect({ ...obj, mods })
     }
 
     toDB(): DBSkillCustomizeLevelEffect {

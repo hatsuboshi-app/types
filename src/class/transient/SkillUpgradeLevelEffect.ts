@@ -36,27 +36,20 @@ export default class SkillUpgradeLevelEffect implements ISkillUpgradeLevelEffect
         })
     }
     static async fromDB(obj: DBSkillUpgradeLevelEffect, populate: EffectReferenceAsyncPopulateMethods): Promise<SkillUpgradeLevelEffect> {
-        const ule = new SkillUpgradeLevelEffect({
-            ...obj,
-            mods: []
-        })
-        for await (const m of obj.mods) {
+        const mods = await Promise.all(obj.mods.map(m => {
             switch (m.type) {
                 case EffectModType.Enhance:
                 case EffectModType.CostReduce:
                 case EffectModType.CustomizeLimitIncrease:
                 case EffectModType.ModifyFlag:
-                    ule.mods.push(m)
-                    break
+                    return m
                 case EffectModType.Replace:
-                    ule.mods.push(await ReplaceSkillEffectMod.fromDB(m, populate))
-                    break
+                    return ReplaceSkillEffectMod.fromDB(m, populate)
                 case EffectModType.Insert:
-                    ule.mods.push(await InsertSkillEffectMod.fromDB(m, populate))
-                    break
+                    return InsertSkillEffectMod.fromDB(m, populate)
             }
-        }
-        return ule
+        }))
+        return new SkillUpgradeLevelEffect({ ...obj, mods })
     }
 
     toDB(): DBSkillUpgradeLevelEffect {

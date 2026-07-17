@@ -49,15 +49,11 @@ export class InsertSkillEffectMod extends InsertEffectMod implements IInsertSkil
         this.line = new SkillEffectLine(obj?.line)
     }
     static async fromDB(obj: DBInsertSkillEffectMod, populate: EffectReferenceAsyncPopulateMethods): Promise<InsertSkillEffectMod> {
-        const rem = new InsertSkillEffectMod({
-            ...obj,
-            refs: [],
-            line: await SkillEffectLine.fromDB(obj.line, populate)
-        })
-        for await (const r of obj.refs) {
-            rem.refs.push(await EffectReference.fromDB(r, populate))
-        }
-        return rem
+        const [line, refs] = await Promise.all([
+            SkillEffectLine.fromDB(obj.line, populate),
+            Promise.all(obj.refs.map(r => EffectReference.fromDB(r, populate)))
+        ])
+        return new InsertSkillEffectMod({ ...obj, refs, line })
     }
 
     toDB(): DBInsertSkillEffectMod {
@@ -97,15 +93,11 @@ export class ReplaceSkillEffectMod extends ReplaceEffectMod implements IReplaceE
         this.line = new SkillEffectLine(obj?.line)
     }
     static async fromDB(obj: DBReplaceSkillEffectMod, populate: EffectReferenceAsyncPopulateMethods): Promise<ReplaceSkillEffectMod> {
-        const rem = new ReplaceSkillEffectMod({
-            ...obj,
-            refs: [],
-            line: await SkillEffectLine.fromDB(obj.line, populate)
-        })
-        for await (const r of obj.refs) {
-            rem.refs.push(await EffectReference.fromDB(r, populate))
-        }
-        return rem
+        const [line, refs] = await Promise.all([
+            SkillEffectLine.fromDB(obj.line, populate),
+            Promise.all(obj.refs.map(r => EffectReference.fromDB(r, populate)))
+        ])
+        return new ReplaceSkillEffectMod({ ...obj, refs, line })
     }
 
     toDB(): DBReplaceSkillEffectMod {

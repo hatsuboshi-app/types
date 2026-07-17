@@ -24,11 +24,11 @@ export default class PrimaStellaUpgrade implements TransientObject<IPrimaStellaU
         this.visual = obj?.visual ?? DefaultPIdolVisualSet
     }
     static async fromDB(obj: DBPrimaStellaUpgrade, populate: PSUpgradeAsyncPopulateMethods): Promise<PrimaStellaUpgrade> {
-        return new PrimaStellaUpgrade({
-            ...obj,
-            skill: await Skill.fromDB(await populate.skill(obj.skill) ?? new Skill().toDB(), populate),
-            ability: await Ability.fromDB(obj.ability, populate)
-        })
+        const [skill, ability] = await Promise.all([
+            populate.skill(obj.skill).then(s => Skill.fromDB(s ?? new Skill().toDB(), populate)),
+            Ability.fromDB(obj.ability, populate)
+        ])
+        return new PrimaStellaUpgrade({ ...obj, skill, ability })
     }
 
     toJSON(): IPrimaStellaUpgrade {
