@@ -33,14 +33,10 @@ export default class PIdolLevelEffect implements IPIdolLevelEffect, TransientObj
         })
     }
     static async fromDB(obj: DBPIdolLevelEffect, populate: EffectReferenceAsyncPopulateMethods): Promise<PIdolLevelEffect> {
-        const ile = new PIdolLevelEffect({
-            ...obj,
-            abilities: []
-        })
-        for await (const a of obj.abilities) {
-            ile.abilities.push(await Ability.fromDB(a, populate))
-        }
-        return ile
+        const abilities = await Promise.all(obj.abilities.map(a => {
+            return Ability.fromDB(a, populate)
+        }))
+        return new PIdolLevelEffect({ ...obj, abilities })
     }
 
     toDB(): DBPIdolLevelEffect {

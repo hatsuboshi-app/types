@@ -37,15 +37,11 @@ export default class Ability implements IAbility, TransientObject<IAbility, DBAb
         }
     }
     static async fromDB(obj: DBAbility, populate: EffectReferenceAsyncPopulateMethods, level?: number): Promise<Ability> {
-        const a = new Ability({
-            ...obj,
-            initialEffect: await Effect.fromDB(obj.initialEffect, populate),
-            levels: []
-        }, level)
-        for await (const al of obj.levels) {
-            a.levels.push(await AbilityLevel.fromDB(al, populate))
-        }
-        return a
+        const [initialEffect, levels] = await Promise.all([
+            Effect.fromDB(obj.initialEffect, populate),
+            Promise.all(obj.levels.map(l => AbilityLevel.fromDB(l, populate)))
+        ])
+        return new Ability({ ...obj, initialEffect, levels }, level)
     }
 
     toDB(): DBAbility {

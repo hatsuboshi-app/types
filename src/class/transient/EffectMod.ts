@@ -41,15 +41,11 @@ export class InsertEffectMod implements IInsertEffectMod, TransientObject<IInser
         this.line = new EffectLine(obj?.line)
     }
     static async fromDB(obj: DBInsertEffectMod, populate: EffectReferenceAsyncPopulateMethods): Promise<InsertEffectMod> {
-        const iem = new InsertEffectMod({
-            ...obj,
-            refs: [],
-            line: await EffectLine.fromDB(obj.line)
-        })
-        for await (const r of obj.refs) {
-            iem.refs.push(await EffectReference.fromDB(r, populate))
-        }
-        return iem
+        const [refs, line] = await Promise.all([
+            Promise.all(obj.refs.map(r => EffectReference.fromDB(r, populate))),
+            EffectLine.fromDB(obj.line)
+        ])
+        return new InsertEffectMod({ ...obj, refs, line })
     }
 
     toDB(): DBInsertEffectMod {

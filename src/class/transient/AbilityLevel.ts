@@ -29,24 +29,17 @@ export default class AbilityLevel implements IAbilityLevel, TransientObject<IAbi
         })
     }
     static async fromDB(obj: DBAbilityLevel, populate: EffectReferenceAsyncPopulateMethods): Promise<AbilityLevel> {
-        const al = new AbilityLevel({
-            ...obj,
-            mods: []
-        })
-        for await (const em of obj.mods) {
+        const mods = await Promise.all(obj.mods.map(em => {
             switch (em.type) {
                 case EffectModType.Enhance:
-                    al.mods.push(em)
-                    break
+                    return em
                 case EffectModType.Replace:
-                    al.mods.push(await ReplaceEffectMod.fromDB(em, populate))
-                    break
+                    return ReplaceEffectMod.fromDB(em, populate)
                 case EffectModType.Insert:
-                    al.mods.push(await InsertEffectMod.fromDB(em, populate))
-                    break
+                    return InsertEffectMod.fromDB(em, populate)
             }
-        }
-        return al
+        }))
+        return new AbilityLevel({ ...obj, mods })
     }
 
     toDB(): DBAbilityLevel {

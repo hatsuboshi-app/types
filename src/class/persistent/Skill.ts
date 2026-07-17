@@ -85,19 +85,12 @@ export default class Skill extends PersistentObject<ISkill, DBSkill> implements 
         })
     }
     static async fromDB(obj: DBSkill, populate: EffectReferenceAsyncPopulateMethods): Promise<Skill> {
-        const s = new Skill({
-            ...obj,
-            upgradeLevels: [],
-            customizeOptions: [],
-            initialEffect: await SkillEffect.fromDB(obj.initialEffect, populate)
-        })
-        for await (const l of obj.upgradeLevels) {
-            s.upgradeLevels.push(await SkillUpgradeLevelEffect.fromDB(l, populate))
-        }
-        for await (const c of obj.customizeOptions) {
-            s.customizeOptions.push(await SkillCustomize.fromDB(c, populate))
-        }
-        return s
+        const [upgradeLevels, customizeOptions, initialEffect] = await Promise.all([
+            Promise.all(obj.upgradeLevels.map(l => SkillUpgradeLevelEffect.fromDB(l, populate))),
+            Promise.all(obj.customizeOptions.map(c => SkillCustomize.fromDB(c, populate))),
+            SkillEffect.fromDB(obj.initialEffect, populate)
+        ])
+        return new Skill({ ...obj, upgradeLevels, customizeOptions, initialEffect })
     }
 
     toDB(): DBSkill {

@@ -104,29 +104,19 @@ export default class PIdol extends PersistentObject<IPIdol, DBPIdol> implements 
         }
     }
     static async fromDB(obj: DBPIdol, populate: PIdolAsyncPopulateMethods, upgradeState?: Partial<PIdolUpgradeState>): Promise<PIdol> {
-        const i = new PIdol({
-            ...obj,
-            character: await Character.fromDB(await populate.character(obj.character) ?? new Character().toDB()),
-            signatureSkill: [],
-            signaturePItem: await PItem.fromDB(await populate.pItem(obj.signaturePItem) ?? new PItem().toDB(), populate),
-            initialAbilities: [],
-            trainingLevels: [],
-            potentialLevels: [],
-            primaStellaUpgrade: obj.primaStellaUpgrade ? await PrimaStellaUpgrade.fromDB(obj.primaStellaUpgrade, populate) : null
-        }, upgradeState)
-        for await (const s of obj.signatureSkill) {
-            i.signatureSkill.push(await Skill.fromDB(await populate.skill(s), populate))
-        }
-        for await (const a of obj.initialAbilities) {
-            i.initialAbilities.push(await Ability.fromDB(a, populate))
-        }
-        for await (const tl of obj.trainingLevels) {
-            i.trainingLevels.push(await PIdolLevelEffect.fromDB(tl, populate))
-        }
-        for await (const pl of obj.potentialLevels) {
-            i.potentialLevels.push(await PIdolLevelEffect.fromDB(pl, populate))
-        }
-        return i
+        const [character, signatureSkill, signaturePItem, initialAbilities, trainingLevels, potentialLevels, primaStellaUpgrade] = await Promise.all([
+            populate.character(obj.character).then(c => Character.fromDB(c ?? new Character().toDB())),
+            Promise.all(obj.signatureSkill.map(s => populate.skill(s).then(sk => Skill.fromDB(sk, populate)))),
+            populate.pItem(obj.signaturePItem).then(i => PItem.fromDB(i ?? new PItem().toDB(), populate)),
+            Promise.all(obj.initialAbilities.map(ia => Ability.fromDB(ia, populate))),
+            Promise.all(obj.trainingLevels.map(tl => PIdolLevelEffect.fromDB(tl, populate))),
+            Promise.all(obj.potentialLevels.map(pl => PIdolLevelEffect.fromDB(pl, populate))),
+            obj.primaStellaUpgrade ? PrimaStellaUpgrade.fromDB(obj.primaStellaUpgrade, populate) : null
+        ])
+        return new PIdol(
+            { ...obj, character, signatureSkill, signaturePItem, initialAbilities, trainingLevels, potentialLevels, primaStellaUpgrade },
+            upgradeState
+        )
     }
 
     toDB(): DBPIdol {

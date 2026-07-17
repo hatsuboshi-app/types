@@ -78,10 +78,11 @@ import {
     LocaleStringFilterOptions,
     NumberFilterOptions
 } from "./type/utility/FilterOptions"
+import PersistentObject from "./class/abstract/PersistentObject"
 
 export {
-    // Interfaces
-    DBSerializable, Duplicable, JSONSerializable, TransientObject,
+    // Interfaces / Abstracts
+    DBSerializable, Duplicable, JSONSerializable, TransientObject, PersistentObject,
 
     // Persistent Classes
     PIdol,                      IPIdol,                      DBPIdol,                   PIdolFilterOptions,

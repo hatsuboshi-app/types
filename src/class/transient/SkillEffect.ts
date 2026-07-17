@@ -34,18 +34,11 @@ export default class SkillEffect extends Effect implements ISkillEffect, Transie
         this.costVar = obj?.costVar ?? null
     }
     static async fromDB(obj: DBSkillEffect, populate: EffectReferenceAsyncPopulateMethods): Promise<SkillEffect> {
-        const se = new SkillEffect({
-            ...obj,
-            lines: [],
-            refs: []
-        })
-        for await (const r of obj.refs) {
-            se.refs.push(await EffectReference.fromDB(r, populate))
-        }
-        for await (const l of obj.lines) {
-            se.lines.push(await SkillEffectLine.fromDB(l, populate))
-        }
-        return se
+        const [refs, lines] = await Promise.all([
+            Promise.all(obj.refs.map(r => EffectReference.fromDB(r, populate))),
+            Promise.all(obj.lines.map(l => SkillEffectLine.fromDB(l, populate))),
+        ])
+        return new SkillEffect({ ...obj, lines, refs })
     }
 
     toDB(): DBSkillEffect {
