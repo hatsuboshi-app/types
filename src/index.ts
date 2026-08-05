@@ -34,7 +34,7 @@ import JSONSerializable from "./interface/JSONSerializable"
 import TransientObject from "./interface/TransientObject"
 import AsyncPopulateMethod from "./type/utility/AsyncPopulateMethod"
 import Nullable from "./type/utility/Nullable"
-import Result, { fail, success } from "./type/utility/Result"
+import Result, { fail, FailureResult, success, SuccessResult } from "./type/utility/Result"
 import AbilityIconColor from "./enum/AbilityIconColor"
 import AuditionIconColor from "./enum/AuditionIconColor"
 import AuditionIconShape from "./enum/AuditionIconShape"
@@ -74,15 +74,16 @@ import SkillUpgradeState from "./type/SkillUpgradeState"
 import SortOption, { decodeSortOptions, encodeSortOptions } from "./type/utility/SortOption"
 import {
     DateFilterOptions,
-    EnumFilterOptions,
+    EnumFilterOptions, IncompleteLocaleFilterOptions,
     LocaleStringFilterOptions,
-    NumberFilterOptions
+    NumberFilterOptions, StringFilterOptions
 } from "./type/utility/FilterOptions"
-import PersistentObject from "./class/abstract/PersistentObject"
+import PersistentObject, { IPersistentObject } from "./class/abstract/PersistentObject"
+import PrimaStellaUpgrade, { DBPrimaStellaUpgrade, IPrimaStellaUpgrade } from "./class/transient/PrimaStellaUpgrade"
 
 export {
     // Interfaces / Abstracts
-    DBSerializable, Duplicable, JSONSerializable, TransientObject, PersistentObject,
+    DBSerializable, Duplicable, JSONSerializable, TransientObject, PersistentObject, IPersistentObject,
 
     // Persistent Classes
     PIdol,                      IPIdol,                      DBPIdol,                   PIdolFilterOptions,
@@ -108,6 +109,7 @@ export {
     SkillEffectLine,            ISkillEffectLine,            DBSkillEffectLine,
     SkillEffectMod,             ISkillEffectMod,             DBSkillEffectMod,
     SkillUpgradeLevelEffect,    ISkillUpgradeLevelEffect,    DBSkillUpgradeLevelEffect,
+    PrimaStellaUpgrade,         IPrimaStellaUpgrade,         DBPrimaStellaUpgrade,
 
     // Utility Classses
     Paginator,                  IPaginator,
@@ -115,11 +117,13 @@ export {
     // Utility Types & Functions
     AsyncPopulateMethod,
     Nullable,
-    Result,                     success, fail,
-    SortOption,                 encodeSortOptions, decodeSortOptions,
+    Result,  SuccessResult, FailureResult,      success, fail,
+    SortOption,                                 encodeSortOptions, decodeSortOptions,
     NumberFilterOptions,
     DateFilterOptions,
     EnumFilterOptions,
+    StringFilterOptions,
+    IncompleteLocaleFilterOptions,
     LocaleStringFilterOptions,
 
     // Enums
