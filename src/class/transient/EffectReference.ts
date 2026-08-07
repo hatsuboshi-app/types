@@ -6,7 +6,7 @@ import { DBAuditionEffect } from "../persistent/AuditionEffect"
 import { DBAuditionTerminology } from "../persistent/AuditionTerminology"
 import { DBSkill } from "../persistent/Skill"
 import LocaleString, { DefaultLocaleString } from "../../type/LocaleString"
-import TransientObject from "../../interface/TransientObject"
+import EmbeddedObject from "../../interface/EmbeddedObject"
 
 export type EffectReferenceAsyncPopulateMethods = {
     auditionEffect: AsyncPopulateMethod<DBAuditionEffect>,
@@ -14,7 +14,7 @@ export type EffectReferenceAsyncPopulateMethods = {
     skill: AsyncPopulateMethod<DBSkill>
 }
 
-export default class EffectReference implements IEffectReference, TransientObject<IEffectReference, DBEffectReference> {
+export default class EffectReference implements IEffectReference, EmbeddedObject<IEffectReference, DBEffectReference> {
     id: string
     refId: string
     refType: EffectReferenceType

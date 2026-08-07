@@ -1,7 +1,7 @@
 import Skill, { DBSkill, ISkill } from "../persistent/Skill"
 import Ability, { DBAbility, IAbility } from "./Ability"
 import PIdolVisualSet, { DefaultPIdolVisualSet } from "../../type/PIdolVisualSet"
-import TransientObject from "../../interface/TransientObject"
+import EmbeddedObject from "../../interface/EmbeddedObject"
 import { EffectReferenceAsyncPopulateMethods } from "./EffectReference"
 import AsyncPopulateMethod from "../../type/utility/AsyncPopulateMethod"
 
@@ -9,7 +9,7 @@ export type PSUpgradeAsyncPopulateMethods = EffectReferenceAsyncPopulateMethods 
     skill: AsyncPopulateMethod<DBSkill>
 }
 
-export default class PrimaStellaUpgrade implements TransientObject<IPrimaStellaUpgrade, DBPrimaStellaUpgrade> {
+export default class PrimaStellaUpgrade implements EmbeddedObject<IPrimaStellaUpgrade, DBPrimaStellaUpgrade> {
     skill: Skill
     ability: Ability
     visual: PIdolVisualSet

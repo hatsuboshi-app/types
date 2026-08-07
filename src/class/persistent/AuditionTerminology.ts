@@ -5,7 +5,12 @@ import AuditionIcon from "../../type/AuditionIcon"
 import { EffectReferenceAsyncPopulateMethods } from "../transient/EffectReference"
 import LocaleString, { DefaultLocaleString } from "../../type/LocaleString"
 import { LocaleStringFilterOptions } from "../../type/utility/FilterOptions";
+import { Override } from "../../type/utility/Override";
 
+/**
+ * @group Model Classes
+ * @category Persistent
+ */
 export default class AuditionTerminology extends PersistentObject<IAuditionTerminology, DBAuditionTerminology> implements IAuditionTerminology {
     name: LocaleString
     description: Effect
@@ -53,6 +58,10 @@ export default class AuditionTerminology extends PersistentObject<IAuditionTermi
     }
 }
 
+/**
+ * @group Data Transfer Objects (I-prefix)
+ * @category Persistent
+ */
 export interface IAuditionTerminology extends IPersistentObject {
     name: LocaleString
     description: IEffect
@@ -60,10 +69,17 @@ export interface IAuditionTerminology extends IPersistentObject {
     icon: Nullable<AuditionIcon>
 }
 
-export type DBAuditionTerminology = Omit<IAuditionTerminology, "description"> & {
+/**
+ * @group Document Store Objects (DB-prefix)
+ * @category Persistent
+ */
+export interface DBAuditionTerminology extends Override<IAuditionTerminology, {
     description: DBEffect
-}
+}> {}
 
-export type AuditionTerminologyFilterOptions = PersistentObjectFilterOptions & Partial<{
-    name: LocaleStringFilterOptions
-}>
+/**
+ * @group Filter Objects
+ */
+export interface AuditionTerminologyFilterOptions extends PersistentObjectFilterOptions {
+    name?: LocaleStringFilterOptions
+}

@@ -6,9 +6,9 @@ import SkillEffectMod, {
 } from "./SkillEffectMod"
 import EffectModType from "../../enum/EffectModType"
 import { EffectReferenceAsyncPopulateMethods } from "./EffectReference"
-import TransientObject from "../../interface/TransientObject"
+import EmbeddedObject from "../../interface/EmbeddedObject"
 
-export default class SkillCustomizeLevelEffect implements ISkillCustomizeLevelEffect, TransientObject<ISkillCustomizeLevelEffect, DBSkillCustomizeLevelEffect> {
+export default class SkillCustomizeLevelEffect implements ISkillCustomizeLevelEffect, EmbeddedObject<ISkillCustomizeLevelEffect, DBSkillCustomizeLevelEffect> {
     level: number
     cost: number
     mods: SkillEffectMod[]

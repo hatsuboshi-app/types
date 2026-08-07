@@ -31,7 +31,7 @@ import Paginator, { IPaginator } from "./class/utility/Paginator"
 import DBSerializable from "./interface/DBSerializable"
 import Duplicable from "./interface/Duplicable"
 import JSONSerializable from "./interface/JSONSerializable"
-import TransientObject from "./interface/TransientObject"
+import EmbeddedObject from "./interface/EmbeddedObject"
 import AsyncPopulateMethod from "./type/utility/AsyncPopulateMethod"
 import Nullable from "./type/utility/Nullable"
 import Result, { fail, FailureResult, success, SuccessResult } from "./type/utility/Result"
@@ -83,7 +83,7 @@ import PrimaStellaUpgrade, { DBPrimaStellaUpgrade, IPrimaStellaUpgrade } from ".
 
 export {
     // Interfaces / Abstracts
-    DBSerializable, Duplicable, JSONSerializable, TransientObject, PersistentObject, IPersistentObject,
+    DBSerializable, Duplicable, JSONSerializable, EmbeddedObject, PersistentObject, IPersistentObject,
 
     // Persistent Classes
     PIdol,                      IPIdol,                      DBPIdol,                   PIdolFilterOptions,

@@ -11,7 +11,8 @@
     "scripts": {
         "build": "tsup src --minify",
         "postbuild": "tsc --emitDeclarationOnly --declarationDir dist",
-        "test": "vitest --run tests/"
+        "test": "vitest --run tests/",
+        "docs": "typedoc"
     },
     "author": "HuzzNZ",
     "license": "MIT",

@@ -4,15 +4,36 @@ import AuditionIcon, { DefaultAuditionIcon } from "../../type/AuditionIcon"
 import { EffectReferenceAsyncPopulateMethods } from "../transient/EffectReference"
 import LocaleString, { DefaultLocaleString } from "../../type/LocaleString"
 import { LocaleStringFilterOptions } from "../../type/utility/FilterOptions"
+import { Override } from "../../type/utility/Override";
 
+/**
+ * @group Model Classes
+ * @category Persistent
+ */
 export default class AuditionEffect extends PersistentObject<IAuditionEffect, DBAuditionEffect> implements IAuditionEffect {
     name: LocaleString
     description: Effect
     icon: AuditionIcon
 
-    constructor()
-    constructor(obj: Partial<IAuditionEffect>)
-    constructor(obj?: Partial<IAuditionEffect>)
+    /**
+     * Construct an {@link AuditionEffect} object using an optional {@link IAuditionEffect} object.
+     *
+     * If `obj`, or any of its required fields are undefined, the default value of each property's type
+     * will be used to construct the object.
+     *
+     * @param obj - Data to construct the object from.
+     *
+     * @example
+     * // Default instance
+     * new AuditionEffect()
+     *
+     * // From partial data
+     * new AuditionEffect({ name: { ja: "Hello" } })
+     *
+     * // From JSON data returned by an API
+     * const res = await fetch(...)
+     * const data = new AuditionEffect(await res.json())
+     */
     constructor(obj?: Partial<IAuditionEffect>) {
         obj = structuredClone(obj)
         super(obj, "effect")
@@ -27,6 +48,9 @@ export default class AuditionEffect extends PersistentObject<IAuditionEffect, DB
         })
     }
 
+    /**
+     * @inheritDoc
+     */
     toDB(): DBAuditionEffect {
         return structuredClone({
             ...super.toPersistentDB(),
@@ -35,6 +59,10 @@ export default class AuditionEffect extends PersistentObject<IAuditionEffect, DB
             icon: this.icon,
         })
     }
+
+    /**
+     * @inheritDoc
+     */
     toJSON(): IAuditionEffect {
         return structuredClone({
             ...super.toPersistentJSON(),
@@ -43,21 +71,37 @@ export default class AuditionEffect extends PersistentObject<IAuditionEffect, DB
             icon: this.icon
         })
     }
+
+    /**
+     * @inheritDoc
+     */
     copy(): AuditionEffect {
         return new AuditionEffect(this.toJSON())
     }
 }
 
+/**
+ * JSON representation of AuditionEffect.
+ * @group Data Transfer Objects (I-prefix)
+ * @category Persistent
+ */
 export interface IAuditionEffect extends IPersistentObject {
     name: LocaleString
     description: IEffect
     icon: AuditionIcon
 }
 
-export type DBAuditionEffect = Omit<IAuditionEffect, "description"> & {
+/**
+ * @group Document Store Objects (DB-prefix)
+ * @category Persistent
+ */
+export interface DBAuditionEffect extends Override<IAuditionEffect, {
     description: DBEffect
-}
+}> {}
 
-export type AuditionEffectFilterOptions = PersistentObjectFilterOptions & Partial<{
-    name: LocaleStringFilterOptions
-}>
+/**
+ * @group Filter Objects
+ */
+export interface AuditionEffectFilterOptions extends PersistentObjectFilterOptions {
+    name?: LocaleStringFilterOptions
+}

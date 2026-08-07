@@ -4,9 +4,9 @@ import SkillCustomizeLevelEffect, {
     ISkillCustomizeLevelEffect
 } from "./SkillCustomizeLevelEffect"
 import { EffectReferenceAsyncPopulateMethods } from "./EffectReference"
-import TransientObject from "../../interface/TransientObject"
+import EmbeddedObject from "../../interface/EmbeddedObject"
 
-export default class SkillCustomize implements ISkillCustomize, TransientObject<ISkillCustomize, DBSkillCustomize> {
+export default class SkillCustomize implements ISkillCustomize, EmbeddedObject<ISkillCustomize, DBSkillCustomize> {
     position: number
     levels: SkillCustomizeLevelEffect[]
     typeRefId: string

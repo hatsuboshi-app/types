@@ -10,11 +10,11 @@ import type EffectMod from "./EffectMod"
 import EffectModType from "../../enum/EffectModType"
 import Locale from "../../type/Locale"
 import LocaleString from "../../type/LocaleString"
-import TransientObject from "../../interface/TransientObject"
+import EmbeddedObject from "../../interface/EmbeddedObject"
 import ParsedEffectElementType from "../../enum/ParsedEffectElementType";
 import ParsedEffectElement from "../../type/ParsedEffectElement";
 
-export default class Effect implements IEffect, TransientObject<IEffect, DBEffect> {
+export default class Effect implements IEffect, EmbeddedObject<IEffect, DBEffect> {
     refs: EffectReference[]
     vars: EffectVariable[]
     lines: EffectLine[]

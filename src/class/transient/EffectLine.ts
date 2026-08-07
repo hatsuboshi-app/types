@@ -1,7 +1,7 @@
 import LocaleString, { DefaultLocaleString } from "../../type/LocaleString"
-import TransientObject from "../../interface/TransientObject"
+import EmbeddedObject from "../../interface/EmbeddedObject"
 
-export default class EffectLine implements IEffectLine, TransientObject<IEffectLine, DBEffectLine> {
+export default class EffectLine implements IEffectLine, EmbeddedObject<IEffectLine, DBEffectLine> {
     position: number
     body: LocaleString
 

@@ -1,0 +1,22 @@
+{
+  "entryPoints": ["./src/index.ts"],
+  "groupOrder": [
+    "Model Classes",
+    "Data Transfer Objects (I-prefix)",
+    "Document Store Objects (DB-prefix)",
+    "Filter Objects",
+    "Helper",
+    "*"
+  ],
+  "categoryOrder": [
+    "Persistent",
+    "Embedded",
+    "*"
+  ],
+  "categorizeByGroup": true,
+  "navigation": {
+    "includeGroups": true,
+    "includeCategories": true
+  },
+  "sort": ["required-first", "alphabetical"]
+}

@@ -2,9 +2,13 @@ import AbilityLevel, { DBAbilityLevel, IAbilityLevel } from "./AbilityLevel"
 import AbilityIcon, { DefaultAbilityIcon } from "../../type/AbilityIcon"
 import Effect, { DBEffect, IEffect } from "./Effect"
 import { EffectReferenceAsyncPopulateMethods } from "./EffectReference"
-import TransientObject from "../../interface/TransientObject"
+import EmbeddedObject from "../../interface/EmbeddedObject"
 
-export default class Ability implements IAbility, TransientObject<IAbility, DBAbility> {
+/**
+ * @group Model Classes
+ * @category Embedded
+ */
+export default class Ability implements IAbility, EmbeddedObject<IAbility, DBAbility> {
     icon: AbilityIcon
     position: number
     initialEffect: Effect
@@ -96,6 +100,10 @@ export default class Ability implements IAbility, TransientObject<IAbility, DBAb
     }
 }
 
+/**
+ * @group Data Transfer Objects (I-prefix)
+ * @category Embedded
+ */
 export interface IAbility {
     icon: AbilityIcon
     position: number
@@ -103,6 +111,10 @@ export interface IAbility {
     levels: IAbilityLevel[]
 }
 
+/**
+ * @group Document Store Objects (DB-prefix)
+ * @category Embedded
+ */
 export type DBAbility = Omit<IAbility, "initialEffect" | "levels"> & {
     initialEffect: DBEffect
     levels: DBAbilityLevel[]

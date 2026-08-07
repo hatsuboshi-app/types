@@ -3,9 +3,9 @@ import AuditionEffect from "../persistent/AuditionEffect"
 import SkillEffectLine, { DBSkillEffectLine, ISkillEffectLine } from "./SkillEffectLine"
 import Nullable from "../../type/utility/Nullable"
 import EffectReference, { DBEffectReference, EffectReferenceAsyncPopulateMethods } from "./EffectReference"
-import TransientObject from "../../interface/TransientObject"
+import EmbeddedObject from "../../interface/EmbeddedObject"
 
-export default class SkillEffect extends Effect implements ISkillEffect, TransientObject<ISkillEffect, DBSkillEffect> {
+export default class SkillEffect extends Effect implements ISkillEffect, EmbeddedObject<ISkillEffect, DBSkillEffect> {
     lines: SkillEffectLine[]
     customizedVars: string[]
     customizedLines: number[]

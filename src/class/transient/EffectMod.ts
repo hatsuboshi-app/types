@@ -6,7 +6,7 @@ import EffectReference, {
     IEffectReference
 } from "./EffectReference"
 import EffectVariable from "../../type/EffectVariable"
-import TransientObject from "../../interface/TransientObject"
+import EmbeddedObject from "../../interface/EmbeddedObject"
 
 type EffectMod = EnhanceEffectMod | InsertEffectMod | ReplaceEffectMod
 export type IEffectMod = EnhanceEffectMod | IInsertEffectMod | IReplaceEffectMod
@@ -22,7 +22,7 @@ export type EnhanceEffectMod = {
 
 // InsertEffectMod //
 
-export class InsertEffectMod implements IInsertEffectMod, TransientObject<IInsertEffectMod, DBInsertEffectMod> {
+export class InsertEffectMod implements IInsertEffectMod, EmbeddedObject<IInsertEffectMod, DBInsertEffectMod> {
     type: EffectModType.Insert
     refs: EffectReference[]
     vars: EffectVariable[]
@@ -81,7 +81,7 @@ export type DBInsertEffectMod = Omit<IInsertEffectMod, "refs" | "line"> & {
 
 // ReplaceEffectMod //
 
-export class ReplaceEffectMod implements IReplaceEffectMod, TransientObject<IReplaceEffectMod, DBReplaceEffectMod> {
+export class ReplaceEffectMod implements IReplaceEffectMod, EmbeddedObject<IReplaceEffectMod, DBReplaceEffectMod> {
     type: EffectModType.Replace
     refs: EffectReference[]
     vars: EffectVariable[]
