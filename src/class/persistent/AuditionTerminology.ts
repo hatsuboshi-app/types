@@ -8,6 +8,21 @@ import { LocaleStringFilterOptions } from "../../type/utility/FilterOptions";
 import { Override } from "../../type/utility/Override";
 
 /**
+ * **A gameplay terminology**.
+ *
+ * This may refer to any commonly used word within the game, e.g. パラメータ, チェンジ, 強化, 相談の全項目を割増, etc.
+ *
+ * Can be filtered using {@link AuditionTerminologyFilterOptions}.
+ *
+ * > [!NOTE]
+ * > {@link AuditionTerminology | AuditionTerminologies} can sometimes look similar to {@link AuditionEffect | AuditionEffects},
+ * > but they are subtly different. {@link AuditionTerminology | AuditionTerminologies} usually refer to effects that persist
+ * > across an entire produce run, while {@link AuditionEffect | AuditionEffects} usually refer to effects that are ephemeral
+ * > to only a specific lesson/audition gameplay sector.
+ * >
+ * > For example, 強化 *(an {@link AuditionTerminology})* upgrades a skill card for the whole produce run, while レッスン中強化
+ * > *(an {@link AuditionEffect})* only upgrades a skill card for the duration of a lesson/audition.
+ *
  * @group Model Classes
  * @category Persistent
  */
@@ -17,9 +32,27 @@ export default class AuditionTerminology extends PersistentObject<IAuditionTermi
     icon: Nullable<AuditionIcon>
     isHighlighted: boolean
 
-    constructor()
-    constructor(obj: Partial<IAuditionTerminology>)
-    constructor(obj?: Partial<IAuditionTerminology>)
+    /**
+     * Constructs an {@link AuditionTerminology} instance from an optional {@link IAuditionTerminology} object.
+     *
+     * If `obj`, or any of its required fields are undefined, the default value of each property's type
+     * will be used to construct the object.
+     *
+     * @param obj Data to construct the object from.
+     *
+     * @example
+     * // Default instance
+     * new AuditionTerminology()
+     *
+     * // From partial data
+     * new AuditionTerminology({ name: { ja: "Hello" } })
+     *
+     * // From JSON data returned by an API
+     * const res = await fetch(...)
+     * const data = new AuditionTerminology(await res.json())
+     *
+     * @group Constructing this model
+     */
     constructor(obj?: Partial<IAuditionTerminology>) {
         obj = structuredClone(obj)
         super(obj, "terminology")
@@ -28,6 +61,21 @@ export default class AuditionTerminology extends PersistentObject<IAuditionTermi
         this.description = new Effect(obj?.description)
         this.icon = obj?.icon ?? null
     }
+
+    /**
+     * Constructs an {@link AuditionTerminology} instance from a {@link DBAuditionTerminology} object by rehydrating
+     * missing fields using populate methods.
+     *
+     * @param obj Data to construct the object from.
+     * @param populate Async populate methods used to rehydrate fields overridden by {@link DBAuditionTerminology}.
+     *
+     * @example
+     * // From JSON data returned by a document store repository
+     * const res = await collection.findOne({ ... })
+     * const data = await AuditionTerminology.fromDB(res, { ... })
+     *
+     * @group Constructing this model
+     */
     static async fromDB(obj: DBAuditionTerminology, populate: EffectReferenceAsyncPopulateMethods): Promise<AuditionTerminology> {
         return new AuditionTerminology({
             ...obj,
@@ -35,6 +83,9 @@ export default class AuditionTerminology extends PersistentObject<IAuditionTermi
         })
     }
 
+    /**
+     * @inheritDoc
+     */
     toDB(): DBAuditionTerminology {
         return structuredClone({
             ...super.toPersistentDB(),
@@ -44,6 +95,10 @@ export default class AuditionTerminology extends PersistentObject<IAuditionTermi
             isHighlighted: this.isHighlighted,
         })
     }
+
+    /**
+     * @inheritDoc
+     */
     toJSON(): IAuditionTerminology {
         return structuredClone({
             ...super.toPersistentDB(),
@@ -53,24 +108,47 @@ export default class AuditionTerminology extends PersistentObject<IAuditionTermi
             isHighlighted: this.isHighlighted,
         })
     }
+
+    /**
+     * @inheritDoc
+     */
     copy(): AuditionTerminology {
         return new AuditionTerminology(this.toJSON())
     }
 }
 
 /**
+ * JSON-serializable representation of {@link AuditionTerminology}.
+ *
  * @group Data Transfer Objects (I-prefix)
  * @category Persistent
  */
 export interface IAuditionTerminology extends IPersistentObject {
+    /**
+     * The name of the terminology.
+     */
     name: LocaleString
+
+    /**
+     * The description of the terminology.
+     */
     description: IEffect
+
+    /**
+     * Whether this terminology should be highlighted when the effect text it appears in is rendered.
+     */
     isHighlighted: boolean
-    icon: Nullable<AuditionIcon>
+
+    /**
+     * The icon associated with the terminology.
+     */
+    icon: AuditionIcon | null
 }
 
 /**
- * @group Document Store Objects (DB-prefix)
+ * Document-store representation of {@link AuditionTerminology}.
+ *
+ * @group Document-store Objects (DB-prefix)
  * @category Persistent
  */
 export interface DBAuditionTerminology extends Override<IAuditionTerminology, {
@@ -78,6 +156,8 @@ export interface DBAuditionTerminology extends Override<IAuditionTerminology, {
 }> {}
 
 /**
+ * Filters {@link AuditionTerminology}.
+ *
  * @group Filter Objects
  */
 export interface AuditionTerminologyFilterOptions extends PersistentObjectFilterOptions {

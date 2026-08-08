@@ -1,9 +1,13 @@
-/**
- * Declares an object is Serializable to JSON, where it can then be stored in a document DB.
- */
 interface DBSerializable<T> {
     /**
-     * Method to serialize an object to DB-safe JSON, defined as type variable T.
+     * Returns the document-store representation of this object.
+     *
+     * > [!CAUTION]
+     * > Unlike `toJSON()`, the resulting document-store representation may be in a significantly different
+     * > shape to that of its implementing class, and it cannot be passed back into the constructor to
+     * > reconstruct an equivalent instance.
+     * >
+     * > Use `fromDB()` instead, which reconstructs the instance and rehydrates any fields truncated by the conversion.
      */
     toDB(): T
 }

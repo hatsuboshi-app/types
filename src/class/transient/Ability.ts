@@ -112,7 +112,7 @@ export interface IAbility {
 }
 
 /**
- * @group Document Store Objects (DB-prefix)
+ * @group Document-store Objects (DB-prefix)
  * @category Embedded
  */
 export type DBAbility = Omit<IAbility, "initialEffect" | "levels"> & {

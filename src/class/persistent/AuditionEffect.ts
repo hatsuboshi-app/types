@@ -4,24 +4,51 @@ import AuditionIcon, { DefaultAuditionIcon } from "../../type/AuditionIcon"
 import { EffectReferenceAsyncPopulateMethods } from "../transient/EffectReference"
 import LocaleString, { DefaultLocaleString } from "../../type/LocaleString"
 import { LocaleStringFilterOptions } from "../../type/utility/FilterOptions"
-import { Override } from "../../type/utility/Override";
+import { Override } from "../../type/utility/Override"
 
 /**
+ * **A lesson/audition gameplay effect.**
+ *
+ * This may refer to a *buff* effect (e.g. 集中), a *debuff* effect (e.g. 体力消費), an *anomaly state* (e.g. 強気),
+ * or an *action* that occurs during lesson/audition gameplay sectors (e.g. レッスン中強化).
+ *
+ * Can be filtered using {@link AuditionEffectFilterOptions}.
+ *
+ * > [!NOTE]
+ * > {@link AuditionTerminology | AuditionTerminologies} can sometimes look similar to {@link AuditionEffect | AuditionEffects},
+ * > but they are subtly different. {@link AuditionTerminology | AuditionTerminologies} usually refer to effects that persist
+ * > across an entire produce run, while {@link AuditionEffect | AuditionEffects} usually refer to effects that are ephemeral
+ * > to only a specific lesson/audition gameplay sector.
+ * >
+ * > For example, 強化 *(an {@link AuditionTerminology})* upgrades a skill card for the whole produce run, while レッスン中強化
+ * > *(an {@link AuditionEffect})* only upgrades a skill card for the duration of a lesson/audition.
+ *
  * @group Model Classes
  * @category Persistent
  */
 export default class AuditionEffect extends PersistentObject<IAuditionEffect, DBAuditionEffect> implements IAuditionEffect {
+    /**
+     * @inheritDoc
+     */
     name: LocaleString
+
+    /**
+     * @inheritDoc
+     */
     description: Effect
+
+    /**
+     * @inheritDoc
+     */
     icon: AuditionIcon
 
     /**
-     * Construct an {@link AuditionEffect} object using an optional {@link IAuditionEffect} object.
+     * Constructs an {@link AuditionEffect} instance from an optional {@link IAuditionEffect} object.
      *
      * If `obj`, or any of its required fields are undefined, the default value of each property's type
      * will be used to construct the object.
      *
-     * @param obj - Data to construct the object from.
+     * @param obj Data to construct the object from.
      *
      * @example
      * // Default instance
@@ -33,6 +60,8 @@ export default class AuditionEffect extends PersistentObject<IAuditionEffect, DB
      * // From JSON data returned by an API
      * const res = await fetch(...)
      * const data = new AuditionEffect(await res.json())
+     *
+     * @group Constructing this model
      */
     constructor(obj?: Partial<IAuditionEffect>) {
         obj = structuredClone(obj)
@@ -41,6 +70,21 @@ export default class AuditionEffect extends PersistentObject<IAuditionEffect, DB
         this.icon = obj?.icon ?? DefaultAuditionIcon
         this.description = new Effect(obj?.description)
     }
+
+    /**
+     * Constructs an {@link AuditionEffect} instance from a {@link DBAuditionEffect} object by rehydrating
+     * missing fields using populate methods.
+     *
+     * @param obj Data to construct the object from.
+     * @param populate Async populate methods used to re-hydrate fields overridden by {@link DBAuditionEffect}.
+     *
+     * @example
+     * // From JSON data returned by a document store repository
+     * const res = await collection.findOne({ ... })
+     * const data = await AuditionEffect.fromDB(res, { ... })
+     *
+     * @group Constructing this model
+     */
     static async fromDB(obj: DBAuditionEffect, populate: EffectReferenceAsyncPopulateMethods): Promise<AuditionEffect> {
         return new AuditionEffect({
             ...obj,
@@ -81,18 +125,32 @@ export default class AuditionEffect extends PersistentObject<IAuditionEffect, DB
 }
 
 /**
- * JSON representation of AuditionEffect.
+ * JSON-serializable representation of {@link AuditionEffect}.
+ *
  * @group Data Transfer Objects (I-prefix)
  * @category Persistent
  */
 export interface IAuditionEffect extends IPersistentObject {
+    /**
+     * The name of the effect.
+     */
     name: LocaleString
+
+    /**
+     * The description of the effect.
+     */
     description: IEffect
+
+    /**
+     * The icon associated with the effect.
+     */
     icon: AuditionIcon
 }
 
 /**
- * @group Document Store Objects (DB-prefix)
+ * Document-store representation of {@link AuditionEffect}.
+ *
+ * @group Document-store Objects (DB-prefix)
  * @category Persistent
  */
 export interface DBAuditionEffect extends Override<IAuditionEffect, {
@@ -100,6 +158,8 @@ export interface DBAuditionEffect extends Override<IAuditionEffect, {
 }> {}
 
 /**
+ * Filters {@link AuditionEffect}.
+ *
  * @group Filter Objects
  */
 export interface AuditionEffectFilterOptions extends PersistentObjectFilterOptions {

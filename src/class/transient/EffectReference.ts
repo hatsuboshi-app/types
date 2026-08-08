@@ -99,4 +99,4 @@ export interface IEffectReference {
     name: LocaleString
 }
 
-export type DBEffectReference = Omit<IEffectReference, "isHighlighted" | "icon" | "name">
+export interface DBEffectReference extends Omit<IEffectReference, "isHighlighted" | "icon" | "name"> {}

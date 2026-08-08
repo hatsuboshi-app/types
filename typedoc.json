@@ -3,9 +3,13 @@
   "groupOrder": [
     "Model Classes",
     "Data Transfer Objects (I-prefix)",
-    "Document Store Objects (DB-prefix)",
+    "Document-store Objects (DB-prefix)",
     "Filter Objects",
-    "Helper",
+    "Utility",
+    "Constructing this model",
+    "Methods",
+    "Accessors",
+    "Properties",
     "*"
   ],
   "categoryOrder": [

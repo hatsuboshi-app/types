@@ -13,7 +13,11 @@ import LocaleString from "../../type/LocaleString"
 import EmbeddedObject from "../../interface/EmbeddedObject"
 import ParsedEffectElementType from "../../enum/ParsedEffectElementType";
 import ParsedEffectElement from "../../type/ParsedEffectElement";
-
+import { Override } from "../../type/utility/Override";
+/**
+ * @group Model Classes
+ * @category Embedded
+ */
 export default class Effect implements IEffect, EmbeddedObject<IEffect, DBEffect> {
     refs: EffectReference[]
     vars: EffectVariable[]
@@ -209,7 +213,7 @@ export interface IEffect {
     lines: IEffectLine[]
 }
 
-export type DBEffect = Omit<IEffect, "refs" | "lines"> & {
+export interface DBEffect extends Override<IEffect, {
     refs: DBEffectReference[]
     lines: DBEffectLine[]
-}
+}> {}
