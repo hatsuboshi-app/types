@@ -1,5 +1,5 @@
-import { DBCharacter } from "../../../src/class/persistent/Character"
-import ProduceScenario from "../../../src/enum/ProduceScenario"
+import { DBCharacter } from "../../../src/models/persistent/Character"
+import ProduceScenario from "../../../src/enums/ProduceScenario"
 
 const CharacterDataset: DBCharacter[] = [
     {

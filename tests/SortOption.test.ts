@@ -1,5 +1,5 @@
 import { expect, test } from "vitest"
-import SortOption, { decodeSortOptions, encodeSortOptions } from "../src/type/utility/SortOption"
+import SortOption, { decodeSortOptions, encodeSortOptions } from "../src/utilities/types/SortOption"
 import { IPIdol } from "../src"
 
 test("encode/decode sort option functions reciprocate each other", async () => {

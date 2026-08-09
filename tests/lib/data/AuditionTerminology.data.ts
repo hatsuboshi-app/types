@@ -1,4 +1,4 @@
-import { DBAuditionTerminology } from "../../../src/class/persistent/AuditionTerminology";
+import { DBAuditionTerminology } from "../../../src/models/persistent/AuditionTerminology";
 
 const AuditionTerminologyDataset: DBAuditionTerminology[] = [
     {

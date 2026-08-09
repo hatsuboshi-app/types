@@ -1,0 +1,351 @@
+import PersistentObject, { IPersistentObject, PersistentObjectFilterOptions } from "../others/PersistentObject"
+import Character, { DBCharacter, ICharacter } from "./Character"
+import Rarity from "../../enums/Rarity"
+import PIdolPlan from "../../enums/PIdolPlan"
+import PIdolSubplan from "../../enums/PIdolSubplan"
+import ParameterSet, { DefaultParameterSet } from "../../types/ParameterSet"
+import PIdolLevelEffect, { DBPIdolLevelEffect, IPIdolLevelEffect } from "../embedded/PIdolLevelEffect"
+import PItem, { DBPItem, IPItem } from "./PItem"
+import Ability, { DBAbility, IAbility } from "../embedded/Ability"
+import PIdolVisual, { DefaultPIdolVisual } from "../../types/PIdolVisual"
+import Skill, { ISkill } from "./Skill"
+import LocaleStringWithRomaji, { DefaultLocaleStringWithRomaji } from "../../types/LocaleStringWithRomaji"
+import PIdolUpgradeState from "../../types/PIdolUpgradeState"
+import { PopulateEffectReference } from "../embedded/EffectReference"
+import Populate from "../../utilities/types/Populate"
+import PrimaStellaUpgrade, { DBPrimaStellaUpgrade, IPrimaStellaUpgrade } from "../embedded/PrimaStellaUpgrade"
+import Nullable from "../../utilities/types/Nullable"
+import { EnumFilterOptions, LocaleStringFilterOptions } from "../../types/FilterOptions"
+import Override from "../../utilities/types/Override"
+
+/**
+ * TODO
+ *
+ * @group Model Classes
+ * @category Persistent
+ */
+export default class PIdol extends PersistentObject<IPIdol, DBPIdol> implements IPIdol {
+    name: LocaleStringWithRomaji
+    visual: PIdolVisual
+    character: Character
+    rarity: Rarity
+    plan: PIdolPlan
+    subplan: PIdolSubplan
+    isWelfare: boolean
+    signatureSkill: Skill[]
+    signaturePItem: PItem
+    initialStamina: number
+    initialParameter: ParameterSet
+    initialGrowth: ParameterSet
+    initialAbilities: Ability[]
+    trainingLevels: PIdolLevelEffect[]
+    potentialLevels: PIdolLevelEffect[]
+    primaStellaUpgrade: Nullable<PrimaStellaUpgrade>
+    currentStamina: number
+    currentParameter: ParameterSet
+    currentGrowth: ParameterSet
+    currentAbilities: Ability[]
+    currentTrainingLevel: number
+    currentPotentialLevel: number
+
+    constructor(obj?: Partial<IPIdol>, upgradeState?: Partial<PIdolUpgradeState>) {
+        obj = structuredClone(obj)
+        super(obj, "idol")
+        this.name = obj?.name ?? DefaultLocaleStringWithRomaji
+        this.visual = obj?.visual ?? DefaultPIdolVisual
+        this.character = new Character(obj?.character)
+        this.rarity = obj?.rarity ?? Rarity.R
+        this.plan = obj?.plan ?? PIdolPlan.Logic
+        this.subplan = obj?.subplan ?? PIdolSubplan.Impression
+        this.isWelfare = obj?.isWelfare ?? false
+        this.signatureSkill = []
+        obj?.signatureSkill?.forEach(s => {
+            this.signatureSkill.push(new Skill(s))
+        })
+        this.signaturePItem = new PItem(obj?.signaturePItem)
+        this.initialStamina = obj?.initialStamina ?? 0
+        this.initialParameter = obj?.initialParameter ?? DefaultParameterSet
+        this.initialGrowth = obj?.initialGrowth ?? DefaultParameterSet
+        this.initialAbilities = []
+        obj?.initialAbilities?.forEach(a => {
+            this.initialAbilities.push(new Ability(a))
+        })
+        this.trainingLevels = []
+        obj?.trainingLevels?.forEach(tl => {
+            this.trainingLevels.push(new PIdolLevelEffect(tl))
+        })
+        this.potentialLevels = []
+        obj?.potentialLevels?.forEach(pl => {
+            this.potentialLevels.push(new PIdolLevelEffect(pl))
+        })
+        this.primaStellaUpgrade = obj?.primaStellaUpgrade ? new PrimaStellaUpgrade(obj.primaStellaUpgrade) : null
+
+        // initialize modifiable properties
+        this.currentStamina = structuredClone(this.initialStamina)
+        this.currentParameter = structuredClone(this.initialParameter)
+        this.currentGrowth = structuredClone(this.initialGrowth)
+        this.currentAbilities = []
+        this.initialAbilities.forEach(a => {
+            this.currentAbilities.push(a.copy())
+        })
+
+        // set modifiable properties
+        this.currentTrainingLevel = 0
+        if (upgradeState?.trainingLevel && upgradeState?.trainingLevel > 0) {
+            this.setTrainingLevel(upgradeState.trainingLevel)
+        }
+        this.currentPotentialLevel = 0
+        if (upgradeState?.potentialLevel && upgradeState?.potentialLevel > 0) {
+            this.setPotentialLevel(upgradeState.potentialLevel)
+        }
+    }
+
+    static async fromDB(obj: DBPIdol, populate: PopulatePIdol, upgradeState?: Partial<PIdolUpgradeState>): Promise<PIdol> {
+        const [character, signatureSkill, signaturePItem, initialAbilities, trainingLevels, potentialLevels, primaStellaUpgrade] = await Promise.all([
+            populate.character(obj.character).then(c => Character.fromDB(c ?? new Character().toDB())),
+            Promise.all(obj.signatureSkill.map(s => populate.skill(s).then(sk => Skill.fromDB(sk, populate)))),
+            populate.pItem(obj.signaturePItem).then(i => PItem.fromDB(i ?? new PItem().toDB(), populate)),
+            Promise.all(obj.initialAbilities.map(ia => Ability.fromDB(ia, populate))),
+            Promise.all(obj.trainingLevels.map(tl => PIdolLevelEffect.fromDB(tl, populate))),
+            Promise.all(obj.potentialLevels.map(pl => PIdolLevelEffect.fromDB(pl, populate))),
+            obj.primaStellaUpgrade ? PrimaStellaUpgrade.fromDB(obj.primaStellaUpgrade, populate) : null
+        ])
+        return new PIdol(
+            {
+                ...obj,
+                character,
+                signatureSkill,
+                signaturePItem,
+                initialAbilities,
+                trainingLevels,
+                potentialLevels,
+                primaStellaUpgrade
+            },
+            upgradeState
+        )
+    }
+
+    toDB(): DBPIdol {
+        return structuredClone({
+            ...super.toPersistentDB(),
+            name: this.name,
+            visual: this.visual,
+            character: this.character.id,
+            rarity: this.rarity,
+            plan: this.plan,
+            subplan: this.subplan,
+            isWelfare: this.isWelfare,
+            signatureSkill: this.signatureSkill.map(s => s.id),
+            signaturePItem: this.signaturePItem.id,
+            initialStamina: this.initialStamina,
+            initialParameter: this.initialParameter,
+            initialGrowth: this.initialGrowth,
+            initialAbilities: this.initialAbilities.map(a => a.toDB()),
+            trainingLevels: this.trainingLevels.map(l => l.toDB()),
+            potentialLevels: this.potentialLevels.map(l => l.toDB()),
+            primaStellaUpgrade: this.primaStellaUpgrade?.toDB() ?? null
+        })
+    }
+
+    toJSON(): IPIdol {
+        return structuredClone({
+            ...super.toPersistentJSON(),
+            name: this.name,
+            visual: this.visual,
+            character: this.character.toJSON(),
+            rarity: this.rarity,
+            plan: this.plan,
+            subplan: this.subplan,
+            isWelfare: this.isWelfare,
+            signatureSkill: this.signatureSkill.map(s => s.toJSON()),
+            signaturePItem: this.signaturePItem.toJSON(),
+            initialStamina: this.initialStamina,
+            initialParameter: this.initialParameter,
+            initialGrowth: this.initialGrowth,
+            initialAbilities: this.initialAbilities.map(a => a.toJSON()),
+            trainingLevels: this.trainingLevels.map(l => l.toJSON()),
+            potentialLevels: this.potentialLevels.map(l => l.toJSON()),
+            primaStellaUpgrade: this.primaStellaUpgrade?.toJSON() ?? null
+        })
+    }
+
+    copy(): PIdol {
+        return new PIdol(this.toJSON(),
+            { trainingLevel: this.currentTrainingLevel, potentialLevel: this.currentPotentialLevel }
+        )
+    }
+
+    private static parameterSetSum(p1: ParameterSet, p2: ParameterSet): ParameterSet {
+        return { vo: p1.vo + p2.vo, da: p1.da + p2.da, vi: p1.vi + p2.vi }
+    }
+
+    private handleLevelEffect(effect: PIdolLevelEffect): undefined {
+        this.currentParameter = PIdol.parameterSetSum(this.currentParameter, effect.parameter)
+        this.currentGrowth = PIdol.parameterSetSum(this.currentGrowth, effect.growth)
+        this.currentStamina += effect.stamina
+        if (effect.triggers.pItemUpgrade) {
+            this.signaturePItem.setUpgradeLevel(this.signaturePItem.currentUpgradeLevel + 1)
+        }
+        if (effect.triggers.skillUpgrade) {
+            if (this.signatureSkill.length >= 1) {
+                this.signatureSkill[0].setUpgradeLevel(this.signatureSkill[0].currentUpgradeLevel + 1)
+            }
+        }
+        if (effect.triggers.skill2Upgrade) {
+            if (this.signatureSkill.length >= 2) {
+                this.signatureSkill[1].setUpgradeLevel(this.signatureSkill[1].currentUpgradeLevel + 1)
+            }
+        }
+        // check for duplicates and replace if a duplicate is found
+        effect.abilities.forEach(ea => {
+            const i = this.currentAbilities.findIndex(a => a.position === ea.position)
+            if (i !== -1) {
+                this.currentAbilities[i] = ea.copy()
+            } else {
+                this.currentAbilities.push(ea.copy())
+            }
+        })
+        // upgrade abilities
+        effect.abilityUpgradePositions.forEach(p => {
+            this.currentAbilities.forEach(a => {
+                if (a.position === p) {
+                    a.setLevel(a.currentLevel + 1)
+                }
+            })
+        })
+    }
+
+    private resetProperties(): undefined {
+        this.currentStamina = structuredClone(this.initialStamina)
+        this.currentParameter = structuredClone(this.initialParameter)
+        this.currentGrowth = structuredClone(this.initialGrowth)
+        this.currentAbilities = []
+        this.initialAbilities.forEach(a => {
+            this.currentAbilities.push(a.copy())
+        })
+        this.signaturePItem.setUpgradeLevel(0)
+        for (let i = 0; i < this.signatureSkill.length; i++) {
+            this.signatureSkill[i].setUpgradeLevel(0)
+        }
+    }
+
+    private resetTrainingLevel(): undefined {
+        this.resetProperties()
+        this.currentTrainingLevel = 0
+        this.setPotentialLevel(this.currentPotentialLevel)
+    }
+
+    private increaseTrainingLevel(): undefined {
+        if (this.trainingLevels.length > this.currentTrainingLevel) {
+            const targetLevel: number = this.currentTrainingLevel + 1
+            const targetLevelEffect = this.trainingLevels.find(ul => ul.level === targetLevel)
+            targetLevelEffect && this.handleLevelEffect(targetLevelEffect)
+            this.currentTrainingLevel = targetLevel
+        }
+    }
+
+    setTrainingLevel(level: number): this {
+        const maxLevel = Math.max(...this.trainingLevels.map(tl => tl.level))
+        const minLevel = Math.min(...this.trainingLevels.map(tl => tl.level), 0)
+        const targetLevel = Math.max(Math.min(level, maxLevel), minLevel)
+        if (targetLevel <= this.currentTrainingLevel && this.currentTrainingLevel !== 0) {
+            this.resetTrainingLevel()
+        }
+        const levelsToIncrement = targetLevel - this.currentTrainingLevel
+        for (let i = 0; i < levelsToIncrement; i++) {
+            this.increaseTrainingLevel()
+        }
+        return this
+    }
+
+    private resetPotentialLevel(): undefined {
+        this.resetProperties()
+        this.currentPotentialLevel = 0
+        this.setTrainingLevel(this.currentTrainingLevel)
+    }
+
+    private increasePotentialLevel(): undefined {
+        if (this.potentialLevels.length > this.currentPotentialLevel) {
+            const targetLevel: number = this.currentPotentialLevel + 1
+            const targetLevelEffect = this.potentialLevels.find(ul => ul.level === targetLevel)
+            targetLevelEffect && this.handleLevelEffect(targetLevelEffect)
+            this.currentPotentialLevel = targetLevel
+        }
+    }
+
+    setPotentialLevel(level: number): this {
+        const maxLevel = Math.max(...this.potentialLevels.map(pl => pl.level))
+        const minLevel = Math.min(...this.potentialLevels.map(pl => pl.level), 0)
+        const targetLevel = Math.max(Math.min(level, maxLevel), minLevel)
+        if (targetLevel <= this.currentPotentialLevel && this.currentPotentialLevel !== 0) {
+            this.resetPotentialLevel()
+        }
+        const levelsToIncrement = targetLevel - this.currentPotentialLevel
+        for (let i = 0; i < levelsToIncrement; i++) {
+            this.increasePotentialLevel()
+        }
+        return this
+    }
+}
+
+/**
+ * JSON-serializable representation of {@link PIdol}.
+ *
+ * @group Data Transfer Objects
+ * @category Persistent
+ */
+export interface IPIdol extends IPersistentObject {
+    name: LocaleStringWithRomaji
+    visual: PIdolVisual
+    character: ICharacter
+    rarity: Rarity
+    plan: PIdolPlan
+    subplan: PIdolSubplan
+    isWelfare: boolean
+    signatureSkill: ISkill[]
+    signaturePItem: IPItem
+    initialStamina: number
+    initialParameter: ParameterSet
+    initialGrowth: ParameterSet
+    initialAbilities: IAbility[]
+    trainingLevels: IPIdolLevelEffect[]
+    potentialLevels: IPIdolLevelEffect[]
+    primaStellaUpgrade: Nullable<IPrimaStellaUpgrade>
+}
+
+/**
+ * Document-store representation of {@link PIdol}.
+ *
+ * @group Document-store Objects
+ * @category Persistent
+ */
+export interface DBPIdol extends Override<IPIdol, {
+    character: string
+    signatureSkill: string[]
+    signaturePItem: string
+    initialAbilities: DBAbility[]
+    trainingLevels: DBPIdolLevelEffect[]
+    potentialLevels: DBPIdolLevelEffect[]
+    primaStellaUpgrade: Nullable<DBPrimaStellaUpgrade>
+}> {
+}
+
+/**
+ * Filters {@link PIdol}.
+ *
+ * @group Filter Objects
+ */
+export interface PIdolFilterOptions extends PersistentObjectFilterOptions {
+    name?: LocaleStringFilterOptions
+    character?: EnumFilterOptions<string>
+    rarity?: EnumFilterOptions<Rarity>
+    plan?: EnumFilterOptions<PIdolPlan>
+    isWelfare?: boolean
+    hasPrimaStellaUpgrade?: boolean
+    hasTrainingLv7?: boolean
+}
+
+export interface PopulatePIdol extends PopulateEffectReference {
+    character: Populate<DBCharacter>,
+    pItem: Populate<DBPItem>
+}

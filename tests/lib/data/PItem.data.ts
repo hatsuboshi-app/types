@@ -1,7 +1,7 @@
 import { DBPItem } from "../../../src"
-import Plan from "../../../src/enum/Plan"
-import Rarity from "../../../src/enum/Rarity"
-import PItemSource from "../../../src/enum/PItemSource"
+import Plan from "../../../src/enums/Plan"
+import Rarity from "../../../src/enums/Rarity"
+import PItemSource from "../../../src/enums/PItemSource"
 
 const PItemDataset: DBPItem[] = [
     {

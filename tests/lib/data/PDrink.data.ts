@@ -1,6 +1,6 @@
-import Plan from "../../../src/enum/Plan"
-import Rarity from "../../../src/enum/Rarity"
-import { DBPDrink } from "../../../src/class/persistent/PDrink"
+import Plan from "../../../src/enums/Plan"
+import Rarity from "../../../src/enums/Rarity"
+import { DBPDrink } from "../../../src/models/persistent/PDrink"
 
 const PDrinkDataset: DBPDrink[] = [
     {

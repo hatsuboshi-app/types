@@ -1,5 +1,5 @@
 import { expect, expectTypeOf, test } from "vitest";
-import Skill, { DBSkill } from "../src/class/persistent/Skill";
+import Skill, { DBSkill } from "../src/models/persistent/Skill";
 import { getSkillById, populateMethods } from "./lib/api";
 
 test("default constructor", async () => {
