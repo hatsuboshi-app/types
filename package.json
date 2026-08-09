@@ -12,7 +12,7 @@
         "build": "tsup src --minify",
         "postbuild": "tsc --emitDeclarationOnly --declarationDir dist",
         "test": "vitest --run tests/",
-        "docs": "typedoc"
+        "docs": "typedoc --plugin typedoc-github-theme"
     },
     "author": "HuzzNZ",
     "license": "MIT",
@@ -21,6 +21,7 @@
         "@vitest/coverage-v8": "^3.2.4",
         "tsup": "^8.5.0",
         "typedoc": "^0.28.20",
+        "typedoc-github-theme": "^0.4.0",
         "typescript": "^5.8.3",
         "vitest": "^3.2.4"
     },
