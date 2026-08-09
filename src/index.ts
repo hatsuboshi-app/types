@@ -67,7 +67,7 @@ import LocaleWithRomaji from "./types/LocaleWithRomaji"
 import LocaleString from "./types/LocaleString"
 import LocaleStringWithRomaji from "./types/LocaleStringWithRomaji"
 import ParameterSet from "./types/ParameterSet"
-import ParsedEffectElement from "./types/ParsedEffectElement"
+import ParsedEffectElement, { ReferenceParsedEffectElement, StringParsedEffectElement, VariableParsedEffectElement } from "./types/ParsedEffectElement"
 import ParsedEffectLine from "./types/ParsedEffectLine"
 import PIdolAnotherVisualSet from "./types/PIdolAnotherVisualSet"
 import PIdolAssetSet from "./types/PIdolAssetSet"
@@ -86,7 +86,7 @@ import {
     NumberFilterOptions,
     StringFilterOptions
 } from "./types/FilterOptions"
-import PersistentObject, { IPersistentObject } from "./models/others/PersistentObject"
+import PersistentObject, { IPersistentObject, PersistentObjectFilterOptions } from "./models/others/PersistentObject"
 import PrimaStellaUpgrade, { DBPrimaStellaUpgrade, IPrimaStellaUpgrade } from "./models/embedded/PrimaStellaUpgrade"
 import New from "./utilities/types/New"
 import Override from "./utilities/types/Override"
@@ -106,10 +106,12 @@ import ChangeFlagSkillEffectMod from "./types/ChangeFlagSkillEffectMod"
 import CostReduceSkillEffectMod from "./types/CostReduceSkillEffectMod"
 import CustomizeLimitIncreaseSkillEffectMod from "./types/CustomizeLimitIncreaseSkillEffectMod"
 import EnhanceEffectMod from "./types/EnhanceEffectMod"
+import SkillConsolidatedRarity from "./enums/SkillConsolidatedRarity"
 
 export {
     // Interfaces / Abstracts
     DBSerializable, Duplicable, JSONSerializable, EmbeddedObject, PersistentObject, IPersistentObject,
+    PersistentObjectFilterOptions,
 
     // Persistent Classes
     PIdol, IPIdol, DBPIdol, PIdolFilterOptions,
@@ -172,6 +174,7 @@ export {
     ProduceScenario,
     Rarity,
     SkillCategory,
+    SkillConsolidatedRarity,
     SkillRarity,
     SkillSource,
 
@@ -192,6 +195,9 @@ export {
     LocaleStringWithRomaji,
     ParameterSet,
     ParsedEffectElement,
+        ReferenceParsedEffectElement,
+        VariableParsedEffectElement,
+        StringParsedEffectElement,
     ParsedEffectLine,
     PIdolAnotherVisualSet,
     PIdolAssetSet,
