@@ -1,4 +1,4 @@
-import PIdol, { DBPIdol, IPIdol, PIdolFilterOptions } from "./models/persistent/PIdol"
+import PIdol, { DBPIdol, IPIdol, PIdolFilterOptions, PopulatePIdol } from "./models/persistent/PIdol"
 import AuditionEffect, {
     AuditionEffectFilterOptions,
     DBAuditionEffect,
@@ -19,7 +19,7 @@ import AbilityLevel, { DBAbilityLevel, IAbilityLevel } from "./models/embedded/A
 import Effect, { DBEffect, IEffect } from "./models/embedded/Effect"
 import EffectLine, { DBEffectLine, IEffectLine } from "./models/embedded/EffectLine"
 import EffectMod, { DBEffectMod, IEffectMod } from "./models/embedded/EffectMod"
-import EffectReference, { DBEffectReference, IEffectReference } from "./models/embedded/EffectReference"
+import EffectReference, { DBEffectReference, IEffectReference, PopulateEffectReference } from "./models/embedded/EffectReference"
 import PIdolLevelEffect, { DBPIdolLevelEffect, IPIdolLevelEffect } from "./models/embedded/PIdolLevelEffect"
 import SkillCustomize, { DBSkillCustomize, ISkillCustomize } from "./models/embedded/SkillCustomize"
 import SkillCustomizeLevelEffect, {
@@ -113,8 +113,8 @@ export {
     DBSerializable, Duplicable, JSONSerializable, EmbeddedObject, PersistentObject, IPersistentObject,
     PersistentObjectFilterOptions,
 
-    // Persistent Classes
-    PIdol, IPIdol, DBPIdol, PIdolFilterOptions,
+    // Persistent
+    PIdol, IPIdol, DBPIdol, PIdolFilterOptions, PopulatePIdol,
     AuditionEffect, IAuditionEffect, DBAuditionEffect, AuditionEffectFilterOptions,
     AuditionTerminology, IAuditionTerminology, DBAuditionTerminology, AuditionTerminologyFilterOptions,
     Character, ICharacter, DBCharacter, CharacterFilterOptions,
@@ -123,10 +123,10 @@ export {
     Skill, ISkill, DBSkill, SkillFilterOptions,
     SupportCard, ISupportCard, DBSupportCard, SupportCardFilterOptions,
 
-    // Transient Classes
+    // Embedded
     Ability, IAbility, DBAbility,
     AbilityLevel, IAbilityLevel, DBAbilityLevel,
-    Effect, IEffect, DBEffect,
+    Effect, IEffect, DBEffect, PopulateEffectReference,
     EffectLine, IEffectLine, DBEffectLine,
     EffectMod, IEffectMod, DBEffectMod,
     InsertEffectMod, IInsertEffectMod, DBInsertEffectMod,
@@ -195,9 +195,9 @@ export {
     LocaleStringWithRomaji,
     ParameterSet,
     ParsedEffectElement,
-        ReferenceParsedEffectElement,
-        VariableParsedEffectElement,
-        StringParsedEffectElement,
+    ReferenceParsedEffectElement,
+    VariableParsedEffectElement,
+    StringParsedEffectElement,
     ParsedEffectLine,
     PIdolAnotherVisualSet,
     PIdolAssetSet,

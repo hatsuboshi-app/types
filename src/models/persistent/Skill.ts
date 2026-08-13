@@ -22,6 +22,11 @@ import Override from "../../utilities/types/Override"
 /**
  * TODO
  *
+ * > [!TIP]
+ * > See {@link SkillFilterOptions} for the list of **filtering** options.
+ * >
+ * > See {@link ISkill} for the list of fields that can be used for **sorting**.
+ *
  * @group Model Classes
  * @category Persistent
  */
@@ -307,6 +312,11 @@ export default class Skill extends PersistentObject<ISkill, DBSkill> implements 
 
 /**
  * JSON-serializable representation of {@link Skill}.
+ *
+ * > [!NOTE]
+ * > List of fields that can (and should) be used for sorting (as defined by {@link Sortable | `Sortable<ISkill>`}):
+ * >
+ * > `id`, `createdAt`, `updatedAt`, `name`, `plan`, `rarity`, `category`, `source`, `unlockLevel`, `initialStaminaCost`
  *
  * @group Data Transfer Objects
  * @category Persistent

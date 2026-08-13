@@ -8,7 +8,7 @@ import LocaleStringWithRomaji from "../../types/LocaleStringWithRomaji"
  * @category Types
  */
 export type Sortable<T> = {
-    [K in keyof T]: T[K] extends string | number | Date | LocaleString | LocaleStringWithRomaji ? K : never
+    [K in keyof T]: T[K] extends string | number | Date | LocaleString | LocaleStringWithRomaji | boolean ? K : never
 }[keyof T]
 
 /**

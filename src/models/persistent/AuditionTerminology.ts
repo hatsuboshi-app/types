@@ -12,7 +12,10 @@ import Override from "../../utilities/types/Override"
  *
  * This may refer to any commonly used word within the game, e.g. パラメータ, チェンジ, 強化, 相談の全項目を割増, etc.
  *
- * Can be filtered using {@link AuditionTerminologyFilterOptions}.
+ * > [!TIP]
+ * > See {@link AuditionTerminologyFilterOptions} for the list of **filtering** options.
+ * >
+ * > See {@link IAuditionTerminology} for the list of fields that can be used for **sorting**.
  *
  * > [!NOTE]
  * > {@link AuditionTerminology | AuditionTerminologies} can sometimes look similar to {@link AuditionEffect | AuditionEffects},
@@ -119,6 +122,11 @@ export default class AuditionTerminology extends PersistentObject<IAuditionTermi
 
 /**
  * JSON-serializable representation of {@link AuditionTerminology}.
+ *
+ * > [!NOTE]
+ * > List of fields that can (and should) be used for sorting (as defined by {@link Sortable | `Sortable<IAuditionTerminology>`}):
+ * >
+ * > `id`, `createdAt`, `updatedAt`, `name`, `isHighlighted`
  *
  * @group Data Transfer Objects
  * @category Persistent

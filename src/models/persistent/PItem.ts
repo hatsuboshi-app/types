@@ -12,6 +12,11 @@ import Override from "../../utilities/types/Override"
 /**
  * TODO
  *
+ * > [!TIP]
+ * > See {@link PItemFilterOptions} for the list of **filtering** options.
+ * >
+ * > See {@link IPItem} for the list of fields that can be used for **sorting**.
+ *
  * @group Model Classes
  * @category Persistent
  */
@@ -138,6 +143,11 @@ export default class PItem extends PersistentObject<IPItem, DBPItem> implements 
 
 /**
  * JSON-serializable representation of {@link PItem}.
+ *
+ * > [!NOTE]
+ * > List of fields that can (and should) be used for sorting (as defined by {@link Sortable | `Sortable<IPItem>`}):
+ * >
+ * > `id`, `createdAt`, `updatedAt`, `name`, `plan`, `rarity`, `source`, `unlockLevel`
  *
  * @group Data Transfer Objects
  * @category Persistent

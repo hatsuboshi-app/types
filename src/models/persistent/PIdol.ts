@@ -21,6 +21,11 @@ import Override from "../../utilities/types/Override"
 /**
  * TODO
  *
+ * > [!TIP]
+ * > See {@link PIdolFilterOptions} for the list of **filtering** options.
+ * >
+ * > See {@link IPIdol} for the list of fields that can be used for **sorting**.
+ *
  * @group Model Classes
  * @category Persistent
  */
@@ -290,6 +295,11 @@ export default class PIdol extends PersistentObject<IPIdol, DBPIdol> implements 
 
 /**
  * JSON-serializable representation of {@link PIdol}.
+ *
+ * > [!NOTE]
+ * > List of fields that can (and should) be used for sorting (as defined by {@link Sortable | `Sortable<IPIdol>`}):
+ * >
+ * > `id`, `createdAt`, `updatedAt`, `name`, `rarity`, `plan`, `subplan`, `isWelfare`, `initialStamina`
  *
  * @group Data Transfer Objects
  * @category Persistent

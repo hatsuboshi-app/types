@@ -127,14 +127,14 @@ export interface IPersistentObject {
 
     /**
      * The time the object was created, as an ISO 8601 (RFC 3339) timestamp.
-     * @format date-time
+     *
      * @example "2026-07-08T07:35:46.741Z"
      */
     createdAt: string
 
     /**
      * The time the object was last updated, as an ISO 8601 (RFC 3339) timestamp.
-     * @format date-time
+     *
      * @example "2026-07-09T14:02:11.508Z"
      */
     updatedAt: string

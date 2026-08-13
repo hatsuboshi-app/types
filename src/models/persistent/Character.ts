@@ -8,6 +8,11 @@ import { LocaleStringFilterOptions } from "../../types/FilterOptions"
 /**
  * TODO
  *
+ * > [!TIP]
+ * > See {@link CharacterFilterOptions} for the list of **filtering** options.
+ * >
+ * > See {@link ICharacter} for the list of fields that can be used for **sorting**.
+ *
  * @group Model Classes
  * @category Persistent
  */
@@ -72,6 +77,11 @@ export default class Character extends PersistentObject<ICharacter, DBCharacter>
 
 /**
  * JSON-serializable representation of {@link Character}.
+ *
+ * > [!NOTE]
+ * > List of fields that can (and should) be used for sorting (as defined by {@link Sortable | `Sortable<ICharacter>`}):
+ * >
+ * > `id`, `createdAt`, `updatedAt`, `firstName`, `lastName`, `isPlayable`
  *
  * @group Data Transfer Objects
  * @category Persistent

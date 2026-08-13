@@ -3,6 +3,11 @@ import PersistentObject, { IPersistentObject, PersistentObjectFilterOptions } fr
 /**
  * TODO
  *
+ * > [!TIP]
+ * > See {@link SupportCardFilterOptions} for the list of **filtering** options.
+ * >
+ * > See {@link ISupportCard} for the list of fields that can be used for **sorting**.
+ *
  * @group Model Classes
  * @category Persistent
  */
@@ -29,6 +34,11 @@ export default class SupportCard extends PersistentObject<ISupportCard, ISupport
 
 /**
  * JSON-serializable representation of {@link SupportCard}.
+ *
+ * > [!NOTE]
+ * > List of fields that can (and should) be used for sorting (as defined by {@link Sortable | `Sortable<ISupportCard>`}):
+ * >
+ * > `id`, `createdAt`, `updatedAt`
  *
  * @group Data Transfer Objects
  * @category Persistent

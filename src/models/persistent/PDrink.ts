@@ -10,6 +10,11 @@ import Override from "../../utilities/types/Override"
 /**
  * TODO
  *
+ * > [!TIP]
+ * > See {@link PDrinkFilterOptions} for the list of **filtering** options.
+ * >
+ * > See {@link IPDrink} for the list of fields that can be used for **sorting**.
+ *
  * @group Model Classes
  * @category Persistent
  */
@@ -70,6 +75,11 @@ export default class PDrink extends PersistentObject<IPDrink, DBPDrink> implemen
 
 /**
  * JSON-serializable representation of {@link PDrink}.
+ *
+ * > [!NOTE]
+ * > List of fields that can (and should) be used for sorting (as defined by {@link Sortable | `Sortable<IPDrink>`}):
+ * >
+ * > `id`, `createdAt`, `updatedAt`, `name`, `plan`, `rarity`, `unlockLevel`
  *
  * @group Data Transfer Objects
  * @category Persistent

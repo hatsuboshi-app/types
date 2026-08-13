@@ -12,7 +12,10 @@ import Override from "../../utilities/types/Override"
  * This may refer to a *buff* effect (e.g. 集中), a *debuff* effect (e.g. 体力消費), an *anomaly state* (e.g. 強気),
  * or an *action* that occurs during lesson/audition gameplay sectors (e.g. レッスン中強化).
  *
- * Can be filtered using {@link AuditionEffectFilterOptions}.
+ * > [!TIP]
+ * > See {@link AuditionEffectFilterOptions} for the list of **filtering** options.
+ * >
+ * > See {@link IAuditionEffect} for the list of fields that can be used for **sorting**.
  *
  * > [!NOTE]
  * > {@link AuditionTerminology | AuditionTerminologies} can sometimes look similar to {@link AuditionEffect | AuditionEffects},
@@ -126,6 +129,11 @@ export default class AuditionEffect extends PersistentObject<IAuditionEffect, DB
 
 /**
  * JSON-serializable representation of {@link AuditionEffect}.
+ *
+ * > [!NOTE]
+ * > List of fields that can (and should) be used for sorting (as defined by {@link Sortable | `Sortable<IAuditionEffect>`}):
+ * >
+ * > `id`, `createdAt`, `updatedAt`, `name`
  *
  * @group Data Transfer Objects
  * @category Persistent
