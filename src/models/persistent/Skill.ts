@@ -31,26 +31,104 @@ import Override from "../../utilities/types/Override"
  * @category Persistent
  */
 export default class Skill extends PersistentObject<ISkill, DBSkill> implements ISkill {
+    /**
+     * @inheritDoc
+     */
     name: LocaleStringWithRomaji
+
+    /**
+     * @inheritDoc
+     */
     assetUrl: string
+
+    /**
+     * @inheritDoc
+     */
     plan: Plan
+
+    /**
+     * @inheritDoc
+     */
     rarity: SkillRarity
+
+    /**
+     * @inheritDoc
+     */
     unlockLevel: number
+
+    /**
+     * @inheritDoc
+     */
     category: SkillCategory
+
+    /**
+     * @inheritDoc
+     */
     source: SkillSource
+
+    /**
+     * @inheritDoc
+     */
     upgradeLevels: SkillUpgradeLevelEffect[]
+
+    /**
+     * @inheritDoc
+     */
     customizeOptions: SkillCustomize[]
+
+    /**
+     * @inheritDoc
+     */
     initialCustomizeLimit: number
+
+    /**
+     * @inheritDoc
+     */
     initialStaminaCost: number
+
+    /**
+     * @inheritDoc
+     */
     initialEffect: SkillEffect
+
+    /**
+     * @inheritDoc
+     */
     initialFlags: SkillFlags
+
+    /**
+     * TODO
+     */
     currentCustomizeLimit: number
+
+    /**
+     * TODO
+     */
     currentStaminaCost: number
+
+    /**
+     * TODO
+     */
     currentFlags: SkillFlags
+
+    /**
+     * TODO
+     */
     currentEffect: SkillEffect
+
+    /**
+     * TODO
+     */
     currentUpgradeLevel: number
+
+    /**
+     * TODO
+     */
     currentCustomizeLevels: [number, number][]
 
+    /**
+     * TODO
+     */
     constructor(obj?: Partial<ISkill>, upgradeState?: Partial<SkillUpgradeState>) {
         obj = structuredClone(obj)
         super(obj, "skill")
@@ -92,6 +170,9 @@ export default class Skill extends PersistentObject<ISkill, DBSkill> implements 
         })
     }
 
+    /**
+     * TODO
+     */
     static async fromDB(obj: DBSkill, populate: PopulateEffectReference): Promise<Skill> {
         const [upgradeLevels, customizeOptions, initialEffect] = await Promise.all([
             Promise.all(obj.upgradeLevels.map(l => SkillUpgradeLevelEffect.fromDB(l, populate))),
@@ -101,6 +182,9 @@ export default class Skill extends PersistentObject<ISkill, DBSkill> implements 
         return new Skill({ ...obj, upgradeLevels, customizeOptions, initialEffect })
     }
 
+    /**
+     * @inheritDoc
+     */
     toDB(): DBSkill {
         return structuredClone({
             ...super.toPersistentDB(),
@@ -120,6 +204,9 @@ export default class Skill extends PersistentObject<ISkill, DBSkill> implements 
         })
     }
 
+    /**
+     * @inheritDoc
+     */
     toJSON(): ISkill {
         return structuredClone({
             ...super.toPersistentJSON(),
@@ -139,6 +226,9 @@ export default class Skill extends PersistentObject<ISkill, DBSkill> implements 
         })
     }
 
+    /**
+     * @inheritDoc
+     */
     copy(): Skill {
         return new Skill(
             this.toJSON(),
@@ -146,6 +236,9 @@ export default class Skill extends PersistentObject<ISkill, DBSkill> implements 
         )
     }
 
+    /**
+     * TODO
+     */
     get formattedName(): LocaleStringWithRomaji {
         const upgradeSymbol = "+".repeat(this.currentUpgradeLevel)
         return {
@@ -155,6 +248,9 @@ export default class Skill extends PersistentObject<ISkill, DBSkill> implements 
         }
     }
 
+    /**
+     * TODO
+     */
     get consolidatedRarity(): SkillConsolidatedRarity {
         switch (this.rarity) {
             case SkillRarity.N:
@@ -172,7 +268,10 @@ export default class Skill extends PersistentObject<ISkill, DBSkill> implements 
         }
     }
 
-    private handleSkillEffectMod(mod: SkillEffectMod, fromCustomize: boolean = false): undefined {
+    /**
+     * TODO
+     */
+    private handleSkillEffectMod(mod: SkillEffectMod, fromCustomize: boolean = false): void {
         switch (mod.type) {
             case EffectModType.Enhance:
             case EffectModType.Insert:
@@ -206,14 +305,20 @@ export default class Skill extends PersistentObject<ISkill, DBSkill> implements 
         }
     }
 
-    private resetProperties(): undefined {
+    /**
+     * TODO
+     */
+    private resetProperties(): void {
         this.currentCustomizeLimit = structuredClone(this.initialCustomizeLimit)
         this.currentStaminaCost = structuredClone(this.initialStaminaCost)
         this.currentFlags = structuredClone(this.initialFlags)
         this.currentEffect = this.initialEffect.copy()
     }
 
-    private resetUpgradeLevel(): undefined {
+    /**
+     * TODO
+     */
+    private resetUpgradeLevel(): void {
         this.resetProperties()
         this.currentUpgradeLevel = 0
         this.currentCustomizeLevels.forEach(cl => {
@@ -221,7 +326,10 @@ export default class Skill extends PersistentObject<ISkill, DBSkill> implements 
         })
     }
 
-    private increaseUpgradeLevel(): undefined {
+    /**
+     * TODO
+     */
+    private increaseUpgradeLevel(): void {
         if (this.upgradeLevels.length > this.currentUpgradeLevel) {
             const targetLevel: number = this.currentUpgradeLevel + 1
             const targetLevelEffect = this.upgradeLevels.find(ul => ul.level === targetLevel)
@@ -234,6 +342,9 @@ export default class Skill extends PersistentObject<ISkill, DBSkill> implements 
         }
     }
 
+    /**
+     * TODO
+     */
     setUpgradeLevel(level: number): this {
         const maxLevel = Math.max(...this.upgradeLevels.map(ul => ul.level), 0)
         const minLevel = Math.min(...this.upgradeLevels.map(ul => ul.level), 0)
@@ -248,13 +359,19 @@ export default class Skill extends PersistentObject<ISkill, DBSkill> implements 
         return this
     }
 
-    private resetAllCustomizeLevels(): undefined {
+    /**
+     * TODO
+     */
+    private resetAllCustomizeLevels(): void {
         this.resetProperties()
         this.currentCustomizeLevels = []
         this.setUpgradeLevel(this.currentUpgradeLevel)
     }
 
-    private resetCustomizeLevel(pos: number): undefined {
+    /**
+     * TODO
+     */
+    private resetCustomizeLevel(pos: number): void {
         this.resetProperties()
         const i = this.currentCustomizeLevels.findIndex(cl => cl[0] === pos)
         if (i !== -1 && i < this.currentCustomizeLevels.length) {
@@ -266,7 +383,10 @@ export default class Skill extends PersistentObject<ISkill, DBSkill> implements 
         })
     }
 
-    private increaseCustomizeLevel(pos: number): undefined {
+    /**
+     * TODO
+     */
+    private increaseCustomizeLevel(pos: number): void {
         const i = this.currentCustomizeLevels.findIndex(cl => cl[0] === pos)
         if (i !== -1 && i < this.currentCustomizeLevels.length) {
             const currentLevel = this.currentCustomizeLevels[i][1]
@@ -284,6 +404,9 @@ export default class Skill extends PersistentObject<ISkill, DBSkill> implements 
         }
     }
 
+    /**
+     * TODO
+     */
     setCustomizeLevel(pos?: number, level?: number): this {
         if (pos === undefined && level === undefined) {
             this.resetAllCustomizeLevels()
@@ -322,18 +445,69 @@ export default class Skill extends PersistentObject<ISkill, DBSkill> implements 
  * @category Persistent
  */
 export interface ISkill extends IPersistentObject {
+    /**
+     * TODO
+     */
     name: LocaleStringWithRomaji
+
+    /**
+     * TODO
+     */
     assetUrl: string
+
+    /**
+     * TODO
+     */
     plan: Plan
+
+    /**
+     * TODO
+     */
     rarity: SkillRarity
+
+    /**
+     * TODO
+     */
     category: SkillCategory
+
+    /**
+     * TODO
+     */
     source: SkillSource
+
+    /**
+     * TODO
+     */
     unlockLevel: number
+
+    /**
+     * TODO
+     */
     upgradeLevels: ISkillUpgradeLevelEffect[]
+
+    /**
+     * TODO
+     */
     customizeOptions: ISkillCustomize[]
+
+    /**
+     * TODO
+     */
     initialCustomizeLimit: number
+
+    /**
+     * TODO
+     */
     initialStaminaCost: number
+
+    /**
+     * TODO
+     */
     initialEffect: ISkillEffect
+
+    /**
+     * TODO
+     */
     initialFlags: SkillFlags
 }
 
@@ -347,8 +521,7 @@ export interface DBSkill extends Override<ISkill, {
     upgradeLevels: DBSkillUpgradeLevelEffect[]
     customizeOptions: DBSkillCustomize[]
     initialEffect: DBSkillEffect
-}> {
-}
+}> {}
 
 /**
  * Filters {@link Skill}.

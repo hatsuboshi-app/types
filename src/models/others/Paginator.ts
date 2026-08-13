@@ -6,7 +6,14 @@ import JSONSerializable from "../../utilities/interfaces/JSONSerializable"
  * @group Model Classes
  */
 export default class Paginator<O extends I & JSONSerializable<I>, I extends {}> implements IPaginator<I>, JSONSerializable<IPaginator<I>> {
+    /**
+     * @inheritDoc
+     */
     readonly data: O[]
+
+    /**
+     * @inheritDoc
+     */
     readonly meta: {
         currentPage: number,
         pageSize: number,
@@ -14,6 +21,12 @@ export default class Paginator<O extends I & JSONSerializable<I>, I extends {}> 
         totalPages: number
     }
 
+    /**
+     * TODO
+     *
+     * @param type
+     * @param obj
+     */
     constructor(type: (new(obj: I) => O), obj?: Partial<IPaginator<I>>) {
         this.data = []
         if (obj?.data) {
@@ -30,6 +43,9 @@ export default class Paginator<O extends I & JSONSerializable<I>, I extends {}> 
         this.meta.totalPages = obj?.meta?.totalPages ?? Math.ceil(this.meta.totalItems / this.meta.pageSize)
     }
 
+    /**
+     * @inheritDoc
+     */
     toJSON(): IPaginator<I> {
         return {
             data: this.data.map(d => d.toJSON()),
@@ -44,11 +60,33 @@ export default class Paginator<O extends I & JSONSerializable<I>, I extends {}> 
  * @group Data Transfer Objects
  */
 export interface IPaginator<T extends {}> {
+    /**
+     * TODO
+     */
     data: T[]
+
+    /**
+     * TODO
+     */
     meta: {
-        currentPage: number,
-        pageSize: number,
-        totalItems: number,
+        /**
+         * TODO
+         */
+        currentPage: number
+
+        /**
+         * TODO
+         */
+        pageSize: number
+
+        /**
+         * TODO
+         */
+        totalItems: number
+
+        /**
+         * TODO
+         */
         totalPages: number
     }
 }

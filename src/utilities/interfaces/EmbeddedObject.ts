@@ -8,5 +8,4 @@ import Duplicable from "./Duplicable"
  * @group Utilities
  * @category Interfaces
  */
-export default interface EmbeddedObject<I, D> extends JSONSerializable<I>, DBSerializable<D>, Duplicable {
-}
+export default interface EmbeddedObject<I, D> extends JSONSerializable<I>, DBSerializable<D>, Duplicable {}

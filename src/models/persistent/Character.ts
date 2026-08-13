@@ -17,14 +17,46 @@ import { LocaleStringFilterOptions } from "../../types/FilterOptions"
  * @category Persistent
  */
 export default class Character extends PersistentObject<ICharacter, DBCharacter> implements ICharacter {
+    /**
+     * @inheritDoc
+     */
     lastName: LocaleString
+
+    /**
+     * @inheritDoc
+     */
     firstName: LocaleString
+
+    /**
+     * @inheritDoc
+     */
     isPlayable: boolean
+
+    /**
+     * @inheritDoc
+     */
     color: CharacterColor
+
+    /**
+     * @inheritDoc
+     */
     assetUrl: string
+
+    /**
+     * @inheritDoc
+     */
     detail: CharacterDetail
+
+    /**
+     * @inheritDoc
+     */
     trueEndBonuses: CharacterTrueEndBonus[]
 
+    /**
+     * TODO
+     *
+     * @param obj
+     */
     constructor(obj?: Partial<ICharacter>) {
         obj = structuredClone(obj)
         super(obj, "character")
@@ -40,10 +72,18 @@ export default class Character extends PersistentObject<ICharacter, DBCharacter>
         })
     }
 
+    /**
+     * TODO
+     *
+     * @param obj
+     */
     static async fromDB(obj: DBCharacter): Promise<Character> {
         return new Character(obj)
     }
 
+    /**
+     * @inheritDoc
+     */
     toDB(): DBCharacter {
         return structuredClone({
             ...super.toPersistentDB(),
@@ -57,6 +97,9 @@ export default class Character extends PersistentObject<ICharacter, DBCharacter>
         })
     }
 
+    /**
+     * @inheritDoc
+     */
     toJSON(): ICharacter {
         return structuredClone({
             ...super.toPersistentJSON(),
@@ -70,6 +113,9 @@ export default class Character extends PersistentObject<ICharacter, DBCharacter>
         })
     }
 
+    /**
+     * @inheritDoc
+     */
     copy(): Character {
         return new Character(this.toJSON())
     }
@@ -87,12 +133,39 @@ export default class Character extends PersistentObject<ICharacter, DBCharacter>
  * @category Persistent
  */
 export interface ICharacter extends IPersistentObject {
+    /**
+     * TODO
+     */
     firstName: LocaleString
+
+    /**
+     * TODO
+     */
     lastName: LocaleString
+
+    /**
+     * TODO
+     */
     isPlayable: boolean
+
+    /**
+     * TODO
+     */
     color: CharacterColor
+
+    /**
+     * TODO
+     */
     assetUrl: string
+
+    /**
+     * TODO
+     */
     detail: CharacterDetail
+
+    /**
+     * TODO
+     */
     trueEndBonuses: CharacterTrueEndBonus[]
 }
 

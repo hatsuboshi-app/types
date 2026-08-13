@@ -30,9 +30,24 @@ import Override from "../../utilities/types/Override"
  * @category Persistent
  */
 export default class AuditionTerminology extends PersistentObject<IAuditionTerminology, DBAuditionTerminology> implements IAuditionTerminology {
+    /**
+     * @inheritDoc
+     */
     name: LocaleString
+
+    /**
+     * @inheritDoc
+     */
     description: Effect
+
+    /**
+     * @inheritDoc
+     */
     icon: Nullable<AuditionIcon>
+
+    /**
+     * @inheritDoc
+     */
     isHighlighted: boolean
 
     /**
@@ -161,8 +176,7 @@ export interface IAuditionTerminology extends IPersistentObject {
  */
 export interface DBAuditionTerminology extends Override<IAuditionTerminology, {
     description: DBEffect
-}> {
-}
+}> {}
 
 /**
  * Filters {@link AuditionTerminology}.

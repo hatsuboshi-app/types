@@ -21,17 +21,62 @@ import Override from "../../utilities/types/Override"
  * @category Persistent
  */
 export default class PItem extends PersistentObject<IPItem, DBPItem> implements IPItem {
+    /**
+     * @inheritDoc
+     */
     name: LocaleStringWithRomaji
+
+    /**
+     * @inheritDoc
+     */
     assetUrl: string
+
+    /**
+     * @inheritDoc
+     */
     plan: Plan
+
+    /**
+     * @inheritDoc
+     */
     rarity: Rarity
+
+    /**
+     * @inheritDoc
+     */
     source: PItemSource
+
+    /**
+     * @inheritDoc
+     */
     unlockLevel: number
+
+    /**
+     * @inheritDoc
+     */
     upgradeLevels: AbilityLevel[]
+
+    /**
+     * @inheritDoc
+     */
     initialEffect: Effect
+
+    /**
+     * TODO
+     */
     currentEffect: Effect
+
+    /**
+     * TODO
+     */
     currentUpgradeLevel: number
 
+    /**
+     * TODO
+     *
+     * @param obj
+     * @param upgradeLevel
+     */
     constructor(obj?: Partial<IPItem>, upgradeLevel?: number) {
         obj = structuredClone(obj)
         super(obj, "item")
@@ -57,6 +102,13 @@ export default class PItem extends PersistentObject<IPItem, DBPItem> implements 
         }
     }
 
+    /**
+     * TODO
+     *
+     * @param obj
+     * @param populate
+     * @param upgradeLevel
+     */
     static async fromDB(obj: DBPItem, populate: PopulateEffectReference, upgradeLevel?: number): Promise<PItem> {
         const [initialEffect, upgradeLevels] = await Promise.all([
             Effect.fromDB(obj.initialEffect, populate),
@@ -65,6 +117,9 @@ export default class PItem extends PersistentObject<IPItem, DBPItem> implements 
         return new PItem({ ...obj, initialEffect, upgradeLevels }, upgradeLevel)
     }
 
+    /**
+     * @inheritDoc
+     */
     toDB(): DBPItem {
         return structuredClone({
             ...super.toPersistentDB(),
@@ -79,6 +134,9 @@ export default class PItem extends PersistentObject<IPItem, DBPItem> implements 
         })
     }
 
+    /**
+     * @inheritDoc
+     */
     toJSON(): IPItem {
         return structuredClone({
             ...this.toPersistentJSON(),
@@ -93,10 +151,16 @@ export default class PItem extends PersistentObject<IPItem, DBPItem> implements 
         })
     }
 
+    /**
+     * @inheritDoc
+     */
     copy(): PItem {
         return new PItem(this.toJSON(), this.currentUpgradeLevel)
     }
 
+    /**
+     * TODO
+     */
     get formattedName(): LocaleStringWithRomaji {
         const upgradeSymbol = "+"
         return {
@@ -106,15 +170,24 @@ export default class PItem extends PersistentObject<IPItem, DBPItem> implements 
         }
     }
 
+    /**
+     * TODO
+     */
     private resetProperties(): undefined {
         this.currentEffect = this.initialEffect.copy()
     }
 
+    /**
+     * TODO
+     */
     private resetUpgradeLevel(): undefined {
         this.resetProperties()
         this.currentUpgradeLevel = 0
     }
 
+    /**
+     * TODO
+     */
     private increaseUpgradeLevel(): undefined {
         if (this.upgradeLevels.length > this.currentUpgradeLevel) {
             const targetLevel = this.currentUpgradeLevel + 1
@@ -126,6 +199,9 @@ export default class PItem extends PersistentObject<IPItem, DBPItem> implements 
         }
     }
 
+    /**
+     * TODO
+     */
     setUpgradeLevel(level: number): this {
         const maxLevel = Math.max(...this.upgradeLevels.map(ul => ul.level))
         const minLevel = Math.min(...this.upgradeLevels.map(ul => ul.level), 0)
@@ -153,13 +229,44 @@ export default class PItem extends PersistentObject<IPItem, DBPItem> implements 
  * @category Persistent
  */
 export interface IPItem extends IPersistentObject {
+    /**
+     * TODO
+     */
     name: LocaleStringWithRomaji
+
+    /**
+     * TODO
+     */
     assetUrl: string
+
+    /**
+     * TODO
+     */
     plan: Plan
+
+    /**
+     * TODO
+     */
     rarity: Rarity
+
+    /**
+     * TODO
+     */
     source: PItemSource
+
+    /**
+     * TODO
+     */
     unlockLevel: number
+
+    /**
+     * TODO
+     */
     initialEffect: IEffect
+
+    /**
+     * TODO
+     */
     upgradeLevels: IAbilityLevel[]
 }
 
@@ -172,8 +279,7 @@ export interface IPItem extends IPersistentObject {
 export interface DBPItem extends Override<IPItem, {
     initialEffect: DBEffect
     upgradeLevels: DBAbilityLevel[]
-}> {
-}
+}> {}
 
 /**
  * Filters {@link PItem}.

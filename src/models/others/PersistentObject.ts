@@ -32,7 +32,6 @@ export default abstract class PersistentObject<I extends IPersistentObject, D ex
      */
     updatedAt: string
 
-
     /**
      * Constructs the base PersistentObject object using an optional {@link IPersistentObject} object, and an optional
      * prefix to auto-assign a unique ID during runtime.

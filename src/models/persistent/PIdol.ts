@@ -30,29 +30,119 @@ import Override from "../../utilities/types/Override"
  * @category Persistent
  */
 export default class PIdol extends PersistentObject<IPIdol, DBPIdol> implements IPIdol {
+    /**
+     * @inheritDoc
+     */
     name: LocaleStringWithRomaji
+
+    /**
+     * @inheritDoc
+     */
     visual: PIdolVisual
+
+    /**
+     * @inheritDoc
+     */
     character: Character
+
+    /**
+     * @inheritDoc
+     */
     rarity: Rarity
+
+    /**
+     * @inheritDoc
+     */
     plan: PIdolPlan
+
+    /**
+     * @inheritDoc
+     */
     subplan: PIdolSubplan
+
+    /**
+     * @inheritDoc
+     */
     isWelfare: boolean
+
+    /**
+     * @inheritDoc
+     */
     signatureSkill: Skill[]
+
+    /**
+     * @inheritDoc
+     */
     signaturePItem: PItem
+
+    /**
+     * @inheritDoc
+     */
     initialStamina: number
+
+    /**
+     * @inheritDoc
+     */
     initialParameter: ParameterSet
+
+    /**
+     * @inheritDoc
+     */
     initialGrowth: ParameterSet
+
+    /**
+     * @inheritDoc
+     */
     initialAbilities: Ability[]
+
+    /**
+     * @inheritDoc
+     */
     trainingLevels: PIdolLevelEffect[]
+
+    /**
+     * @inheritDoc
+     */
     potentialLevels: PIdolLevelEffect[]
+
+    /**
+     * @inheritDoc
+     */
     primaStellaUpgrade: Nullable<PrimaStellaUpgrade>
+
+    /**
+     * TODO
+     */
     currentStamina: number
+
+    /**
+     * TODO
+     */
     currentParameter: ParameterSet
+
+    /**
+     * TODO
+     */
     currentGrowth: ParameterSet
+
+    /**
+     * TODO
+     */
     currentAbilities: Ability[]
+
+    /**
+     * TODO
+     */
     currentTrainingLevel: number
+
+    /**
+     * TODO
+     */
     currentPotentialLevel: number
 
+    /**
+     * TODO
+     */
     constructor(obj?: Partial<IPIdol>, upgradeState?: Partial<PIdolUpgradeState>) {
         obj = structuredClone(obj)
         super(obj, "idol")
@@ -105,6 +195,9 @@ export default class PIdol extends PersistentObject<IPIdol, DBPIdol> implements 
         }
     }
 
+    /**
+     * TODO
+     */
     static async fromDB(obj: DBPIdol, populate: PopulatePIdol, upgradeState?: Partial<PIdolUpgradeState>): Promise<PIdol> {
         const [character, signatureSkill, signaturePItem, initialAbilities, trainingLevels, potentialLevels, primaStellaUpgrade] = await Promise.all([
             populate.character(obj.character).then(c => Character.fromDB(c ?? new Character().toDB())),
@@ -130,6 +223,9 @@ export default class PIdol extends PersistentObject<IPIdol, DBPIdol> implements 
         )
     }
 
+    /**
+     * @inheritDoc
+     */
     toDB(): DBPIdol {
         return structuredClone({
             ...super.toPersistentDB(),
@@ -152,6 +248,9 @@ export default class PIdol extends PersistentObject<IPIdol, DBPIdol> implements 
         })
     }
 
+    /**
+     * @inheritDoc
+     */
     toJSON(): IPIdol {
         return structuredClone({
             ...super.toPersistentJSON(),
@@ -174,16 +273,25 @@ export default class PIdol extends PersistentObject<IPIdol, DBPIdol> implements 
         })
     }
 
+    /**
+     * @inheritDoc
+     */
     copy(): PIdol {
         return new PIdol(this.toJSON(),
             { trainingLevel: this.currentTrainingLevel, potentialLevel: this.currentPotentialLevel }
         )
     }
 
+    /**
+     * TODO
+     */
     private static parameterSetSum(p1: ParameterSet, p2: ParameterSet): ParameterSet {
         return { vo: p1.vo + p2.vo, da: p1.da + p2.da, vi: p1.vi + p2.vi }
     }
 
+    /**
+     * TODO
+     */
     private handleLevelEffect(effect: PIdolLevelEffect): undefined {
         this.currentParameter = PIdol.parameterSetSum(this.currentParameter, effect.parameter)
         this.currentGrowth = PIdol.parameterSetSum(this.currentGrowth, effect.growth)
@@ -220,6 +328,9 @@ export default class PIdol extends PersistentObject<IPIdol, DBPIdol> implements 
         })
     }
 
+    /**
+     * TODO
+     */
     private resetProperties(): undefined {
         this.currentStamina = structuredClone(this.initialStamina)
         this.currentParameter = structuredClone(this.initialParameter)
@@ -234,12 +345,18 @@ export default class PIdol extends PersistentObject<IPIdol, DBPIdol> implements 
         }
     }
 
+    /**
+     * TODO
+     */
     private resetTrainingLevel(): undefined {
         this.resetProperties()
         this.currentTrainingLevel = 0
         this.setPotentialLevel(this.currentPotentialLevel)
     }
 
+    /**
+     * TODO
+     */
     private increaseTrainingLevel(): undefined {
         if (this.trainingLevels.length > this.currentTrainingLevel) {
             const targetLevel: number = this.currentTrainingLevel + 1
@@ -249,6 +366,9 @@ export default class PIdol extends PersistentObject<IPIdol, DBPIdol> implements 
         }
     }
 
+    /**
+     * TODO
+     */
     setTrainingLevel(level: number): this {
         const maxLevel = Math.max(...this.trainingLevels.map(tl => tl.level))
         const minLevel = Math.min(...this.trainingLevels.map(tl => tl.level), 0)
@@ -263,12 +383,18 @@ export default class PIdol extends PersistentObject<IPIdol, DBPIdol> implements 
         return this
     }
 
+    /**
+     * TODO
+     */
     private resetPotentialLevel(): undefined {
         this.resetProperties()
         this.currentPotentialLevel = 0
         this.setTrainingLevel(this.currentTrainingLevel)
     }
 
+    /**
+     * TODO
+     */
     private increasePotentialLevel(): undefined {
         if (this.potentialLevels.length > this.currentPotentialLevel) {
             const targetLevel: number = this.currentPotentialLevel + 1
@@ -278,6 +404,9 @@ export default class PIdol extends PersistentObject<IPIdol, DBPIdol> implements 
         }
     }
 
+    /**
+     * TODO
+     */
     setPotentialLevel(level: number): this {
         const maxLevel = Math.max(...this.potentialLevels.map(pl => pl.level))
         const minLevel = Math.min(...this.potentialLevels.map(pl => pl.level), 0)
@@ -305,21 +434,84 @@ export default class PIdol extends PersistentObject<IPIdol, DBPIdol> implements 
  * @category Persistent
  */
 export interface IPIdol extends IPersistentObject {
+    /**
+     * TODO
+     */
     name: LocaleStringWithRomaji
+
+    /**
+     * TODO
+     */
     visual: PIdolVisual
+
+    /**
+     * TODO
+     */
     character: ICharacter
+
+    /**
+     * TODO
+     */
     rarity: Rarity
+
+    /**
+     * TODO
+     */
     plan: PIdolPlan
+
+    /**
+     * TODO
+     */
     subplan: PIdolSubplan
+
+    /**
+     * TODO
+     */
     isWelfare: boolean
+
+    /**
+     * TODO
+     */
     signatureSkill: ISkill[]
+
+    /**
+     * TODO
+     */
     signaturePItem: IPItem
+
+    /**
+     * TODO
+     */
     initialStamina: number
+
+    /**
+     * TODO
+     */
     initialParameter: ParameterSet
+
+    /**
+     * TODO
+     */
     initialGrowth: ParameterSet
+
+    /**
+     * TODO
+     */
     initialAbilities: IAbility[]
+
+    /**
+     * TODO
+     */
     trainingLevels: IPIdolLevelEffect[]
+
+    /**
+     * TODO
+     */
     potentialLevels: IPIdolLevelEffect[]
+
+    /**
+     * TODO
+     */
     primaStellaUpgrade: Nullable<IPrimaStellaUpgrade>
 }
 
@@ -337,8 +529,7 @@ export interface DBPIdol extends Override<IPIdol, {
     trainingLevels: DBPIdolLevelEffect[]
     potentialLevels: DBPIdolLevelEffect[]
     primaStellaUpgrade: Nullable<DBPrimaStellaUpgrade>
-}> {
-}
+}> {}
 
 /**
  * Filters {@link PIdol}.
@@ -355,6 +546,9 @@ export interface PIdolFilterOptions extends PersistentObjectFilterOptions {
     hasTrainingLv7?: boolean
 }
 
+/**
+ * TODO
+ */
 export interface PopulatePIdol extends PopulateEffectReference {
     character: Populate<DBCharacter>,
     pItem: Populate<DBPItem>

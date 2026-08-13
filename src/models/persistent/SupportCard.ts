@@ -12,21 +12,33 @@ import PersistentObject, { IPersistentObject, PersistentObjectFilterOptions } fr
  * @category Persistent
  */
 export default class SupportCard extends PersistentObject<ISupportCard, ISupportCard> implements ISupportCard {
-    // implement
-
+    /**
+     * TODO
+     *
+     * @param obj
+     */
     constructor(obj?: Partial<ISupportCard>) {
         obj = structuredClone(obj)
         super(obj, "support_card")
     }
 
+    /**
+     * @inheritDoc
+     */
     toDB(): ISupportCard {
         throw new Error("Method not implemented.")
     }
 
+    /**
+     * @inheritDoc
+     */
     toJSON(): ISupportCard {
         throw new Error("Method not implemented.")
     }
 
+    /**
+     * @inheritDoc
+     */
     copy(): PersistentObject<ISupportCard, ISupportCard> {
         throw new Error("Method not implemented.")
     }
@@ -44,7 +56,7 @@ export default class SupportCard extends PersistentObject<ISupportCard, ISupport
  * @category Persistent
  */
 export interface ISupportCard extends IPersistentObject {
-    // implement
+
 }
 
 /**

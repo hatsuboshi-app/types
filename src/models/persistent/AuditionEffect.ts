@@ -163,8 +163,7 @@ export interface IAuditionEffect extends IPersistentObject {
  */
 export interface DBAuditionEffect extends Override<IAuditionEffect, {
     description: DBEffect
-}> {
-}
+}> {}
 
 /**
  * Filters {@link AuditionEffect}.

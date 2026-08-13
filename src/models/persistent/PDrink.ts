@@ -19,13 +19,41 @@ import Override from "../../utilities/types/Override"
  * @category Persistent
  */
 export default class PDrink extends PersistentObject<IPDrink, DBPDrink> implements IPDrink {
+    /**
+     * @inheritDoc
+     */
     name: LocaleStringWithRomaji
+
+    /**
+     * @inheritDoc
+     */
     assetUrl: string
+
+    /**
+     * @inheritDoc
+     */
     plan: Plan
+
+    /**
+     * @inheritDoc
+     */
     rarity: Rarity
+
+    /**
+     * @inheritDoc
+     */
     unlockLevel: number
+
+    /**
+     * @inheritDoc
+     */
     effect: Effect
 
+    /**
+     * TODO
+     *
+     * @param obj
+     */
     constructor(obj?: Partial<IPDrink>) {
         obj = structuredClone(obj)
         super(obj, "drink")
@@ -37,6 +65,12 @@ export default class PDrink extends PersistentObject<IPDrink, DBPDrink> implemen
         this.effect = new Effect(obj?.effect)
     }
 
+    /**
+     * TODO
+     *
+     * @param obj
+     * @param populate
+     */
     static async fromDB(obj: DBPDrink, populate: PopulateEffectReference): Promise<PDrink> {
         return new PDrink({
             ...obj,
@@ -44,6 +78,9 @@ export default class PDrink extends PersistentObject<IPDrink, DBPDrink> implemen
         })
     }
 
+    /**
+     * @inheritDoc
+     */
     toDB(): DBPDrink {
         return structuredClone({
             ...super.toPersistentDB(),
@@ -56,6 +93,9 @@ export default class PDrink extends PersistentObject<IPDrink, DBPDrink> implemen
         })
     }
 
+    /**
+     * @inheritDoc
+     */
     toJSON(): IPDrink {
         return structuredClone({
             ...super.toPersistentJSON(),
@@ -68,6 +108,9 @@ export default class PDrink extends PersistentObject<IPDrink, DBPDrink> implemen
         })
     }
 
+    /**
+     * @inheritDoc
+     */
     copy(): PDrink {
         return new PDrink(this.toJSON())
     }
@@ -85,11 +128,34 @@ export default class PDrink extends PersistentObject<IPDrink, DBPDrink> implemen
  * @category Persistent
  */
 export interface IPDrink extends IPersistentObject {
+    /**
+     * TODO
+     */
     name: LocaleStringWithRomaji
+
+    /**
+     * TODO
+     */
     assetUrl: string
+
+    /**
+     * TODO
+     */
     plan: Plan
+
+    /**
+     * TODO
+     */
     rarity: Rarity
+
+    /**
+     * TODO
+     */
     unlockLevel: number
+
+    /**
+     * TODO
+     */
     effect: IEffect
 }
 
@@ -101,8 +167,7 @@ export interface IPDrink extends IPersistentObject {
  */
 export interface DBPDrink extends Override<IPDrink, {
     effect: DBEffect
-}> {
-}
+}> {}
 
 /**
  * Filters {@link PDrink}.
