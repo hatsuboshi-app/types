@@ -19,7 +19,7 @@ import { EnumFilterOptions, LocaleStringFilterOptions } from "../../types/Filter
 import Override from "../../utilities/types/Override"
 
 /**
- * TODO
+ * **A produce idol / P-Idol (プロデュースアイドル / Pアイドル).**
  *
  * > [!TIP]
  * > See {@link PIdolFilterOptions} for the list of **filtering** options.
@@ -111,37 +111,60 @@ export default class PIdol extends PersistentObject<IPIdol, DBPIdol> implements 
     primaStellaUpgrade: Nullable<PrimaStellaUpgrade>
 
     /**
-     * TODO
+     * The maximum stamina of this {@link PIdol} instance (including any level upgrades).
      */
     currentStamina: number
 
     /**
-     * TODO
+     * The base / flat parameters of this {@link PIdol} instance (including any level upgrades).
      */
     currentParameter: ParameterSet
 
     /**
-     * TODO
+     * The parameter growth stats of this {@link PIdol} instance (including any level upgrades).
      */
     currentGrowth: ParameterSet
 
     /**
-     * TODO
+     * The list of {@link Ability abilities} this {@link PIdol} instance has (including any level upgrades).
      */
     currentAbilities: Ability[]
 
     /**
-     * TODO
+     * The current training (特訓) level of this {@link PIdol} instance.
      */
     currentTrainingLevel: number
 
     /**
-     * TODO
+     * The current potential / bloom (才能開花) level of this {@link PIdol} instance.
      */
     currentPotentialLevel: number
 
     /**
-     * TODO
+     * Constructs an {@link PIdol} instance from an optional {@link IPIdol} object, at a specified training &
+     * potential level.
+     *
+     * If `obj`, or any of its required fields are undefined, the default value of each property's type
+     * will be used to construct the object.
+     *
+     * If `upgradeState` is undefined, the constructed instance will have a `currentTrainingLevel` and
+     * `currentPotentialLevel` of 0.
+     *
+     * @param obj Data to construct the object from.
+     * @param upgradeState The training / potential level to set for the constructed instance.
+     *
+     * @example
+     * // Default instance
+     * new PIdol()
+     *
+     * // From partial data
+     * new PIdol({ name: { ja: "Hello" } })
+     *
+     * // From JSON data returned by an API
+     * const res = await fetch(...)
+     * const data = new PIdol(await res.json())
+     *
+     * @group Constructing this model
      */
     constructor(obj?: Partial<IPIdol>, upgradeState?: Partial<PIdolUpgradeState>) {
         obj = structuredClone(obj)
@@ -196,7 +219,22 @@ export default class PIdol extends PersistentObject<IPIdol, DBPIdol> implements 
     }
 
     /**
-     * TODO
+     * Constructs an {@link PIdol} instance from a {@link DBPIdol} object by rehydrating
+     * missing fields using populate methods, at a specified training & potential level.
+     *
+     * If `upgradeState` is undefined, the constructed instance will have a `currentTrainingLevel` and
+     * `currentPotentialLevel` of 0.
+     *
+     * @param obj Data to construct the object from.
+     * @param populate Methods used to rehydrate fields overridden by {@link DBPIdol}.
+     * @param upgradeState The training / potential level to set for the constructed instance.
+     *
+     * @example
+     * // From JSON data returned by a document store repository
+     * const res = await collection.findOne({ ... })
+     * const data = await PIdol.fromDB(res, { ... })
+     *
+     * @group Constructing this model
      */
     static async fromDB(obj: DBPIdol, populate: PopulatePIdol, upgradeState?: Partial<PIdolUpgradeState>): Promise<PIdol> {
         const [character, signatureSkill, signaturePItem, initialAbilities, trainingLevels, potentialLevels, primaStellaUpgrade] = await Promise.all([
@@ -283,7 +321,7 @@ export default class PIdol extends PersistentObject<IPIdol, DBPIdol> implements 
     }
 
     /**
-     * TODO
+     * Calculates the sum of two {@link ParameterSet} objects.
      */
     private static parameterSetSum(p1: ParameterSet, p2: ParameterSet): ParameterSet {
         return { vo: p1.vo + p2.vo, da: p1.da + p2.da, vi: p1.vi + p2.vi }
@@ -435,82 +473,91 @@ export default class PIdol extends PersistentObject<IPIdol, DBPIdol> implements 
  */
 export interface IPIdol extends IPersistentObject {
     /**
-     * TODO
+     * The name of the produce idol unit.
      */
     name: LocaleStringWithRomaji
 
     /**
-     * TODO
+     * The visuals (card artworks) of the produce idol unit.
      */
     visual: PIdolVisual
 
     /**
-     * TODO
+     * The character behind the produce idol unit.
      */
     character: ICharacter
 
     /**
-     * TODO
+     * The rarity of the produce idol unit.
      */
     rarity: Rarity
 
     /**
-     * TODO
+     * The gameplay plan of the produce idol unit. For a more specific classification, see {@link IPIdol.subplan}.
      */
     plan: PIdolPlan
 
     /**
-     * TODO
+     * The recommended gameplay sub-plan of the produce idol unit.
      */
     subplan: PIdolSubplan
 
     /**
-     * TODO
+     * Whether the produce idol unit was distributed for free (i.e. as event reward, login bonus, etc.).
      */
     isWelfare: boolean
 
     /**
-     * TODO
+     * The skill(s) that belong(s) to the produce idol unit.
+     *
+     * > [!NOTE]
+     * > Some produce idol units, like ガラクタロード units, have two signature skills.
      */
     signatureSkill: ISkill[]
 
     /**
-     * TODO
+     * The produce item (P-Item) that belongs to the produce idol unit.
      */
     signaturePItem: IPItem
 
     /**
-     * TODO
+     * The maximum stamina of the produce idol unit, at training & potential levels 0. Use {@link PIdol.currentStamina}
+     * for the maximum stamina including any level upgrades.
      */
     initialStamina: number
 
     /**
-     * TODO
+     * The base / flat parameters of the produce idol unit, at training & potential levels 0. Use
+     * {@link PIdol.currentParameter} for the base / flat parameters including any level upgrades.
      */
     initialParameter: ParameterSet
 
     /**
-     * TODO
+     * The parameter growth stats of the produce idol unit, at training & potential levels 0. Use
+     * {@link PIdol.currentGrowth} for the parameter growth stats including any level upgrades.
      */
     initialGrowth: ParameterSet
 
     /**
-     * TODO
+     * The list of {@link Ability abilities} the produce idol unit has, at training & potential levels 0.
+     * Use {@link PIdol.currentAbilities} for the list of abilities including any level upgrades.
      */
     initialAbilities: IAbility[]
 
     /**
-     * TODO
+     * A list of training level upgrade effects for the produce idol unit. Use `trainingLevels.length` for the maximum
+     * training level.
      */
     trainingLevels: IPIdolLevelEffect[]
 
     /**
-     * TODO
+     * A list of potential / bloom level upgrade effects for the produce idol unit. Use `potentialLevels.length` for the
+     * maximum potential / bloom level.
      */
     potentialLevels: IPIdolLevelEffect[]
 
     /**
-     * TODO
+     * The contents of the upgrade if the produce idol unit is able to be upgraded to *Prima Stella*, otherwise `null`.
      */
     primaStellaUpgrade: Nullable<IPrimaStellaUpgrade>
 }
@@ -547,7 +594,7 @@ export interface PIdolFilterOptions extends PersistentObjectFilterOptions {
 }
 
 /**
- * TODO
+ * Methods to populate the overridden fields of a {@link DBPIdol} object in order to construct a {@link PIdol} instance.
  */
 export interface PopulatePIdol extends PopulateEffectReference {
     character: Populate<DBCharacter>,

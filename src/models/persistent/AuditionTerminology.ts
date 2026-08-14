@@ -18,9 +18,9 @@ import Override from "../../utilities/types/Override"
  * > See {@link IAuditionTerminology} for the list of fields that can be used for **sorting**.
  *
  * > [!NOTE]
- * > {@link AuditionTerminology | AuditionTerminologies} can sometimes look similar to {@link AuditionEffect | AuditionEffects},
- * > but they are subtly different. {@link AuditionTerminology | AuditionTerminologies} usually refer to effects that persist
- * > across an entire produce run, while {@link AuditionEffect | AuditionEffects} usually refer to effects that are ephemeral
+ * > {@link AuditionTerminology AuditionTerminologies} can sometimes look similar to {@link AuditionEffect AuditionEffects},
+ * > but they are subtly different. {@link AuditionTerminology AuditionTerminologies} usually refer to effects that persist
+ * > across an entire produce run, while {@link AuditionEffect AuditionEffects} usually refer to effects that are ephemeral
  * > to only a specific lesson/audition gameplay sector.
  * >
  * > For example, 強化 *(an {@link AuditionTerminology})* upgrades a skill card for the whole produce run, while レッスン中強化
@@ -158,7 +158,7 @@ export interface IAuditionTerminology extends IPersistentObject {
     description: IEffect
 
     /**
-     * Whether this terminology should be highlighted when the effect text it appears in is rendered.
+     * Whether the terminology should be highlighted when the effect text it appears in is rendered.
      */
     isHighlighted: boolean
 
