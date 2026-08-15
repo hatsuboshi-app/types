@@ -519,7 +519,7 @@ export interface IPIdol extends IPersistentObject {
     signatureSkill: ISkill[]
 
     /**
-     * The produce item (P-Item) that belongs to the produce idol unit.
+     * The P-Item (produce item) that belongs to the produce idol unit.
      */
     signaturePItem: IPItem
 
@@ -572,12 +572,39 @@ export interface IPIdol extends IPersistentObject {
  * @category Persistent
  */
 export interface DBPIdol extends Override<IPIdol, {
+    /**
+     * The ID of the character behind the produce idol unit.
+     */
     character: string
+
+    /**
+     * The ID(s) of the skill(s) that belong(s) to the produce idol unit.
+     */
     signatureSkill: string[]
+
+    /**
+     * The ID of the P-Item (produce item) that belongs to the produce idol unit.
+     */
     signaturePItem: string
+
+    /**
+     * @inheritDoc IPIdol.initialAbilities
+     */
     initialAbilities: DBAbility[]
+
+    /**
+     * @inheritDoc IPIdol.trainingLevels
+     */
     trainingLevels: DBPIdolLevelEffect[]
+
+    /**
+     * @inheritDoc IPIdol.potentialLevels
+     */
     potentialLevels: DBPIdolLevelEffect[]
+
+    /**
+     * @inheritDoc IPIdol.primaStellaUpgrade
+     */
     primaStellaUpgrade: Nullable<DBPrimaStellaUpgrade>
 }> {}
 

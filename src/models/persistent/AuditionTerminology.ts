@@ -175,6 +175,9 @@ export interface IAuditionTerminology extends IPersistentObject {
  * @category Persistent
  */
 export interface DBAuditionTerminology extends Override<IAuditionTerminology, {
+    /**
+     * @inheritDoc IAuditionTerminology.description
+     */
     description: DBEffect
 }> {}
 

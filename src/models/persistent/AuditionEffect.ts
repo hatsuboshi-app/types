@@ -162,6 +162,9 @@ export interface IAuditionEffect extends IPersistentObject {
  * @category Persistent
  */
 export interface DBAuditionEffect extends Override<IAuditionEffect, {
+    /**
+     * @inheritDoc IAuditionEffect.description
+     */
     description: DBEffect
 }> {}
 

@@ -8,7 +8,10 @@ import { EnumFilterOptions, LocaleStringFilterOptions, NumberFilterOptions } fro
 import Override from "../../utilities/types/Override"
 
 /**
- * TODO
+ * **A P-Drink / produce drink.**
+ *
+ * These are drinks that can be used during an lesson/audition gameplay sector for an effect (e.g. "初星ホエイプロテイン" /
+ * "Hatsuboshi Whey Protein", "センブリソーダ" / "Senburi Soda", etc.).
  *
  * > [!TIP]
  * > See {@link PDrinkFilterOptions} for the list of **filtering** options.
@@ -50,9 +53,25 @@ export default class PDrink extends PersistentObject<IPDrink, DBPDrink> implemen
     effect: Effect
 
     /**
-     * TODO
+     * Constructs a {@link PDrink} instance from an optional {@link IPDrink} object.
      *
-     * @param obj
+     * If `obj`, or any of its required fields are undefined, the default value of each property's type
+     * will be used to construct the object.
+     *
+     * @param obj Data to construct the object from.
+     *
+     * @example
+     * // Default instance
+     * new PDrink()
+     *
+     * // From partial data
+     * new PDrink({ name: { ja: "Hello" } })
+     *
+     * // From JSON data returned by an API
+     * const res = await fetch(...)
+     * const data = new PDrink(await res.json())
+     *
+     * @group Constructing this model
      */
     constructor(obj?: Partial<IPDrink>) {
         obj = structuredClone(obj)
@@ -66,10 +85,18 @@ export default class PDrink extends PersistentObject<IPDrink, DBPDrink> implemen
     }
 
     /**
-     * TODO
+     * Constructs a {@link PDrink} instance from a {@link DBPDrink} object by rehydrating
+     * missing fields using populate methods.
      *
-     * @param obj
-     * @param populate
+     * @param obj Data to construct the object from.
+     * @param populate Methods used to rehydrate fields overridden by {@link DBPDrink}.
+     *
+     * @example
+     * // From JSON data returned by a document store repository
+     * const res = await collection.findOne({ ... })
+     * const data = await PDrink.fromDB(res, { ... })
+     *
+     * @group Constructing this model
      */
     static async fromDB(obj: DBPDrink, populate: PopulateEffectReference): Promise<PDrink> {
         return new PDrink({
@@ -129,32 +156,32 @@ export default class PDrink extends PersistentObject<IPDrink, DBPDrink> implemen
  */
 export interface IPDrink extends IPersistentObject {
     /**
-     * TODO
+     * The name of the P-Drink.
      */
     name: LocaleStringWithRomaji
 
     /**
-     * TODO
+     * The URL to the main visual asset (image) of the P-Drink.
      */
     assetUrl: string
 
     /**
-     * TODO
+     * The produce plan(s) the P-Drink can be used on.
      */
     plan: Plan
 
     /**
-     * TODO
+     * The rarity of the P-Drink.
      */
     rarity: Rarity
 
     /**
-     * TODO
+     * The produce level at which the P-Drink is unlocked at.
      */
     unlockLevel: number
 
     /**
-     * TODO
+     * The effect applied by the P-Drink.
      */
     effect: IEffect
 }
@@ -166,6 +193,9 @@ export interface IPDrink extends IPersistentObject {
  * @category Persistent
  */
 export interface DBPDrink extends Override<IPDrink, {
+    /**
+     * @inheritDoc IPDrink.effect
+     */
     effect: DBEffect
 }> {}
 
