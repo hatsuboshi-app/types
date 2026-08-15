@@ -21,6 +21,9 @@ import Override from "../../utilities/types/Override"
 /**
  * **A produce idol / P-Idol (プロデュースアイドル / Pアイドル).**
  *
+ * For example, "極光" / "Kyokkou", "世界一可愛い私" / "Sekaiichi Kawaii Watashi", "サンフェーデッド" / "SUNFADED" are produce
+ * idol units of their respective {@link Character characters}.
+ *
  * > [!TIP]
  * > See {@link PIdolFilterOptions} for the list of **filtering** options.
  * >
@@ -141,7 +144,7 @@ export default class PIdol extends PersistentObject<IPIdol, DBPIdol> implements 
     currentPotentialLevel: number
 
     /**
-     * Constructs an {@link PIdol} instance from an optional {@link IPIdol} object, at a specified training &
+     * Constructs a {@link PIdol} instance from an optional {@link IPIdol} object, at a specified training &
      * potential level.
      *
      * If `obj`, or any of its required fields are undefined, the default value of each property's type
@@ -219,7 +222,7 @@ export default class PIdol extends PersistentObject<IPIdol, DBPIdol> implements 
     }
 
     /**
-     * Constructs an {@link PIdol} instance from a {@link DBPIdol} object by rehydrating
+     * Constructs a {@link PIdol} instance from a {@link DBPIdol} object by rehydrating
      * missing fields using populate methods, at a specified training & potential level.
      *
      * If `upgradeState` is undefined, the constructed instance will have a `currentTrainingLevel` and

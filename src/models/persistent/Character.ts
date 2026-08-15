@@ -6,7 +6,13 @@ import CharacterTrueEndBonus from "../../types/CharacterTrueEndBonus"
 import { LocaleStringFilterOptions } from "../../types/FilterOptions"
 
 /**
- * TODO
+ * **An in-game character.**
+ *
+ * Includes both playable characters (e.g. "花海咲季" / "Hanami Saki", "月村手毬" / "Tsukimura Temari", "藤田ことね" /
+ * "Fujita Kotone", etc.), and non-playable characters (e.g. "根緒亜紗里" / "Neo Asari", "十王邦夫" / "Juo Kunio", "藍井撫子"
+ * / "Aoi Nadeshiko", etc.).
+ *
+ * For the playable produce idol units of each character, see {@link PIdol}.
  *
  * > [!TIP]
  * > See {@link CharacterFilterOptions} for the list of **filtering** options.
@@ -53,9 +59,25 @@ export default class Character extends PersistentObject<ICharacter, DBCharacter>
     trueEndBonuses: CharacterTrueEndBonus[]
 
     /**
-     * TODO
+     * Constructs a {@link Character} instance from an optional {@link ICharacter} object.
      *
-     * @param obj
+     * If `obj`, or any of its required fields are undefined, the default value of each property's type
+     * will be used to construct the object.
+     *
+     * @param obj Data to construct the object from.
+     *
+     * @example
+     * // Default instance
+     * new Character()
+     *
+     * // From partial data
+     * new Character({ name: { ja: "Hello" } })
+     *
+     * // From JSON data returned by an API
+     * const res = await fetch(...)
+     * const data = new Character(await res.json())
+     *
+     * @group Constructing this model
      */
     constructor(obj?: Partial<ICharacter>) {
         obj = structuredClone(obj)
@@ -73,9 +95,20 @@ export default class Character extends PersistentObject<ICharacter, DBCharacter>
     }
 
     /**
-     * TODO
+     * Constructs a {@link Character} instance from a {@link DBCharacter} object.
      *
-     * @param obj
+     * > [!NOTE]
+     * > This method is functionally identical to the {@link Character.constructor constructor}, as there are no fields
+     * > to repopulate.
+     *
+     * @param obj Data to construct the object from.
+     *
+     * @example
+     * // From JSON data returned by a document store repository
+     * const res = await collection.findOne({ ... })
+     * const data = await Character.fromDB(res)
+     *
+     * @group Constructing this model
      */
     static async fromDB(obj: DBCharacter): Promise<Character> {
         return new Character(obj)
@@ -134,37 +167,37 @@ export default class Character extends PersistentObject<ICharacter, DBCharacter>
  */
 export interface ICharacter extends IPersistentObject {
     /**
-     * TODO
+     * The first / given name of a character, or otherwise the second part of a character's name.
      */
     firstName: LocaleString
 
     /**
-     * TODO
+     * The last / family name of a character, or otherwise the first part of a character's name.
      */
     lastName: LocaleString
 
     /**
-     * TODO
+     * Whether the character is playable in-game.
      */
     isPlayable: boolean
 
     /**
-     * TODO
+     * The set of colors associated with the character.
      */
     color: CharacterColor
 
     /**
-     * TODO
+     * The URL to the main visual asset (image) of the character.
      */
     assetUrl: string
 
     /**
-     * TODO
+     * The extended details of the character.
      */
     detail: CharacterDetail
 
     /**
-     * TODO
+     * The bonuses gained from reaching any available *True End*'s in gameplay scenarios for the character.
      */
     trueEndBonuses: CharacterTrueEndBonus[]
 }
