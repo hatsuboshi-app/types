@@ -21,8 +21,9 @@ import Override from "../../utilities/types/Override"
 /**
  * **A produce idol / P-Idol (プロデュースアイドル / Pアイドル).**
  *
- * For example, "極光" / "Kyokkou", "世界一可愛い私" / "Sekaiichi Kawaii Watashi", "サンフェーデッド" / "SUNFADED" are produce
- * idol units of their respective {@link Character characters}.
+ * These are units available for use in produce scenarios. For example, "極光" / "Kyokkou", "世界一可愛い私" / "Sekaiichi
+ * Kawaii Watashi", "サンフェーデッド" / "SUNFADED" are produce idol units of their respective
+ * {@link Character characters}.
  *
  * > [!TIP]
  * > See {@link PIdolFilterOptions} for the list of **filtering** options.
@@ -167,6 +168,10 @@ export default class PIdol extends PersistentObject<IPIdol, DBPIdol> implements 
      * const res = await fetch(...)
      * const data = new PIdol(await res.json())
      *
+     * // From JSON data returned by an API, at specific upgrade levels
+     * const res = await fetch(...)
+     * const data = new PIdol(await res.json(), { trainingLevel: 6, potentialLevel: 4 })
+     *
      * @group Constructing this model
      */
     constructor(obj?: Partial<IPIdol>, upgradeState?: Partial<PIdolUpgradeState>) {
@@ -236,6 +241,10 @@ export default class PIdol extends PersistentObject<IPIdol, DBPIdol> implements 
      * // From JSON data returned by a document store repository
      * const res = await collection.findOne({ ... })
      * const data = await PIdol.fromDB(res, { ... })
+     *
+     * // From JSON data returned by a document store repository, at specific upgrade levels
+     * const res = await collection.findOne({ ... })
+     * const data = await PIdol.fromDB(res, { ... }, { trainingLevel: 6, potentialLevel: 4 })
      *
      * @group Constructing this model
      */
@@ -548,13 +557,13 @@ export interface IPIdol extends IPersistentObject {
     initialAbilities: IAbility[]
 
     /**
-     * A list of training level upgrade effects for the produce idol unit. Use `trainingLevels.length` for the maximum
+     * A list of training level upgrade effects for the produce idol unit. Use `trainingLevels.length` for its maximum
      * training level.
      */
     trainingLevels: IPIdolLevelEffect[]
 
     /**
-     * A list of potential / bloom level upgrade effects for the produce idol unit. Use `potentialLevels.length` for the
+     * A list of potential / bloom level upgrade effects for the produce idol unit. Use `potentialLevels.length` for its
      * maximum potential / bloom level.
      */
     potentialLevels: IPIdolLevelEffect[]

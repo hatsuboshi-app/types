@@ -10,7 +10,11 @@ import { EnumFilterOptions, LocaleStringFilterOptions, NumberFilterOptions } fro
 import Override from "../../utilities/types/Override"
 
 /**
- * TODO
+ * **A P-Item / produce item (Pアイテム).**
+ *
+ * These are items that can be obtained throughout the duration of a produce run that provide effects to both the
+ * produce run itself, as well as during lesson/audition gameplay sectors (e.g. "あの日の約束" / "The promise of that
+ * day", "ピッグドリーム貯金箱" / "Piggybank of Big Dreams", "「Pっち」" / "'P-cchi'", etc.).
  *
  * > [!TIP]
  * > See {@link PItemFilterOptions} for the list of **filtering** options.
@@ -62,20 +66,42 @@ export default class PItem extends PersistentObject<IPItem, DBPItem> implements 
     initialEffect: Effect
 
     /**
-     * TODO
+     * The effects this P-Item instance has (including any level upgrades).
      */
     currentEffect: Effect
 
     /**
-     * TODO
+     * The current upgrade level of this P-Item instance.
      */
     currentUpgradeLevel: number
 
     /**
-     * TODO
+     * Constructs a {@link PItem} instance from an optional {@link IPItem} object, at a specified level.
      *
-     * @param obj
-     * @param upgradeLevel
+     * If `obj`, or any of its required fields are undefined, the default value of each property's type
+     * will be used to construct the object.
+     *
+     * if `upgradeLevel` is undefined, the constructed instance will have a `currentUpgradeLevel` of 0.
+     *
+     * @param obj Data to construct the object from.
+     * @param upgradeLevel The upgrade level to set for the constructed instance.
+     *
+     * @example
+     * // Default instance
+     * new PItem()
+     *
+     * // From partial data
+     * new PItem({ name: { ja: "Hello" } })
+     *
+     * // From JSON data returned by an API
+     * const res = await fetch(...)
+     * const data = new PItem(await res.json())
+     *
+     * // From JSON data returned by an API, at a specified level
+     * const res = await fetch(...)
+     * const data = new PItem(await res.json(), 1)
+     *
+     * @group Constructing this model
      */
     constructor(obj?: Partial<IPItem>, upgradeLevel?: number) {
         obj = structuredClone(obj)
@@ -103,11 +129,25 @@ export default class PItem extends PersistentObject<IPItem, DBPItem> implements 
     }
 
     /**
-     * TODO
+     * Constructs a {@link PItem} instance from a {@link DBPItem} object by rehydrating
+     * missing fields using populate methods, at a specified training & potential level.
      *
-     * @param obj
-     * @param populate
-     * @param upgradeLevel
+     * if `upgradeLevel` is undefined, the constructed instance will have a `currentUpgradeLevel` of 0.
+     *
+     * @param obj Data to construct the object from.
+     * @param populate Methods used to rehydrate fields overridden by {@link DBPItem}.
+     * @param upgradeLevel The upgrade level to set for the constructed instance.
+     *
+     * @example
+     * // From JSON data returned by a document store repository
+     * const res = await collection.findOne({ ... })
+     * const data = await PItem.fromDB(res, { ... })
+     *
+     * // From JSON data returned by a document store repository, at a specified level
+     * const res = await collection.findOne({ ... })
+     * const data = await PItem.fromDB(res, { ... }, 1)
+     *
+     * @group Constructing this model
      */
     static async fromDB(obj: DBPItem, populate: PopulateEffectReference, upgradeLevel?: number): Promise<PItem> {
         const [initialEffect, upgradeLevels] = await Promise.all([
@@ -159,7 +199,10 @@ export default class PItem extends PersistentObject<IPItem, DBPItem> implements 
     }
 
     /**
-     * TODO
+     * The {@link name} of the P-Item, suffixed with one '+' per upgrade level.
+     *
+     * @example
+     * { ja: "ピッグドリーム貯金箱+", ro: "Big Dream Chokinbako+", en: "Piggybank of Big Dreams+" }
      */
     get formattedName(): LocaleStringWithRomaji {
         const upgradeSymbol = "+"
@@ -171,14 +214,14 @@ export default class PItem extends PersistentObject<IPItem, DBPItem> implements 
     }
 
     /**
-     * TODO
+     * Reset all properties back to its initial values (i.e. at upgrade level 0).
      */
     private resetProperties(): undefined {
         this.currentEffect = this.initialEffect.copy()
     }
 
     /**
-     * TODO
+     * Reset the upgrade level to 0.
      */
     private resetUpgradeLevel(): undefined {
         this.resetProperties()
@@ -186,7 +229,7 @@ export default class PItem extends PersistentObject<IPItem, DBPItem> implements 
     }
 
     /**
-     * TODO
+     * Increase the upgrade level by 1, and update properties changed by the upgrade.
      */
     private increaseUpgradeLevel(): undefined {
         if (this.upgradeLevels.length > this.currentUpgradeLevel) {
@@ -200,7 +243,7 @@ export default class PItem extends PersistentObject<IPItem, DBPItem> implements 
     }
 
     /**
-     * TODO
+     * Set the upgrade level of this P-Idol instance, up to its maximum upgrade level.
      */
     setUpgradeLevel(level: number): this {
         const maxLevel = Math.max(...this.upgradeLevels.map(ul => ul.level))
@@ -230,42 +273,47 @@ export default class PItem extends PersistentObject<IPItem, DBPItem> implements 
  */
 export interface IPItem extends IPersistentObject {
     /**
-     * TODO
+     * The name of the P-Item.
      */
     name: LocaleStringWithRomaji
 
     /**
-     * TODO
+     * The URL to the main visual asset (image) of the P-Item.
      */
     assetUrl: string
 
     /**
-     * TODO
+     * The produce plan(s) the P-Item can be used on.
      */
     plan: Plan
 
     /**
-     * TODO
+     * The rarity of the P-Item.
      */
     rarity: Rarity
 
     /**
-     * TODO
+     * The source of the P-Item.
      */
     source: PItemSource
 
     /**
-     * TODO
+     * The produce level at which the P-Item is unlocked at.
+     *
+     * > [!NOTE]
+     * > This field exists to match the in-game data format, however as of update v3.3.0 of the game, all P-Items
+     * > have an unlock level of `0`.
      */
     unlockLevel: number
 
     /**
-     * TODO
+     * The effects of the P-Item, at upgrade level 0 (unupgraded). Use {@link PItem.currentEffect} for the effects
+     * including any level upgrades.
      */
     initialEffect: IEffect
 
     /**
-     * TODO
+     * A list of upgrade level effects for the P-Item. Use `upgradeLevels.length` for its maximum upgrade level.
      */
     upgradeLevels: IAbilityLevel[]
 }
@@ -277,7 +325,14 @@ export interface IPItem extends IPersistentObject {
  * @category Persistent
  */
 export interface DBPItem extends Override<IPItem, {
+    /**
+     * @inheritDoc IPItem.initialEffect
+     */
     initialEffect: DBEffect
+
+    /**
+     * @inheritDoc IPItem.upgradeLevels
+     */
     upgradeLevels: DBAbilityLevel[]
 }> {}
 

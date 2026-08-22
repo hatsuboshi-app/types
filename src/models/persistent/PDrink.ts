@@ -8,7 +8,7 @@ import { EnumFilterOptions, LocaleStringFilterOptions, NumberFilterOptions } fro
 import Override from "../../utilities/types/Override"
 
 /**
- * **A P-Drink / produce drink.**
+ * **A P-Drink / produce drink (Pドリンク).**
  *
  * These are drinks that can be used during an lesson/audition gameplay sector for an effect (e.g. "初星ホエイプロテイン" /
  * "Hatsuboshi Whey Protein", "センブリソーダ" / "Senburi Soda", etc.).

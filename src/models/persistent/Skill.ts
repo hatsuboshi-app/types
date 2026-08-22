@@ -20,7 +20,10 @@ import { EnumFilterOptions, LocaleStringFilterOptions, NumberFilterOptions } fro
 import Override from "../../utilities/types/Override"
 
 /**
- * TODO
+ * **A skill card (スキルカード).**
+ *
+ * These are cards that can be played during a lesson/audition gameplay segment for various effects (e.g. "ファンサ"
+ * / "Fansa", "シュプレヒコール" / "Sprechchor", "星屑センセーション" / "Stardust Sensation", etc.).
  *
  * > [!TIP]
  * > See {@link SkillFilterOptions} for the list of **filtering** options.
@@ -97,32 +100,32 @@ export default class Skill extends PersistentObject<ISkill, DBSkill> implements 
     initialFlags: SkillFlags
 
     /**
-     * TODO
+     * The customize limit of this {@link Skill} instance (including any level upgrades / customizations).
      */
     currentCustomizeLimit: number
 
     /**
-     * TODO
+     * The stamina cost of this {@link Skill} instance (including any level upgrades / customizations).
      */
     currentStaminaCost: number
 
     /**
-     * TODO
+     * The boolean flags of this {@link Skill} instance (including any level upgrades / customizations).
      */
     currentFlags: SkillFlags
 
     /**
-     * TODO
+     * The effects of this {@link Skill} instance (including any level upgrades / customizations).
      */
     currentEffect: SkillEffect
 
     /**
-     * TODO
+     * The current upgrade level of this {@link Skill} instance.
      */
     currentUpgradeLevel: number
 
     /**
-     * TODO
+     * The current set of customization options applied to this {@link Skill} instance.
      */
     currentCustomizeLevels: [number, number][]
 
@@ -437,7 +440,7 @@ export default class Skill extends PersistentObject<ISkill, DBSkill> implements 
  * JSON-serializable representation of {@link Skill}.
  *
  * > [!NOTE]
- * > List of fields that can (and should) be used for sorting (as defined by {@link Sortable | `Sortable<ISkill>`}):
+ * > List of fields that can (and should) be used for sorting (as defined by {@linkcode Sortable Sortable<ISkill>}):
  * >
  * > `id`, `createdAt`, `updatedAt`, `name`, `plan`, `rarity`, `category`, `source`, `unlockLevel`, `initialStaminaCost`
  *
@@ -446,67 +449,75 @@ export default class Skill extends PersistentObject<ISkill, DBSkill> implements 
  */
 export interface ISkill extends IPersistentObject {
     /**
-     * TODO
+     * The name of the skill card.
      */
     name: LocaleStringWithRomaji
 
     /**
-     * TODO
+     * The URL to the main visual asset (image) of the skill card.
      */
     assetUrl: string
 
     /**
-     * TODO
+     * The produce plan(s) the skill card can be used on.
      */
     plan: Plan
 
     /**
-     * TODO
+     * The rarity of the skill card.
+     *
+     * > [!WARNING]
+     * > This field stores the **granular** rarity of a skill card, in which R and SR are split into high & low
+     * > variants. To access the **consolidated** rarity, use {@linkcode Skill.consolidatedRarity}.
      */
     rarity: SkillRarity
 
     /**
-     * TODO
+     * The category of the skill card (i.e. Active, Mental, Trouble).
      */
     category: SkillCategory
 
     /**
-     * TODO
+     * The source of the skill card.
      */
     source: SkillSource
 
     /**
-     * TODO
+     * The produce level at which the skill card is unlocked at.
      */
     unlockLevel: number
 
     /**
-     * TODO
+     * A list of upgrade level effects for the skill card. Use `upgradeLevels.length` for its maximum upgrade level.
      */
     upgradeLevels: ISkillUpgradeLevelEffect[]
 
     /**
-     * TODO
+     * A list of customization options for the skill card.
      */
     customizeOptions: ISkillCustomize[]
 
     /**
-     * TODO
+     * The customize limit of the skill card, at upgrade level 0 (unupgraded) without customizations.
+     * Use {@link Skill.currentCustomizeLimit} for the customize limit including any level upgrades / customizations.
      */
     initialCustomizeLimit: number
 
     /**
-     * TODO
+     * The stamina cost of the skill card, at upgrade level 0 (unupgraded) without customizations.
+     * Use {@link Skill.currentStaminaCost} for the stamina cost including any level upgrades / customizations.
      */
     initialStaminaCost: number
 
     /**
-     * TODO
+     * The effects of the skill card, at upgrade level 0 (unupgraded) without customizations.
+     * Use {@link Skill.currentEffect} for the effects including any level upgrades / customizations.
      */
     initialEffect: ISkillEffect
 
     /**
-     * TODO
+     * The boolean flags of the skill card, at upgrade level 0 (unupgraded) without customizations.
+     * Use {@link Skill.currentFlags} for the boolean flags including any level upgrades / customizations.
      */
     initialFlags: SkillFlags
 }
@@ -518,8 +529,19 @@ export interface ISkill extends IPersistentObject {
  * @category Persistent
  */
 export interface DBSkill extends Override<ISkill, {
+    /**
+     * @inheritDoc ISkill.upgradeLevels
+     */
     upgradeLevels: DBSkillUpgradeLevelEffect[]
+
+    /**
+     * @inheritDoc ISkill.customizeOptions
+     */
     customizeOptions: DBSkillCustomize[]
+
+    /**
+     * @inheritDoc ISkill.initialEffect
+     */
     initialEffect: DBSkillEffect
 }> {}
 
