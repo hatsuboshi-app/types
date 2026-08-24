@@ -2,6 +2,10 @@
     "name": "@hatsuboshi/types",
     "version": "0.1.0",
     "description": "Type definitions for Hatsuboshi App.",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/hatsuboshi-app/types"
+    },
     "main": "dist/index.js",
     "module": "dist/index.mjs",
     "types": "dist/index.d.ts",
