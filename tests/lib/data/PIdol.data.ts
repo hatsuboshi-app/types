@@ -1,8 +1,8 @@
 import { DBPIdol } from "../../../src"
-import AbilityIconColor from "../../../src/enum/AbilityIconColor"
-import Rarity from "../../../src/enum/Rarity"
-import PIdolPlan from "../../../src/enum/PIdolPlan"
-import PIdolSubplan from "../../../src/enum/PIdolSubplan"
+import AbilityIconColor from "../../../src/enums/AbilityIconColor"
+import Rarity from "../../../src/enums/Rarity"
+import PIdolPlan from "../../../src/enums/PIdolPlan"
+import PIdolSubplan from "../../../src/enums/PIdolSubplan"
 
 const PIdolDataset: DBPIdol[] = [
     {

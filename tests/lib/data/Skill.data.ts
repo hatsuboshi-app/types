@@ -1,8 +1,8 @@
-import { DBSkill } from "../../../src/class/persistent/Skill"
-import SkillSource from "../../../src/enum/SkillSource"
-import Plan from "../../../src/enum/Plan"
-import SkillRarity from "../../../src/enum/SkillRarity"
-import SkillCategory from "../../../src/enum/SkillCategory"
+import { DBSkill } from "../../../src/models/persistent/Skill"
+import SkillSource from "../../../src/enums/SkillSource"
+import Plan from "../../../src/enums/Plan"
+import SkillRarity from "../../../src/enums/SkillRarity"
+import SkillCategory from "../../../src/enums/SkillCategory"
 
 const SkillDataset: DBSkill[] = [
     {

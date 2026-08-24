@@ -1,0 +1,30 @@
+{
+  "entryPoints": ["./src/index.ts"],
+  "customCss": "typedoc.css",
+  "groupOrder": [
+    "Model Classes",
+    "Data Transfer Objects",
+    "Document-store Objects",
+    "Filter Objects",
+    "Utilities",
+    "Constructing this model",
+    "Methods",
+    "Accessors",
+    "Properties",
+    "*"
+  ],
+  "categoryOrder": [
+    "Persistent",
+    "Embedded",
+    "Interfaces",
+    "Types",
+    "Functions",
+    "*"
+  ],
+  "categorizeByGroup": true,
+  "navigation": {
+    "includeGroups": true,
+    "includeCategories": true
+  },
+  "sort": ["required-first", "alphabetical"]
+}

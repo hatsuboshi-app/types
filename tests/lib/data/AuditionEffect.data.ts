@@ -1,6 +1,6 @@
-import { DBAuditionEffect } from "../../../src/class/persistent/AuditionEffect"
-import AuditionIconColor from "../../../src/enum/AuditionIconColor";
-import AuditionIconShape from "../../../src/enum/AuditionIconShape";
+import { DBAuditionEffect } from "../../../src/models/persistent/AuditionEffect"
+import AuditionIconColor from "../../../src/enums/AuditionIconColor";
+import AuditionIconShape from "../../../src/enums/AuditionIconShape";
 
 const AuditionEffectDataset: DBAuditionEffect[] = [
     {

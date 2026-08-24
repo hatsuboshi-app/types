@@ -1,6 +1,6 @@
 import { expect, expectTypeOf, test } from "vitest"
 import { getPDrinkById, populateMethods } from "./lib/api"
-import PDrink, { DBPDrink } from "../src/class/persistent/PDrink"
+import PDrink, { DBPDrink } from "../src/models/persistent/PDrink"
 
 test("default constructor", async () => {
     expect(new PDrink().id).toBeTruthy()

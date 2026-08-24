@@ -1,6 +1,6 @@
 import { expect, expectTypeOf, test } from "vitest"
 import { getCharacterById } from "./lib/api"
-import Character, { DBCharacter } from "../src/class/persistent/Character"
+import Character, { DBCharacter } from "../src/models/persistent/Character"
 
 test("default constructor", async () => {
     expect(new Character().id).toBeTruthy()

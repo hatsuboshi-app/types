@@ -1,6 +1,6 @@
 import { expect, expectTypeOf, test } from "vitest"
 import { getAuditionTerminologyById, populateMethods } from "./lib/api"
-import AuditionTerminology, { DBAuditionTerminology } from "../src/class/persistent/AuditionTerminology"
+import AuditionTerminology, { DBAuditionTerminology } from "../src/models/persistent/AuditionTerminology"
 
 test("default constructor", async () => {
     expect(new AuditionTerminology().id).toBeTruthy()

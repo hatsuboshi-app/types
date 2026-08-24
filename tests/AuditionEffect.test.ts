@@ -1,6 +1,6 @@
 import { expect, expectTypeOf, test } from "vitest"
 import { getAuditionEffectById, populateMethods } from "./lib/api"
-import AuditionEffect, { DBAuditionEffect } from "../src/class/persistent/AuditionEffect"
+import AuditionEffect, { DBAuditionEffect } from "../src/models/persistent/AuditionEffect"
 
 test("default constructor", async () => {
     expect(new AuditionEffect().id).toBeTruthy()
