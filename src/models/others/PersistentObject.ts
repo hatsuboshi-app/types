@@ -145,6 +145,6 @@ export interface IPersistentObject {
  * @group Filter Objects
  */
 export interface PersistentObjectFilterOptions {
-    createdAt: DateFilterOptions,
-    updatedAt: DateFilterOptions
+    createdAt?: DateFilterOptions,
+    updatedAt?: DateFilterOptions
 }
