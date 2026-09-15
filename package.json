@@ -32,6 +32,17 @@
     "publishConfig": {
         "access": "public"
     },
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.ts",
+            "default": "./dist/index.js"
+        },
+        "./auth": {
+            "types": "./dist/auth/index.d.ts",
+            "default": "./dist/auth/index.js"
+        },
+        "./package.json": "./package.json"
+    },
     "release": {
         "branches": [
             "main"

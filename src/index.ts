@@ -84,6 +84,7 @@ import {
     IncompleteLocaleFilterOptions,
     LocaleStringFilterOptions,
     NumberFilterOptions,
+    SimpleStringFilterOptions,
     StringFilterOptions
 } from "./types/FilterOptions"
 import PersistentObject, { IPersistentObject, PersistentObjectFilterOptions } from "./models/others/PersistentObject"
@@ -159,6 +160,7 @@ export {
     StringFilterOptions,
     IncompleteLocaleFilterOptions,
     LocaleStringFilterOptions,
+    SimpleStringFilterOptions,
 
     // Enums
     AbilityIconColor,

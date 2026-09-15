@@ -18,6 +18,11 @@ export type IncompleteLocaleFilterOptions = {
 
 export type LocaleStringFilterOptions = StringFilterOptions | IncompleteLocaleFilterOptions
 
+export type SimpleStringFilterOptions = {
+    search?: string
+    method?: "simple" | "regex"
+}
+
 export type NumberFilterOptions = {
     lte?: number
     gte?: number
