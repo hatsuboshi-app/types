@@ -1,9 +1,13 @@
-import PersistentObject, { IPersistentObject } from "../../models/others/PersistentObject"
+import PersistentObject, {
+    IPersistentObject,
+    PersistentObjectFilterOptions
+} from "../../models/others/PersistentObject"
 import User, { DBUser, ISelfUser, IUser } from "./User"
 import { AuthProvider } from "../types/AuthProvider"
 import Override from "../../utilities/types/Override"
 import Populate from "../../utilities/types/Populate"
 import { AuthRoleScopeMapping } from "../types/AuthRoleScopeMapping"
+import { DateFilterOptions, EnumFilterOptions, SimpleStringFilterOptions } from "../../types/FilterOptions";
 
 export default class Session extends PersistentObject<ISession, DBSession> implements ISession {
     user: User
@@ -30,7 +34,7 @@ export default class Session extends PersistentObject<ISession, DBSession> imple
             updatedAt: obj.updatedAt,
             user: await User.fromDB(await populate(obj.user)),
             createdVia: obj.createdVia,
-            expiresAt: obj.expiresAt,
+            expiresAt: obj.expiresAt.toISOString(),
             lastSeenAt: obj.lastSeenAt,
             userAgent: obj.userAgent
         } satisfies ISession)
@@ -52,7 +56,7 @@ export default class Session extends PersistentObject<ISession, DBSession> imple
             ...this.toPersistentDB(),
             user: this.user.dbRef,
             createdVia: this.createdVia,
-            expiresAt: this.expiresAt,
+            expiresAt: new Date(this.expiresAt),
             lastSeenAt: this.lastSeenAt,
             userAgent: this.userAgent
         } satisfies DBSession)
@@ -92,6 +96,7 @@ export interface ISelfSession extends Override<ISession, {
 
 export interface DBSession extends Override<ISession, {
     user: string
+    expiresAt: Date
 }> {
     tokenHash?: string
     ip?: string | null
@@ -100,4 +105,10 @@ export interface DBSession extends Override<ISession, {
 export interface DBInsertSession extends DBSession {
     tokenHash: string
     ip: string | null
+}
+
+export interface SessionFilterOptions extends PersistentObjectFilterOptions {
+    lastSeenAt?: DateFilterOptions,
+    userAgent?: SimpleStringFilterOptions,
+    user?: EnumFilterOptions<string>,
 }
