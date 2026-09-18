@@ -26,5 +26,6 @@
     "includeGroups": true,
     "includeCategories": true
   },
-  "sort": ["required-first", "alphabetical"]
+  "sort": ["required-first", "alphabetical"],
+  "plugin": ["./typedoc/plugins/typedoc-link-map.mts"]
 }

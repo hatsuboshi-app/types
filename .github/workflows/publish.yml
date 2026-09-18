@@ -1,4 +1,4 @@
-name: Publish to npm
+name: Publish to npm & docs
 
 on:
   push:
@@ -15,6 +15,9 @@ jobs:
       pull-requests: write
       id-token: write
     runs-on: ubuntu-latest
+    outputs:
+      released: ${{ steps.release.outputs.released }}
+      tag: ${{ steps.release.outputs.tag }}
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -24,12 +27,66 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version: "lts/*"
-      - name: Install dependencies
+      - name: Install dependencies & build
         run: |
           npm clean-install
           npm audit signatures
           npm run build
       - name: Publish
+        id: release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: npx semantic-release
+        run: |
+          npx semantic-release
+          TAG=$(git tag --points-at HEAD --list "v*" | head -n 1)
+          if [ -n "$TAG" ]; then
+              echo "released=true" >> "$GITHUB_OUTPUT"
+              echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          else
+              echo "released=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  docs:
+    needs: publish
+    if: needs.publish.outputs.released == 'true'
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    concurrency: docs-publish
+    env:
+      TAG: ${{ needs.publish.outputs.tag }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ needs.publish.outputs.tag }}
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "lts/*"
+          cache: npm
+      - name: Install dependencies & generate docs
+        run: |
+          npm clean-install
+          npm audit signatures
+          npm run docs
+      - name: Checkout docs repo
+        uses: actions/checkout@v7
+        with:
+          repository: hatsuboshi-app/docs
+          token: ${{ secrets.DOCS_PUBLISH_TOKEN }}
+          path: docs-repo
+      - name: Copy artifacts
+        run: |
+          for dir in "$TAG" latest; do
+            rm -rf "docs-repo/public/types/$dir"
+            mkdir -p "docs-repo/public/types/$dir"
+            cp -r docs/. "docs-repo/public/types/$dir/"
+          done
+      - name: Commit and push
+        uses: stefanzweifel/git-auto-commit-action@v7
+        with:
+          repository: docs-repo
+          commit_message: "docs(types): publish ${{ env.TAG }}"
+          before_push_hook: |
+            git pull --rebase
