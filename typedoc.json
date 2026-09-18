@@ -1,6 +1,6 @@
 {
   "entryPoints": ["./src/index.ts", "./src/auth/index.ts"],
-  "customCss": "typedoc.css",
+  "customCss": "./typedoc/typedoc.css",
   "groupOrder": [
     "Model Classes",
     "Data Transfer Objects",
