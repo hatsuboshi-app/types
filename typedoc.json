@@ -1,6 +1,6 @@
 {
   "entryPoints": ["./src/index.ts", "./src/auth/index.ts"],
-  "customCss": "typedoc.css",
+  "customCss": "./typedoc/typedoc.css",
   "groupOrder": [
     "Model Classes",
     "Data Transfer Objects",
@@ -26,5 +26,6 @@
     "includeGroups": true,
     "includeCategories": true
   },
-  "sort": ["required-first", "alphabetical"]
+  "sort": ["required-first", "alphabetical"],
+  "plugin": ["./typedoc/plugins/typedoc-link-map.mts"]
 }
