@@ -16,7 +16,7 @@
         "build": "tsup src --minify",
         "postbuild": "tsc --emitDeclarationOnly --declarationDir dist",
         "test": "vitest --run tests/",
-        "docs": "typedoc"
+        "docs": "typedoc --favicon ./typedoc/favicon.ico --hideGenerator"
     },
     "author": "HuzzNZ",
     "license": "MIT",

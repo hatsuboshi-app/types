@@ -1,5 +1,5 @@
 {
-  "entryPoints": ["./src/index.ts", "./src/auth/index.ts"],
+  "entryPoints": ["./src/index.ts"],
   "customCss": "./typedoc/typedoc.css",
   "groupOrder": [
     "Model Classes",
@@ -27,5 +27,11 @@
     "includeCategories": true
   },
   "sort": ["required-first", "alphabetical"],
-  "plugin": ["./typedoc/plugins/typedoc-link-map.mts"]
+  "plugin": ["./typedoc/plugins/typedoc-link-map.mts"],
+  "router": "kind-dir",
+  "navigationLinks": {
+    "Hatsuboshi App Docs": "https://docs.hatsuboshi.app",
+    "GitHub": "https://github.com/hatsuboshi-app/types"
+  },
+  "hostedBaseUrl": "https://docs.hatsuboshi.app"
 }
