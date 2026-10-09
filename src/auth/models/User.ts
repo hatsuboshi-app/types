@@ -9,28 +9,30 @@ import { AuthUserIdentity } from "../types/AuthUserIdentity"
 import { AuthRoleScopeMapping } from "../types/AuthRoleScopeMapping"
 
 export default class User extends PersistentObject<IUser, DBUser> implements IUser {
-    disabledAt: string | null
-    identities: AuthUserIdentity[]
     displayName: string
     displayIcon: string | null
     description: string | null
-    email: string
-    verified: boolean
     roles: AuthRole[]
-    extraScopes: AuthScopePattern[]
+    extraScopes?: AuthScopePattern[]
+    disabledAt?: string | null
+    email?: string
+    verified?: boolean
+    totalScopes?: AuthScopePattern[]
+    identities?: AuthUserIdentity[]
 
     constructor(obj?: Partial<IUser>) {
         obj = structuredClone(obj)
         super(obj, "user")
-        this.disabledAt =   obj?.disabledAt ?? null
-        this.identities =   obj?.identities ?? []
         this.displayName =  obj?.displayName ?? ""
         this.displayIcon =  obj?.displayIcon ?? null
         this.description =  obj?.description ?? null
-        this.email =        obj?.email ?? ""
-        this.verified =     obj?.verified ?? false
         this.roles =        obj?.roles ?? []
-        this.extraScopes =  obj?.extraScopes ?? []
+        this.extraScopes =  obj?.extraScopes ?? undefined
+        this.disabledAt =   obj?.disabledAt ?? undefined
+        this.email =        obj?.email ?? undefined
+        this.verified =     obj?.verified ?? undefined
+        this.totalScopes =  obj?.totalScopes ?? undefined
+        this.identities =   obj?.identities ?? undefined
     }
 
     static async fromDB(obj: DBUser) {
@@ -41,31 +43,32 @@ export default class User extends PersistentObject<IUser, DBUser> implements IUs
     toDB(): DBUser {
         return structuredClone({
             ...super.toPersistentDB(),
-            disabledAt:     this.disabledAt,
-            identities:     this.identities,
             displayName:    this.displayName,
             displayIcon:    this.displayIcon,
             description:    this.description,
+            roles:          this.roles,
+            extraScopes:    this.extraScopes,
+            disabledAt:     this.disabledAt,
             email:          this.email,
             verified:       this.verified,
-            roles:          this.roles,
-            extraScopes:    this.extraScopes
-        })
+            identities:     this.identities,
+        } satisfies DBUser)
     }
 
     toJSON(): IUser {
         return structuredClone({
             ...super.toPersistentJSON(),
-            disabledAt:     this.disabledAt,
-            identities:     this.identities,
             displayName:    this.displayName,
             displayIcon:    this.displayIcon,
             description:    this.description,
+            roles:          this.roles,
+            extraScopes:    this.extraScopes,
+            disabledAt:     this.disabledAt,
             email:          this.email,
             verified:       this.verified,
-            roles:          this.roles,
-            extraScopes:    this.extraScopes
-        })
+            totalScopes:    this.totalScopes,
+            identities:     this.identities,
+        } satisfies IUser)
     }
 
     toPublicUser(): IPublicUser {
@@ -79,20 +82,24 @@ export default class User extends PersistentObject<IUser, DBUser> implements IUs
         } satisfies IPublicUser)
     }
 
-    toSelfUser(roleScopeMapping: AuthRoleScopeMapping): ISelfUser {
-        const roleScopes: AuthScopePattern[] = this.roles.flatMap(r => roleScopeMapping[r])
-        const scopes: AuthScopePattern[] = [...new Set([...this.extraScopes, ...roleScopes])]
+    toSelfUser(): ISelfUser {
         return structuredClone({
             ...super.toPersistentJSON(),
-            disabledAt:     this.disabledAt,
             displayName:    this.displayName,
             displayIcon:    this.displayIcon,
             description:    this.description,
+            roles:          this.roles,
+            extraScopes:    this.extraScopes,
+            disabledAt:     this.disabledAt,
             email:          this.email,
             verified:       this.verified,
-            roles:          this.roles,
-            scopes:         scopes
+            totalScopes:    this.totalScopes,
         } satisfies ISelfUser)
+    }
+
+    populateScopes(roleScopeMapping: AuthRoleScopeMapping): void {
+        const roleScopes: AuthScopePattern[] = this.roles.flatMap(r => roleScopeMapping[r])
+        this.totalScopes = [...new Set([...this.extraScopes ?? [], ...roleScopes])]
     }
 
     copy(): User {
@@ -101,22 +108,23 @@ export default class User extends PersistentObject<IUser, DBUser> implements IUs
 }
 
 export interface IUser extends IPersistentObject {
-    disabledAt: string | null
-    identities: AuthUserIdentity[]
     displayName: string
     displayIcon: string | null
     description: string | null
-    email: string
-    verified: boolean
     roles: AuthRole[]
-    extraScopes: AuthScopePattern[]
+    extraScopes?: AuthScopePattern[]    // not visible on IPublicUser
+    disabledAt?: string | null          // not visible on IPublicUser
+    email?: string                      // not visible on IPublicUser
+    verified?: boolean                  // not visible on IPublicUser
+    totalScopes?: AuthScopePattern[]    // not visible on IPublicUser
+    identities?: AuthUserIdentity[]     // not visible on IPublicUser or ISelfUser
 }
 
 export interface IPublicUser extends Pick<IUser, "id" | "displayName" | "displayIcon" | "description" | "createdAt" | "roles"> {}
 
-export interface ISelfUser extends Omit<IUser, "identities" | "extraScopes"> { scopes: AuthScopePattern[] }
+export interface ISelfUser extends Omit<IUser, "identities"> {}
 
-export interface DBUser extends IUser {}
+export interface DBUser extends Omit<IUser, "totalScopes"> {}
 
 export interface UserFilterOptions extends PersistentObjectFilterOptions {
     displayName?: SimpleStringFilterOptions,
