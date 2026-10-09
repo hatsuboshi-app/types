@@ -1,4 +1,3 @@
 export type AuthProvider =
-    | "email"
-    | "google"
-    | "github"
+    | "local"
+    | "firebase"
