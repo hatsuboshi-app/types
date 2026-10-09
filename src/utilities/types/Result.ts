@@ -4,7 +4,9 @@
  * @group Utilities
  * @category Types
  */
-type Result<T> = SuccessResult<T> | FailureResult
+type Result<S, F extends string = string> =
+    | SuccessResult<S>
+    | FailureResult<F>
 
 /**
  * TODO
@@ -12,9 +14,10 @@ type Result<T> = SuccessResult<T> | FailureResult
  * @group Utilities
  * @category Types
  */
-export type SuccessResult<T> = {
+export type SuccessResult<S> = {
     success: true,
-    data: T
+    data: S
+    error?: never
 }
 
 /**
@@ -23,9 +26,11 @@ export type SuccessResult<T> = {
  * @group Utilities
  * @category Types
  */
-export type FailureResult = {
+export type FailureResult<F extends string> = {
     success: false,
+    error: F
     message?: string
+    data?: never
 }
 
 /**
@@ -34,11 +39,8 @@ export type FailureResult = {
  * @group Utilities
  * @category Functions
  */
-export function success<T>(value: T): SuccessResult<T> {
-    return {
-        success: true,
-        data: value
-    }
+export function success<T>(data: T): SuccessResult<T> {
+    return { success: true, data }
 }
 
 /**
@@ -47,11 +49,10 @@ export function success<T>(value: T): SuccessResult<T> {
  * @group Utilities
  * @category Functions
  */
-export function fail(message?: string): FailureResult {
-    return {
-        success: false,
-        message: message
-    }
+export function fail<F extends string>(error: F, message?: string): FailureResult<F> {
+    return message === undefined
+        ? { success: false, error }
+        : { success: false, error, message }
 }
 
 export default Result
