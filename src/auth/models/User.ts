@@ -7,6 +7,7 @@ import { AuthRole } from "../types/AuthRole"
 import { AuthScopePattern } from "../types/AuthScopePattern"
 import { AuthUserIdentity } from "../types/AuthUserIdentity"
 import { AuthRoleScopeMapping } from "../types/AuthRoleScopeMapping"
+import Override from "../../utilities/types/Override";
 
 export default class User extends PersistentObject<IUser, DBUser> implements IUser {
     displayName: string
@@ -47,11 +48,11 @@ export default class User extends PersistentObject<IUser, DBUser> implements IUs
             displayIcon:    this.displayIcon,
             description:    this.description,
             roles:          this.roles,
-            extraScopes:    this.extraScopes,
-            disabledAt:     this.disabledAt,
-            email:          this.email,
-            verified:       this.verified,
-            identities:     this.identities,
+            extraScopes:    this.extraScopes ?? [],
+            disabledAt:     this.disabledAt ?? null,
+            email:          this.email ?? "",
+            verified:       this.verified ?? false,
+            identities:     this.identities ?? [],
         } satisfies DBUser)
     }
 
@@ -89,11 +90,11 @@ export default class User extends PersistentObject<IUser, DBUser> implements IUs
             displayIcon:    this.displayIcon,
             description:    this.description,
             roles:          this.roles,
-            extraScopes:    this.extraScopes,
-            disabledAt:     this.disabledAt,
-            email:          this.email,
-            verified:       this.verified,
-            totalScopes:    this.totalScopes,
+            extraScopes:    this.extraScopes ?? [],
+            disabledAt:     this.disabledAt ?? null,
+            email:          this.email ?? "",
+            verified:       this.verified ?? false,
+            totalScopes:    this.totalScopes ?? [],
         } satisfies ISelfUser)
     }
 
@@ -122,9 +123,21 @@ export interface IUser extends IPersistentObject {
 
 export interface IPublicUser extends Pick<IUser, "id" | "displayName" | "displayIcon" | "description" | "createdAt" | "roles"> {}
 
-export interface ISelfUser extends Omit<IUser, "identities"> {}
+export interface ISelfUser extends Override<Omit<IUser, "identities">, {
+    extraScopes: AuthScopePattern[]
+    disabledAt: string | null
+    email: string
+    verified: boolean
+    totalScopes: AuthScopePattern[]
+}> {}
 
-export interface DBUser extends Omit<IUser, "totalScopes"> {}
+export interface DBUser extends Override<Omit<IUser, "totalScopes">, {
+    extraScopes: AuthScopePattern[]
+    disabledAt: string | null
+    email: string
+    verified: boolean
+    identities: AuthUserIdentity[]
+}> {}
 
 export interface UserFilterOptions extends PersistentObjectFilterOptions {
     displayName?: SimpleStringFilterOptions,
