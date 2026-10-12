@@ -1,5 +1,6 @@
-import { AuthVerb } from "./AuthVerb"
-import { AuthAnonymousResource, AuthOwnedResource } from "./AuthResources"
+import { AuthContentVerb, AuthOwnedVerb } from "./AuthVerb"
+import { AuthContentResource, AuthOwnedResource } from "./AuthResources"
 
 export type AuthScope =
-    | `${AuthAnonymousResource | AuthOwnedResource}:${AuthVerb}`
+    | `${AuthContentResource}:${AuthContentVerb}`
+    | `${AuthOwnedResource}:${AuthOwnedVerb}`

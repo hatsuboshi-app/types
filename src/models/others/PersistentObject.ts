@@ -106,9 +106,7 @@ export default abstract class PersistentObject<I extends IPersistentObject, D ex
      */
     protected toPersistentDB(): IPersistentObject {
         return {
-            id: this.id,
-            createdAt: this.createdAt,
-            updatedAt: this.updatedAt,
+            ...this.toPersistentJSON()
         }
     }
 }

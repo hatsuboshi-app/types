@@ -36,9 +36,17 @@ export default class User extends PersistentObject<IUser, DBUser> implements IUs
         this.identities =   obj?.identities ?? undefined
     }
 
-    static async fromDB(obj: DBUser) {
+    static async fromDB(obj: DBUser, roleScopeMapping?: AuthRoleScopeMapping) {
         obj = structuredClone(obj)
-        return new User(obj)
+        let totalScopes: AuthScopePattern[] = []
+        if (roleScopeMapping) {
+            const roleScopes: AuthScopePattern[] = obj.roles.flatMap(r => roleScopeMapping[r])
+            totalScopes = [...new Set([...obj.extraScopes ?? [], ...roleScopes])]
+        }
+        return new User({
+            totalScopes,
+            ...obj
+        })
     }
 
     toDB(): DBUser {
@@ -98,11 +106,6 @@ export default class User extends PersistentObject<IUser, DBUser> implements IUs
         } satisfies ISelfUser)
     }
 
-    populateScopes(roleScopeMapping: AuthRoleScopeMapping): void {
-        const roleScopes: AuthScopePattern[] = this.roles.flatMap(r => roleScopeMapping[r])
-        this.totalScopes = [...new Set([...this.extraScopes ?? [], ...roleScopes])]
-    }
-
     copy(): User {
         return new User(this.toJSON())
     }
@@ -141,5 +144,5 @@ export interface DBUser extends Override<Omit<IUser, "totalScopes">, {
 
 export interface UserFilterOptions extends PersistentObjectFilterOptions {
     displayName?: SimpleStringFilterOptions,
-    roles: EnumFilterOptions<AuthRole>
+    roles?: EnumFilterOptions<AuthRole>
 }
