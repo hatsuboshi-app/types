@@ -1,8 +1,10 @@
 import { AuthScope } from "./AuthScope"
-import { AuthVerb } from "./AuthVerb"
+import { AuthContentVerb, AuthOwnedVerb } from "./AuthVerb"
 
 export type AuthScopePattern =
     | AuthScope
-    | `content:${AuthVerb}`
+    | `content:${AuthContentVerb}`
     | `content:*`
+    | `owned:${AuthOwnedVerb}`
+    | `owned:*`
     | `*`

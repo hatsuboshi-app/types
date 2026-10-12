@@ -1,4 +1,4 @@
-export type AuthAnonymousResource =
+export type AuthContentResource =
     | "auditionEffect"
     | "auditionTerminology"
     | "character"
@@ -10,5 +10,4 @@ export type AuthAnonymousResource =
 
 export type AuthOwnedResource =
     | "user"
-    | "session"
     | "apikey"
