@@ -7,12 +7,17 @@ import { AuthRoleScopeMapping } from "./types/AuthRoleScopeMapping"
 import { AuthScope } from "./types/AuthScope"
 import { AuthScopePattern } from "./types/AuthScopePattern"
 import { AuthUserIdentity } from "./types/AuthUserIdentity"
-import { AuthContentVerb } from "./types/AuthVerb"
+import { AuthContentVerb, AuthOwnedVerb } from "./types/AuthVerb"
 
 export {
     User, IUser, DBUser, IPublicUser, ISelfUser, UserFilterOptions,
     APIKey, IAPIKey, DBAPIKey, ICreatedAPIKey, ISelfAPIKey, APIKeyFilterOptions, PopulateAPIKey,
 
-    AuthProvider, AuthContentResource, AuthOwnedResource, AuthRole, AuthRoleScopeMapping, AuthScope, AuthScopePattern,
-    AuthUserIdentity, AuthContentVerb,
+    AuthProvider,
+    AuthContentResource,    AuthOwnedResource,
+    AuthContentVerb,        AuthOwnedVerb,
+    AuthRole,
+    AuthRoleScopeMapping,
+    AuthScope, AuthScopePattern,
+    AuthUserIdentity,
 }
