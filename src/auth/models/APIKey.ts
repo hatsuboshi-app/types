@@ -8,6 +8,7 @@ import Override from "../../utilities/types/Override"
 import Populate from "../../utilities/types/Populate"
 import { AuthRoleScopeMapping } from "../types/AuthRoleScopeMapping"
 import { DateFilterOptions, EnumFilterOptions, SimpleStringFilterOptions } from "../../types/FilterOptions"
+import New from "../../utilities/types/New";
 
 export default class APIKey extends PersistentObject<IAPIKey, DBAPIKey> implements IAPIKey {
     user: User
@@ -95,6 +96,8 @@ export interface ISelfAPIKey extends Override<IAPIKey, { user: ISelfUser }> {}
 export interface ICreatedAPIKey extends ISelfAPIKey {
     secret: string
 }
+
+export interface IUpdateAPIKey extends Pick<New<IAPIKey>, "label"> {}
 
 export interface DBAPIKey extends Override<IAPIKey, { user: string }> {
     secretHash: string
