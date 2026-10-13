@@ -21,7 +21,7 @@ export default class APIKey extends PersistentObject<IAPIKey, DBAPIKey> implemen
     revokedAt: string | null
     private readonly secretHash?: string
 
-    constructor(obj?: IAPIKey, secretHash?: string) {
+    constructor(obj?: IAPIKey & Partial<Pick<DBAPIKey, "secretHash">>, secretHash?: string) {
         obj = structuredClone(obj)
         super(obj, "apikey")
         this.user =         new User(obj?.user)
@@ -32,7 +32,7 @@ export default class APIKey extends PersistentObject<IAPIKey, DBAPIKey> implemen
         this.expiresAt =    obj?.expiresAt ?? null
         this.lastUsedAt =   obj?.lastUsedAt ?? null
         this.revokedAt =    obj?.revokedAt ?? null
-        this.secretHash =   secretHash ?? undefined
+        this.secretHash =   obj?.secretHash ?? secretHash ?? undefined
     }
 
     static async fromDB(obj: DBAPIKey, populate: PopulateAPIKey, roleScopeMapping?: AuthRoleScopeMapping): Promise<APIKey> {
