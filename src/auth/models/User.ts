@@ -8,6 +8,8 @@ import { AuthScopePattern } from "../types/AuthScopePattern"
 import { AuthUserIdentity } from "../types/AuthUserIdentity"
 import { AuthRoleScopeMapping } from "../types/AuthRoleScopeMapping"
 import Override from "../../utilities/types/Override";
+import New from "../../utilities/types/New";
+import { IAPIKey } from "./APIKey";
 
 export default class User extends PersistentObject<IUser, DBUser> implements IUser {
     displayName: string
@@ -131,6 +133,8 @@ export interface IUser extends IPersistentObject {
 }
 
 export interface IPublicUser extends Pick<IUser, "id" | "displayName" | "displayIcon" | "description" | "createdAt" | "roles"> {}
+
+export interface IUpdateUser extends Pick<New<IUser>, "displayName" | "displayIcon" | "description" | "roles" | "extraScopes"> {}
 
 export interface ISelfUser extends Override<Omit<IUser, "identities">, {
     extraScopes: AuthScopePattern[]
