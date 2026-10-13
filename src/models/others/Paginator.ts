@@ -27,7 +27,7 @@ export default class Paginator<O extends I & JSONSerializable<I>, I extends {}> 
      * @param type
      * @param obj
      */
-    constructor(type: (new(obj: I) => O), obj?: Partial<IPaginator<I>>) {
+    constructor(type: (new(obj: I, ...args: any[]) => O), obj?: Partial<IPaginator<I>>) {
         this.data = []
         if (obj?.data) {
             obj.data.forEach(v => {
