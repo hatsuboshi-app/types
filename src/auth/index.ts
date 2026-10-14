@@ -1,23 +1,23 @@
-import APIKey, { APIKeyFilterOptions, DBAPIKey, IAPIKey, ICreatedAPIKey, ISelfAPIKey, PopulateAPIKey } from "./models/APIKey"
-import User, { DBUser, IPublicUser, ISelfUser, IUser, UserFilterOptions } from "./models/User"
+import APIKey, { APIKeyFilterOptions, DBAPIKey, IAPIKey, ICreatedAPIKey, IUpdateAPIKey } from "./models/APIKey"
+import User, { DBUser, IFullUser, IPublicUser, ISelfUser, IUpdateUser, IUser, UserFilterOptions } from "./models/User"
 import { AuthProvider } from "./types/AuthProvider"
-import { AuthContentResource, AuthOwnedResource } from "./types/AuthResources"
-import { AuthRole } from "./types/AuthRole"
-import { AuthRoleScopeMapping } from "./types/AuthRoleScopeMapping"
-import { AuthScope } from "./types/AuthScope"
-import { AuthScopePattern } from "./types/AuthScopePattern"
 import { AuthUserIdentity } from "./types/AuthUserIdentity"
-import { AuthContentVerb, AuthOwnedVerb } from "./types/AuthVerb"
+import {
+    AUTH_ROLES,
+    AUTH_SCOPE_GROUPS, AuthContentResource, AuthContentVerb, AuthOwnedResource, AuthOwnedVerb, AuthRole,
+    AuthRoleScopeMapping, AuthScope,
+    AuthScopeGroup, AuthScopePattern } from "./vocabulary"
 
 export {
-    User, IUser, DBUser, IPublicUser, ISelfUser, UserFilterOptions,
-    APIKey, IAPIKey, DBAPIKey, ICreatedAPIKey, ISelfAPIKey, APIKeyFilterOptions, PopulateAPIKey,
+    User, IUser, DBUser, UserFilterOptions, IPublicUser, ISelfUser, IFullUser, IUpdateUser,
+    APIKey, IAPIKey, DBAPIKey, APIKeyFilterOptions, ICreatedAPIKey, IUpdateAPIKey,
 
     AuthProvider,
-    AuthContentResource,    AuthOwnedResource,
-    AuthContentVerb,        AuthOwnedVerb,
-    AuthRole,
-    AuthRoleScopeMapping,
-    AuthScope, AuthScopePattern,
     AuthUserIdentity,
+    AuthContentResource,    AuthContentVerb,
+    AuthOwnedResource,      AuthOwnedVerb,
+    AuthScope,              AuthScopePattern,           AuthScopeGroup,
+    AuthRole,               AuthRoleScopeMapping,
+
+    AUTH_ROLES, AUTH_SCOPE_GROUPS,
 }

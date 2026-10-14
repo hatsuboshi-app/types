@@ -2,16 +2,11 @@ import PersistentObject, {
     IPersistentObject,
     PersistentObjectFilterOptions
 } from "../../models/others/PersistentObject"
-import User, { DBUser, ISelfUser, IUser } from "./User"
-import { AuthScopePattern } from "../types/AuthScopePattern"
-import Override from "../../utilities/types/Override"
-import Populate from "../../utilities/types/Populate"
-import { AuthRoleScopeMapping } from "../types/AuthRoleScopeMapping"
 import { DateFilterOptions, EnumFilterOptions, SimpleStringFilterOptions } from "../../types/FilterOptions"
-import New from "../../utilities/types/New";
+import { AuthScopePattern } from "../vocabulary"
 
-export default class APIKey extends PersistentObject<IAPIKey, DBAPIKey> implements IAPIKey {
-    user: User
+export default class APIKey extends PersistentObject<IAPIKey, IAPIKey> implements IAPIKey {
+    userId: string
     label: string
     prefix: string
     suffix: string
@@ -19,40 +14,34 @@ export default class APIKey extends PersistentObject<IAPIKey, DBAPIKey> implemen
     expiresAt: string | null
     lastUsedAt: string | null
     revokedAt: string | null
-    private readonly secretHash?: string
 
-    constructor(obj?: IAPIKey & Partial<Pick<DBAPIKey, "secretHash">>, secretHash?: string) {
+    constructor(obj: IAPIKey) {
         obj = structuredClone(obj)
         super(obj, "apikey")
-        this.user =         new User(obj?.user)
-        this.label =        obj?.label ?? ""
-        this.prefix =       obj?.prefix ?? ""
-        this.suffix =       obj?.suffix ?? ""
-        this.scopes =       obj?.scopes ?? []
-        this.expiresAt =    obj?.expiresAt ?? null
-        this.lastUsedAt =   obj?.lastUsedAt ?? null
-        this.revokedAt =    obj?.revokedAt ?? null
-        this.secretHash =   obj?.secretHash ?? secretHash ?? undefined
+        this.userId =       obj.userId
+        this.label =        obj.label
+        this.prefix =       obj.prefix
+        this.suffix =       obj.suffix
+        this.scopes =       obj.scopes
+        this.expiresAt =    obj.expiresAt
+        this.lastUsedAt =   obj.lastUsedAt
+        this.revokedAt =    obj.revokedAt
     }
 
-    static async fromDB(obj: DBAPIKey, populate: PopulateAPIKey, roleScopeMapping?: AuthRoleScopeMapping): Promise<APIKey> {
+    static async fromDB(obj: DBAPIKey): Promise<APIKey> {
         obj = structuredClone(obj)
-        const [user] = await Promise.all([
-            populate.user(obj.user).then(u => User.fromDB(u, roleScopeMapping))
-        ])
-        return new APIKey({ ...obj, user }, obj.secretHash)
+        const { secretHash, ...key } = obj
+        return new APIKey(key)
     }
 
-    toDB(): DBAPIKey {
-        return structuredClone({ ...this.toJSON(),
-            user:           this.user.dbRef,
-            secretHash:     this.secretHash ?? ""
-        } satisfies DBAPIKey)
+    toDB(): IAPIKey {
+        return this.toJSON()
     }
 
     toJSON(): IAPIKey {
-        return structuredClone({ ...super.toPersistentJSON(),
-            user:           this.user.toJSON(),
+        return structuredClone({
+            ...super.toPersistentJSON(),
+            userId:         this.userId,
             label:          this.label,
             prefix:         this.prefix,
             suffix:         this.suffix,
@@ -60,28 +49,23 @@ export default class APIKey extends PersistentObject<IAPIKey, DBAPIKey> implemen
             expiresAt:      this.expiresAt,
             lastUsedAt:     this.lastUsedAt,
             revokedAt:      this.revokedAt
-        } satisfies IAPIKey)
-    }
-
-    toSelfAPIKey(): ISelfAPIKey {
-        return structuredClone({ ...this.toJSON(),
-            user:           this.user.toSelfUser()
-        } satisfies ISelfAPIKey)
+        })
     }
 
     toCreatedAPIKey(secret: string): ICreatedAPIKey {
-        return structuredClone({ ...this.toSelfAPIKey(),
-            secret:         secret
-        } satisfies ICreatedAPIKey)
+        return structuredClone({
+            ...this.toJSON(),
+            secret
+        })
     }
 
     copy(): APIKey {
-        return new APIKey(this.toJSON(), this.secretHash)
+        return new APIKey(this.toJSON())
     }
 }
 
 export interface IAPIKey extends IPersistentObject {
-    user: IUser
+    userId: string
     label: string
     prefix: string
     suffix: string
@@ -91,21 +75,9 @@ export interface IAPIKey extends IPersistentObject {
     revokedAt: string | null
 }
 
-export interface ISelfAPIKey extends Override<IAPIKey, { user: ISelfUser }> {}
-
-export interface ICreatedAPIKey extends ISelfAPIKey {
-    secret: string
-}
-
-export interface IUpdateAPIKey extends Pick<New<IAPIKey>, "label"> {}
-
-export interface DBAPIKey extends Override<IAPIKey, { user: string }> {
-    secretHash: string
-}
-
-export interface PopulateAPIKey {
-    user: Populate<DBUser>
-}
+export interface DBAPIKey       extends IAPIKey { secretHash: string }
+export interface ICreatedAPIKey extends IAPIKey { secret: string }
+export interface IUpdateAPIKey  extends Pick<IAPIKey, "label"> {}
 
 export interface APIKeyFilterOptions extends PersistentObjectFilterOptions {
     label?: SimpleStringFilterOptions,
