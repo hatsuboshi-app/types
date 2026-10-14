@@ -45,7 +45,7 @@ export default class User extends PersistentObject<IUser, DBUser> implements IUs
             ...this.profile(),
             ...this.account(),
             identities: this.identities,
-        })
+        } satisfies IUser)
     }
 
     toPublicUser(): IPublicUser {
@@ -53,7 +53,7 @@ export default class User extends PersistentObject<IUser, DBUser> implements IUs
             id: this.id,
             createdAt: this.createdAt,
             ...this.profile()
-        })
+        } satisfies IPublicUser)
     }
 
     toSelfUser(totalScopes: readonly AuthScopePattern[]): ISelfUser {
@@ -62,14 +62,14 @@ export default class User extends PersistentObject<IUser, DBUser> implements IUs
             ...this.profile(),
             ...this.account(),
             totalScopes: [...totalScopes]
-        })
+        } satisfies ISelfUser)
     }
 
-    toFullUser(totalScopes: readonly AuthScopePattern[]): IFullUser {
+    toAdminUser(totalScopes: readonly AuthScopePattern[]): IAdminUser {
         return structuredClone({
             ...this.toJSON(),
             totalScopes: [...totalScopes]
-        })
+        } satisfies IAdminUser)
     }
 
     copy(): User {
@@ -113,12 +113,13 @@ export interface UserIdentity {
     identities: AuthUserIdentity[]
 }
 
-export interface IUser       extends IPersistentObject, UserProfile, UserAccount, UserIdentity {}
-export interface DBUser      extends IUser {}
-export interface IPublicUser extends Pick<IPersistentObject, "id" | "createdAt">, UserProfile {}
-export interface ISelfUser   extends IPersistentObject, UserProfile, UserAccount { totalScopes: AuthScopePattern[] }
-export interface IFullUser   extends IUser { totalScopes: AuthScopePattern[] }
-export interface IUpdateUser extends Partial<Pick<UserAccount, "extraScopes"> & UserProfile> {}
+export interface IUser            extends IPersistentObject, UserProfile, UserAccount, UserIdentity {}
+export interface DBUser           extends IUser {}
+export interface IPublicUser      extends Pick<IPersistentObject, "id" | "createdAt">, UserProfile {}
+export interface ISelfUser        extends IPersistentObject, UserProfile, UserAccount { totalScopes: AuthScopePattern[] }
+export interface IAdminUser       extends IUser { totalScopes: AuthScopePattern[] }
+export interface IUpdateUser      extends Partial<Pick<UserProfile, "displayName" | "displayIcon" | "description">> {}
+export interface IAdminUpdateUser extends Partial<Pick<UserAccount, "extraScopes"> & UserProfile> {}
 
 export interface UserFilterOptions extends PersistentObjectFilterOptions {
     displayName?: SimpleStringFilterOptions,
