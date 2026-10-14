@@ -81,7 +81,7 @@ export interface IUpdateAPIKey  extends Pick<IAPIKey, "label"> {}
 
 export interface APIKeyFilterOptions extends PersistentObjectFilterOptions {
     label?: SimpleStringFilterOptions,
-    user?: EnumFilterOptions<string>,
+    userId?: EnumFilterOptions<string>,
     lastUsedAt?: DateFilterOptions,
     isExpired?: boolean,
     isRevoked?: boolean

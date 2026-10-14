@@ -1,5 +1,5 @@
 import APIKey, { APIKeyFilterOptions, DBAPIKey, IAPIKey, ICreatedAPIKey, IUpdateAPIKey } from "./models/APIKey"
-import User, { DBUser, IFullUser, IPublicUser, ISelfUser, IUpdateUser, IUser, UserFilterOptions } from "./models/User"
+import User, { DBUser, IAdminUpdateUser, IAdminUser, IPublicUser, ISelfUser, IUpdateUser, IUser, UserFilterOptions } from "./models/User"
 import { AuthProvider } from "./types/AuthProvider"
 import { AuthUserIdentity } from "./types/AuthUserIdentity"
 import {
@@ -9,7 +9,7 @@ import {
     AuthScopeGroup, AuthScopePattern } from "./vocabulary"
 
 export {
-    User, IUser, DBUser, UserFilterOptions, IPublicUser, ISelfUser, IFullUser, IUpdateUser,
+    User, IUser, DBUser, UserFilterOptions, IPublicUser, ISelfUser, IAdminUser, IUpdateUser, IAdminUpdateUser,
     APIKey, IAPIKey, DBAPIKey, APIKeyFilterOptions, ICreatedAPIKey, IUpdateAPIKey,
 
     AuthProvider,
