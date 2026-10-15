@@ -4,7 +4,7 @@ import { AuthProvider } from "./types/AuthProvider"
 import { AuthUserIdentity } from "./types/AuthUserIdentity"
 import {
     AUTH_ROLES,
-    AUTH_SCOPE_GROUPS, AuthContentResource, AuthContentVerb, AuthOwnedResource, AuthOwnedVerb, AuthRole,
+    AUTH_SCOPE_GROUPS, AuthContentResource, AuthContentVerb, AuthIdentityResource, AuthIdentityVerb, AuthRole,
     AuthRoleScopeMapping, AuthScope,
     AuthScopeGroup, AuthScopePattern } from "./vocabulary"
 
@@ -15,7 +15,7 @@ export {
     AuthProvider,
     AuthUserIdentity,
     AuthContentResource,    AuthContentVerb,
-    AuthOwnedResource,      AuthOwnedVerb,
+    AuthIdentityResource,   AuthIdentityVerb,
     AuthScope,              AuthScopePattern,           AuthScopeGroup,
     AuthRole,               AuthRoleScopeMapping,
 
