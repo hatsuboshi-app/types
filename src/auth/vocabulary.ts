@@ -40,21 +40,21 @@ export const AUTH_SCOPE_GROUPS = {
 } as const
 
 type Groups = typeof AUTH_SCOPE_GROUPS
-type ResourceOf<G extends AuthScopeGroup> = Groups[G]["resources"][number]
-type VerbOf<G extends AuthScopeGroup> = Groups[G]["verbs"][number]
 
 export type AuthScopeGroup       = keyof Groups
 export type AuthRole             = typeof AUTH_ROLES[number]
 export type AuthRoleScopeMapping = Record<AuthRole, readonly AuthScopePattern[]>
 
-export type AuthContentResource  = ResourceOf<"content">
-export type AuthContentVerb      = VerbOf<"content">
-export type AuthIdentityResource = ResourceOf<"identity">
-export type AuthIdentityVerb     = VerbOf<"identity">
+export type AuthContentResource  = Groups["content"]["resources"][number]
+export type AuthContentVerb      = Groups["content"]["verbs"][number]
+export type AuthIdentityResource = Groups["identity"]["resources"][number]
+export type AuthIdentityVerb     = Groups["identity"]["verbs"][number]
 
 export type AuthScope =
-    { [G in AuthScopeGroup]: `${VerbOf<G>}:${ResourceOf<G>}` }[AuthScopeGroup]
+    | `${AuthContentVerb}:${AuthContentResource}`
+    | `${AuthIdentityVerb}:${AuthIdentityResource}`
 
 export type AuthScopePattern =
     | "*"
-    | { [G in AuthScopeGroup]: `${VerbOf<G> | "*"}:${ResourceOf<G> | G}` }[AuthScopeGroup]
+    | `${AuthContentVerb | "*"}:${AuthContentResource | "content"}`
+    | `${AuthIdentityVerb | "*"}:${AuthIdentityResource | "identity"}`
