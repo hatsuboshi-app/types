@@ -4,7 +4,7 @@ import PersistentObject, {
 } from "../../models/others/PersistentObject"
 import { DateFilterOptions, EnumFilterOptions, SimpleStringFilterOptions } from "../../types/FilterOptions"
 import { AuthScopePattern } from "../vocabulary"
-import Override from "../../utilities/types/Override";
+import Override from "../../utilities/types/Override"
 
 export default class APIKey extends PersistentObject<IAPIKey, IAPIKey> implements IAPIKey {
     userId: string

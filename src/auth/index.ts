@@ -1,4 +1,4 @@
-import APIKey, { APIKeyFilterOptions, DBAPIKey, IAPIKey, ICreatedAPIKey, IUpdateAPIKey } from "./models/APIKey"
+import APIKey, { APIKeyFilterOptions, DBAPIKey, IAPIKey, ICreateAPIKey, ICreatedAPIKey, IUpdateAPIKey } from "./models/APIKey"
 import User, { DBUser, IAdminUpdateUser, IAdminUser, IPublicUser, ISelfUser, IUpdateUser, IUser, UserFilterOptions } from "./models/User"
 import { AuthProvider } from "./types/AuthProvider"
 import { AuthUserIdentity } from "./types/AuthUserIdentity"
@@ -10,7 +10,7 @@ import {
 
 export {
     User, IUser, DBUser, UserFilterOptions, IPublicUser, ISelfUser, IAdminUser, IUpdateUser, IAdminUpdateUser,
-    APIKey, IAPIKey, DBAPIKey, APIKeyFilterOptions, ICreatedAPIKey, IUpdateAPIKey,
+    APIKey, IAPIKey, DBAPIKey, APIKeyFilterOptions, ICreatedAPIKey, IUpdateAPIKey, ICreateAPIKey,
 
     AuthProvider,
     AuthUserIdentity,
