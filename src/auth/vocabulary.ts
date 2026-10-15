@@ -25,7 +25,7 @@ export const AUTH_SCOPE_GROUPS = {
             "delete"
         ]
     },
-    owned: {
+    identity: {
         resources: [
             "user",
             "apikey"
@@ -49,12 +49,12 @@ export type AuthRoleScopeMapping = Record<AuthRole, readonly AuthScopePattern[]>
 
 export type AuthContentResource  = ResourceOf<"content">
 export type AuthContentVerb      = VerbOf<"content">
-export type AuthOwnedResource    = ResourceOf<"owned">
-export type AuthOwnedVerb        = VerbOf<"owned">
+export type AuthIdentityResource = ResourceOf<"identity">
+export type AuthIdentityVerb     = VerbOf<"identity">
 
 export type AuthScope =
-    { [G in AuthScopeGroup]: `${ResourceOf<G>}:${VerbOf<G>}` }[AuthScopeGroup]
+    { [G in AuthScopeGroup]: `${VerbOf<G>}:${ResourceOf<G>}` }[AuthScopeGroup]
 
 export type AuthScopePattern =
     | "*"
-    | { [G in AuthScopeGroup]: `${ResourceOf<G> | G}:${VerbOf<G> | "*"}` }[AuthScopeGroup]
+    | { [G in AuthScopeGroup]: `${VerbOf<G> | "*"}:${ResourceOf<G> | G}` }[AuthScopeGroup]
