@@ -124,7 +124,7 @@ export interface IAPIKey extends IPersistentObject {
 
 export interface DBAPIKey       extends IAPIKey { secretHash: string }
 export interface ICreatedAPIKey extends IAPIKey { secret: string }
-export interface IUpdateAPIKey  extends Pick<IAPIKey, "label"> {}
+export interface IUpdateAPIKey  extends Partial<Pick<IAPIKey, "label">> {}
 export interface ICreateAPIKey  extends Pick<IAPIKey, "label" | "scopes"> {
     /**
      * The time the API key will expire, as an ISO 8601 (RFC 3339) timestamp. If this is set to null, it will not expire.
