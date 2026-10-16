@@ -125,6 +125,7 @@ export interface IPersistentObject {
     /**
      * The time the object was created, as an ISO 8601 (RFC 3339) timestamp.
      *
+     * @pattern ^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:\d{2})$
      * @example "2026-07-08T07:35:46.741Z"
      */
     createdAt: string
@@ -132,6 +133,7 @@ export interface IPersistentObject {
     /**
      * The time the object was last updated, as an ISO 8601 (RFC 3339) timestamp.
      *
+     * @pattern ^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:\d{2})$
      * @example "2026-07-09T14:02:11.508Z"
      */
     updatedAt: string
