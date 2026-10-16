@@ -78,7 +78,7 @@ export interface IAPIKey extends IPersistentObject {
 
 export interface DBAPIKey       extends IAPIKey { secretHash: string }
 export interface ICreatedAPIKey extends IAPIKey { secret: string }
-export interface ICreateAPIKey  extends Override<Pick<IAPIKey, "label" | "expiresAt" | "scopes">, { expiresAt?: string | null }> {}
+export interface ICreateAPIKey  extends Pick<IAPIKey, "label" | "scopes"> { expiresAt?: string | null }
 export interface IUpdateAPIKey  extends Pick<IAPIKey, "label"> {}
 
 export interface APIKeyFilterOptions extends PersistentObjectFilterOptions {
