@@ -107,7 +107,6 @@ import ChangeFlagSkillEffectMod from "./types/ChangeFlagSkillEffectMod"
 import CostReduceSkillEffectMod from "./types/CostReduceSkillEffectMod"
 import CustomizeLimitIncreaseSkillEffectMod from "./types/CustomizeLimitIncreaseSkillEffectMod"
 import EnhanceEffectMod from "./types/EnhanceEffectMod"
-import SkillConsolidatedRarity from "./enums/SkillConsolidatedRarity"
 
 export {
     // Interfaces / Abstracts
@@ -176,7 +175,6 @@ export {
     ProduceScenario,
     Rarity,
     SkillCategory,
-    SkillConsolidatedRarity,
     SkillRarity,
     SkillSource,
 

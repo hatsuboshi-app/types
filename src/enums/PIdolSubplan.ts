@@ -2,13 +2,13 @@
  * The game-defined recommended subplan of a PIdol.
  */
 enum PIdolSubplan {
-    Impression = "impression",
-    Motivation = "motivation",
-    GoodShape = "goodShape",
-    Focus = "focus",
-    Confident = "confident",
-    Preserve = "preserve",
-    FullPower = "fullPower"
+    GoodShape  = "101-good-shape",
+    Focus      = "105-focus",
+    Impression = "111-impression",
+    Motivation = "115-motivation",
+    Confident  = "121-confident",
+    Preserve   = "124-preserve",
+    FullPower  = "127-full-power"
 }
 
 export default PIdolSubplan

@@ -15,7 +15,6 @@ import LocaleStringWithRomaji, { DefaultLocaleStringWithRomaji } from "../../typ
 import SkillEffectMod from "../embedded/SkillEffectMod"
 import SkillUpgradeState from "../../types/SkillUpgradeState"
 import { PopulateEffectReference } from "../embedded/EffectReference"
-import SkillConsolidatedRarity from "../../enums/SkillConsolidatedRarity"
 import { EnumFilterOptions, LocaleStringFilterOptions, NumberFilterOptions } from "../../types/FilterOptions"
 import Override from "../../utilities/types/Override"
 
@@ -254,26 +253,6 @@ export default class Skill extends PersistentObject<ISkill, DBSkill> implements 
     /**
      * TODO
      */
-    get consolidatedRarity(): SkillConsolidatedRarity {
-        switch (this.rarity) {
-            case SkillRarity.N:
-                return SkillConsolidatedRarity.N
-            case SkillRarity.RLow:
-            case SkillRarity.RHigh:
-                return SkillConsolidatedRarity.R
-            case SkillRarity.SRLow:
-            case SkillRarity.SRHigh:
-                return SkillConsolidatedRarity.SR
-            case SkillRarity.SSR:
-                return SkillConsolidatedRarity.SSR
-            case SkillRarity.Legend:
-                return SkillConsolidatedRarity.Legend
-        }
-    }
-
-    /**
-     * TODO
-     */
     private handleSkillEffectMod(mod: SkillEffectMod, fromCustomize: boolean = false): void {
         switch (mod.type) {
             case EffectModType.Enhance:
@@ -465,10 +444,6 @@ export interface ISkill extends IPersistentObject {
 
     /**
      * The rarity of the skill card.
-     *
-     * > [!WARNING]
-     * > This field stores the **granular** rarity of a skill card, in which R and SR are split into high & low
-     * > variants. To access the **consolidated** rarity, use {@linkcode Skill.consolidatedRarity}.
      */
     rarity: SkillRarity
 
