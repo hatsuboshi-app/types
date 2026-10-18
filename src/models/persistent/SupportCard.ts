@@ -1,17 +1,53 @@
-import PersistentObject, { IPersistentObject, PersistentObjectFilterOptions } from "../others/PersistentObject"
+import PersistentObject, {
+    IPersistentObject,
+    PersistentObjectFilter,
+    PersistentObjectListQuery
+} from "../others/PersistentObject"
+import { Sortable } from "../../utilities/types/SortOption"
+import {
+    Exhaustive,
+    fromDateString,
+    fromSortOptions,
+    ListRequest,
+    toDateFilter, toSortOptions
+} from "../../utilities/functions/listQuery"
 
 /**
  * TODO
  *
  * > [!TIP]
- * > See {@link SupportCardFilterOptions} for the list of **filtering** options.
+ * > See {@link SupportCardFilter} for the list of **filtering** options.
  * >
  * > See {@link ISupportCard} for the list of fields that can be used for **sorting**.
  *
  * @group Model Classes
  * @category Persistent
  */
-export default class SupportCard extends PersistentObject<ISupportCard, ISupportCard> implements ISupportCard {
+export default class SupportCard extends PersistentObject<ISupportCard, DBSupportCard> implements ISupportCard {
+    static readonly sortableFields = [
+        "id", "createdAt", "updatedAt"
+    ] as const satisfies readonly Sortable<ISupportCard>[]
+
+    static decodeListQuery(query: SupportCardListQuery): ListRequest<SupportCardFilter, ISupportCard> {
+        const filter: Exhaustive<SupportCardFilter> = {
+            createdAt: toDateFilter(query.createdAfter, query.createdBefore),
+            updatedAt: toDateFilter(query.updatedAfter, query.updatedBefore)
+        }
+        return { filter, sort: toSortOptions(query.sort), page: query.p, perPage: query.pp }
+    }
+
+    static encodeListQuery({ filter = {}, sort = [], page, perPage }: ListRequest<SupportCardFilter, ISupportCard>): SupportCardListQuery {
+        return {
+            sort:          fromSortOptions(sort, SupportCard.sortableFields),
+            createdAfter:  fromDateString(filter.createdAt?.after),
+            createdBefore: fromDateString(filter.createdAt?.before),
+            updatedAfter:  fromDateString(filter.updatedAt?.after),
+            updatedBefore: fromDateString(filter.updatedAt?.before),
+            p:             page,
+            pp:            perPage,
+        } satisfies Exhaustive<SupportCardListQuery>
+    }
+
     /**
      * TODO
      *
@@ -69,9 +105,24 @@ export interface DBSupportCard extends ISupportCard {
 }
 
 /**
+ * Fields a list of {@link SupportCard} can be sorted by.
+ *
+ * @useDeclaredType
+ */
+export type SupportCardSortField = (typeof SupportCard.sortableFields)[number]
+
+/**
  * Filters {@link SupportCard}.
  *
  * @group Filter Objects
  */
-export interface SupportCardFilterOptions extends PersistentObjectFilterOptions {
+export interface SupportCardFilter extends PersistentObjectFilter {
+}
+
+/**
+ * Query parameter to list {@link SupportCard}.
+ */
+export interface SupportCardListQuery extends PersistentObjectListQuery {
+    /** Fields to sort by, in order of priority. Prefix a field with `-` to sort descending, otherwise ascending. */
+    sort?: `${"" | "-"}${SupportCardSortField}`[]
 }

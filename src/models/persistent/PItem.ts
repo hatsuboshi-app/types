@@ -1,4 +1,8 @@
-import PersistentObject, { IPersistentObject, PersistentObjectFilterOptions } from "../others/PersistentObject"
+import PersistentObject, {
+    IPersistentObject,
+    PersistentObjectFilter,
+    PersistentObjectListQuery
+} from "../others/PersistentObject"
 import Effect, { DBEffect, IEffect } from "../embedded/Effect"
 import Plan from "../../enums/Plan"
 import Rarity from "../../enums/Rarity"
@@ -8,6 +12,15 @@ import LocaleStringWithRomaji, { DefaultLocaleStringWithRomaji } from "../../typ
 import { PopulateEffectReference } from "../embedded/EffectReference"
 import { EnumFilterOptions, LocaleStringFilterOptions, NumberFilterOptions } from "../../types/FilterOptions"
 import Override from "../../utilities/types/Override"
+import { Sortable } from "../../utilities/types/SortOption"
+import { NameQuery } from "../../utilities/types/NameQuery";
+import {
+    Exhaustive, fromDateString, fromEnumFilter, fromLocaleStringFilter, fromSortOptions,
+    ListRequest,
+    toDateFilter,
+    toEnumFilter,
+    toLocaleStringFilter, toNumberFilter, toSortOptions
+} from "../../utilities/functions/listQuery";
 
 /**
  * **A P-Item / produce item (Pアイテム).**
@@ -17,7 +30,7 @@ import Override from "../../utilities/types/Override"
  * day", "ピッグドリーム貯金箱" / "Piggybank of Big Dreams", "「Pっち」" / "'P-cchi'", etc.).
  *
  * > [!TIP]
- * > See {@link PItemFilterOptions} for the list of **filtering** options.
+ * > See {@link PItemFilter} for the list of **filtering** options.
  * >
  * > See {@link IPItem} for the list of fields that can be used for **sorting**.
  *
@@ -74,6 +87,41 @@ export default class PItem extends PersistentObject<IPItem, DBPItem> implements 
      * The current upgrade level of this P-Item instance.
      */
     currentUpgradeLevel: number
+
+    static readonly sortableFields = [
+        "id", "createdAt", "updatedAt", "name", "plan", "rarity", "unlockLevel", "source"
+    ] as const satisfies readonly Sortable<IPItem>[]
+
+    static decodeListQuery(query: PItemListQuery): ListRequest<PItemFilter, IPItem> {
+        const filter: Exhaustive<PItemFilter> = {
+            createdAt:   toDateFilter(query.createdAfter, query.createdBefore),
+            updatedAt:   toDateFilter(query.updatedAfter, query.updatedBefore),
+            name:        toLocaleStringFilter(query),
+            plan:        toEnumFilter(query.plan),
+            rarity:      toEnumFilter(query.rarity),
+            source:      toEnumFilter(query.source),
+            unlockLevel: toNumberFilter(query.minUnlockLevel, query.maxUnlockLevel)
+        }
+        return { filter, sort: toSortOptions(query.sort), page: query.p, perPage: query.pp }
+    }
+
+    static encodeListQuery({ filter = {}, sort = [], page, perPage }: ListRequest<PItemFilter, IPItem>): PItemListQuery {
+        return {
+            sort:           fromSortOptions(sort, PItem.sortableFields),
+            createdAfter:   fromDateString(filter.createdAt?.after),
+            createdBefore:  fromDateString(filter.createdAt?.before),
+            updatedAfter:   fromDateString(filter.updatedAt?.after),
+            updatedBefore:  fromDateString(filter.updatedAt?.before),
+            plan:           fromEnumFilter(filter.plan),
+            rarity:         fromEnumFilter(filter.rarity),
+            source:         fromEnumFilter(filter.source),
+            minUnlockLevel: filter.unlockLevel?.gte,
+            maxUnlockLevel: filter.unlockLevel?.lte,
+            p:              page,
+            pp:             perPage,
+            ...fromLocaleStringFilter(filter.name),
+        } satisfies Exhaustive<PItemListQuery>
+    }
 
     /**
      * Constructs a {@link PItem} instance from an optional {@link IPItem} object, at a specified level.
@@ -337,14 +385,36 @@ export interface DBPItem extends Override<IPItem, {
 }> {}
 
 /**
+ * Fields a list of {@link PItem} can be sorted by.
+ *
+ * @useDeclaredType
+ */
+export type PItemSortField = (typeof PItem.sortableFields)[number]
+
+/**
  * Filters {@link PItem}.
  *
  * @group Filter Objects
  */
-export interface PItemFilterOptions extends PersistentObjectFilterOptions {
+export interface PItemFilter extends PersistentObjectFilter {
     name?: LocaleStringFilterOptions
     plan?: EnumFilterOptions<Plan>
     rarity?: EnumFilterOptions<Rarity>
     source?: EnumFilterOptions<PItemSource>
     unlockLevel?: NumberFilterOptions
+}
+
+/**
+ * Query parameter to list {@link PItem}.
+ */
+export interface PItemListQuery extends PersistentObjectListQuery, NameQuery {
+    /** Fields to sort by, in order of priority. Prefix a field with `-` to sort descending, otherwise ascending. */
+    sort?:           `${"" | "-"}${PItemSortField}`[]
+    plan?:           `${"" | "-"}${Plan}`[]
+    rarity?:         `${"" | "-"}${Rarity}`[]
+    source?:         `${"" | "-"}${PItemSource}`[]
+    /** @isInt */
+    minUnlockLevel?: number
+    /** @isInt */
+    maxUnlockLevel?: number
 }

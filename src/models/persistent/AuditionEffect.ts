@@ -1,10 +1,26 @@
-import PersistentObject, { IPersistentObject, PersistentObjectFilterOptions } from "../others/PersistentObject"
+import PersistentObject, {
+    IPersistentObject,
+    PersistentObjectFilter,
+    PersistentObjectListQuery
+} from "../others/PersistentObject"
 import Effect, { DBEffect, IEffect } from "../embedded/Effect"
 import AuditionIcon, { DefaultAuditionIcon } from "../../types/AuditionIcon"
 import { PopulateEffectReference } from "../embedded/EffectReference"
 import LocaleString, { DefaultLocaleString } from "../../types/LocaleString"
 import { LocaleStringFilterOptions } from "../../types/FilterOptions"
 import Override from "../../utilities/types/Override"
+import { Sortable } from "../../utilities/types/SortOption"
+import { NameQuery } from "../../utilities/types/NameQuery"
+import {
+    Exhaustive,
+    fromDateString,
+    fromLocaleStringFilter,
+    fromSortOptions,
+    ListRequest,
+    toDateFilter,
+    toLocaleStringFilter,
+    toSortOptions
+} from "../../utilities/functions/listQuery"
 
 /**
  * **A lesson/audition gameplay effect.**
@@ -13,7 +29,7 @@ import Override from "../../utilities/types/Override"
  * or an *action* that occurs during lesson/audition gameplay sectors (e.g. レッスン中強化).
  *
  * > [!TIP]
- * > See {@link AuditionEffectFilterOptions} for the list of **filtering** options.
+ * > See {@link AuditionEffectFilter} for the list of **filtering** options.
  * >
  * > See {@link IAuditionEffect} for the list of fields that can be used for **sorting**.
  *
@@ -44,6 +60,32 @@ export default class AuditionEffect extends PersistentObject<IAuditionEffect, DB
      * @inheritDoc
      */
     icon: AuditionIcon
+
+    static readonly sortableFields = [
+        "id", "createdAt", "updatedAt", "name"
+    ] as const satisfies readonly Sortable<IAuditionEffect>[]
+
+    static decodeListQuery(query: AuditionEffectListQuery): ListRequest<AuditionEffectFilter, IAuditionEffect> {
+        const filter: Exhaustive<AuditionEffectFilter> = {
+            createdAt: toDateFilter(query.createdAfter, query.createdBefore),
+            updatedAt: toDateFilter(query.updatedAfter, query.updatedBefore),
+            name:      toLocaleStringFilter(query)
+        }
+        return { filter, sort: toSortOptions(query.sort), page: query.p, perPage: query.pp }
+    }
+
+    static encodeListQuery({ filter = {}, sort = [], page, perPage }: ListRequest<AuditionEffectFilter, IAuditionEffect>): AuditionEffectListQuery {
+        return {
+            sort:          fromSortOptions(sort, AuditionEffect.sortableFields),
+            createdAfter:  fromDateString(filter.createdAt?.after),
+            createdBefore: fromDateString(filter.createdAt?.before),
+            updatedAfter:  fromDateString(filter.updatedAt?.after),
+            updatedBefore: fromDateString(filter.updatedAt?.before),
+            p:             page,
+            pp:            perPage,
+            ...fromLocaleStringFilter(filter.name),
+        } satisfies Exhaustive<AuditionEffectListQuery>
+    }
 
     /**
      * Constructs an {@link AuditionEffect} instance from an optional {@link IAuditionEffect} object.
@@ -169,10 +211,25 @@ export interface DBAuditionEffect extends Override<IAuditionEffect, {
 }> {}
 
 /**
- * Filters {@link AuditionEffect}.
+ * Fields a list of {@link AuditionEffect} can be sorted by.
+ *
+ * @useDeclaredType
+ */
+export type AuditionEffectSortField = (typeof AuditionEffect.sortableFields)[number]
+
+/**
+ * Object to filter {@link AuditionEffect}.
  *
  * @group Filter Objects
  */
-export interface AuditionEffectFilterOptions extends PersistentObjectFilterOptions {
+export interface AuditionEffectFilter extends PersistentObjectFilter {
     name?: LocaleStringFilterOptions
+}
+
+/**
+ * Query parameter to list {@link AuditionEffect}.
+ */
+export interface AuditionEffectListQuery extends PersistentObjectListQuery, NameQuery {
+    /** Fields to sort by, in order of priority. Prefix a field with `-` to sort descending, otherwise ascending. */
+    sort?: `${"" | "-"}${AuditionEffectSortField}`[]
 }

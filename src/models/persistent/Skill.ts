@@ -1,4 +1,8 @@
-import PersistentObject, { IPersistentObject, PersistentObjectFilterOptions } from "../others/PersistentObject"
+import PersistentObject, {
+    IPersistentObject,
+    PersistentObjectFilter,
+    PersistentObjectListQuery
+} from "../others/PersistentObject"
 import SkillEffect, { DBSkillEffect, ISkillEffect } from "../embedded/SkillEffect"
 import Plan from "../../enums/Plan"
 import SkillCategory from "../../enums/SkillCategory"
@@ -17,6 +21,15 @@ import SkillUpgradeState from "../../types/SkillUpgradeState"
 import { PopulateEffectReference } from "../embedded/EffectReference"
 import { EnumFilterOptions, LocaleStringFilterOptions, NumberFilterOptions } from "../../types/FilterOptions"
 import Override from "../../utilities/types/Override"
+import { Sortable } from "../../utilities/types/SortOption"
+import { NameQuery } from "../../utilities/types/NameQuery";
+import {
+    Exhaustive, fromDateString, fromEnumFilter, fromLocaleStringFilter, fromSortOptions,
+    ListRequest,
+    toDateFilter,
+    toEnumFilter,
+    toLocaleStringFilter, toNumberFilter, toSortOptions
+} from "../../utilities/functions/listQuery";
 
 /**
  * **A skill card (スキルカード).**
@@ -25,7 +38,7 @@ import Override from "../../utilities/types/Override"
  * / "Fansa", "シュプレヒコール" / "Sprechchor", "星屑センセーション" / "Stardust Sensation", etc.).
  *
  * > [!TIP]
- * > See {@link SkillFilterOptions} for the list of **filtering** options.
+ * > See {@link SkillFilter} for the list of **filtering** options.
  * >
  * > See {@link ISkill} for the list of fields that can be used for **sorting**.
  *
@@ -127,6 +140,45 @@ export default class Skill extends PersistentObject<ISkill, DBSkill> implements 
      * The current set of customization options applied to this {@link Skill} instance.
      */
     currentCustomizeLevels: [number, number][]
+
+    static readonly sortableFields = [
+        "id", "createdAt", "updatedAt", "name", "plan", "rarity", "unlockLevel", "source", "category", "initialStaminaCost", "initialCustomizeLimit"
+    ] as const satisfies readonly Sortable<ISkill>[]
+
+    static decodeListQuery(query: SkillListQuery): ListRequest<SkillFilter, ISkill> {
+        const filter: Exhaustive<SkillFilter> = {
+            createdAt:      toDateFilter(query.createdAfter, query.createdBefore),
+            updatedAt:      toDateFilter(query.updatedAfter, query.updatedBefore),
+            name:           toLocaleStringFilter(query),
+            plan:           toEnumFilter(query.plan),
+            rarity:         toEnumFilter(query.rarity),
+            category:       toEnumFilter(query.category),
+            source:         toEnumFilter(query.source),
+            unlockLevel:    toNumberFilter(query.minUnlockLevel, query.maxUnlockLevel),
+            isCustomizable: query.isCustomizable
+        }
+        return { filter, sort: toSortOptions(query.sort), page: query.p, perPage: query.pp }
+    }
+
+    static encodeListQuery({ filter = {}, sort = [], page, perPage }: ListRequest<SkillFilter, ISkill>): SkillListQuery {
+        return {
+            sort:           fromSortOptions(sort, Skill.sortableFields),
+            createdAfter:   fromDateString(filter.createdAt?.after),
+            createdBefore:  fromDateString(filter.createdAt?.before),
+            updatedAfter:   fromDateString(filter.updatedAt?.after),
+            updatedBefore:  fromDateString(filter.updatedAt?.before),
+            plan:           fromEnumFilter(filter.plan),
+            rarity:         fromEnumFilter(filter.rarity),
+            category:       fromEnumFilter(filter.category),
+            source:         fromEnumFilter(filter.source),
+            minUnlockLevel: filter.unlockLevel?.gte,
+            maxUnlockLevel: filter.unlockLevel?.lte,
+            isCustomizable: filter.isCustomizable,
+            p:              page,
+            pp:             perPage,
+            ...fromLocaleStringFilter(filter.name),
+        } satisfies Exhaustive<SkillListQuery>
+    }
 
     /**
      * TODO
@@ -521,16 +573,40 @@ export interface DBSkill extends Override<ISkill, {
 }> {}
 
 /**
+ * Fields a list of {@link Skill} can be sorted by.
+ *
+ * @useDeclaredType
+ */
+export type SkillSortField = (typeof Skill.sortableFields)[number]
+
+/**
  * Filters {@link Skill}.
  *
  * @group Filter Objects
  */
-export interface SkillFilterOptions extends PersistentObjectFilterOptions {
+export interface SkillFilter extends PersistentObjectFilter {
     name?: LocaleStringFilterOptions
     plan?: EnumFilterOptions<Plan>
     rarity?: EnumFilterOptions<SkillRarity>
     category?: EnumFilterOptions<SkillCategory>
     source?: EnumFilterOptions<SkillSource>
     unlockLevel?: NumberFilterOptions
+    isCustomizable?: boolean
+}
+
+/**
+ * Query parameter to list {@link Skill}.
+ */
+export interface SkillListQuery extends PersistentObjectListQuery, NameQuery {
+    /** Fields to sort by, in order of priority. Prefix a field with `-` to sort descending, otherwise ascending. */
+    sort?:           `${"" | "-"}${SkillSortField}`[]
+    plan?:           `${"" | "-"}${Plan}`[]
+    rarity?:         `${"" | "-"}${SkillRarity}`[]
+    category?:       `${"" | "-"}${SkillCategory}`[]
+    source?:         `${"" | "-"}${SkillSource}`[]
+    /** @isInt */
+    minUnlockLevel?: number
+    /** @isInt */
+    maxUnlockLevel?: number
     isCustomizable?: boolean
 }

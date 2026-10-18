@@ -1,10 +1,11 @@
 import EmbeddedObject from "../../utilities/interfaces/EmbeddedObject"
 import { DateFilterOptions } from "../../types/FilterOptions"
+import { PageQuery } from "../../utilities/types/PageQuery"
 
 /**
  * Models that are stored into persistent repositories.
  *
- * Can be filtered using {@link PersistentObjectFilterOptions}.
+ * Can be filtered using {@link PersistentObjectFilter}.
  *
  * @typeParam I - The Data Transfer Object (I-prefix) this model serializes to.
  * @typeParam D - the Document-store Object (DB-prefix) this model serializes to.
@@ -140,11 +141,25 @@ export interface IPersistentObject {
 }
 
 /**
+ * Query parameters for listing {@link PersistentObject}.
+ */
+export interface PersistentObjectListQuery extends PageQuery {
+    /** Match objects created after this time, as an ISO 8601 timestamp. */
+    createdAfter?:  Date
+    /** Match objects created before this time, as an ISO 8601 timestamp. */
+    createdBefore?: Date
+    /** Match objects last updated after this time, as an ISO 8601 timestamp. */
+    updatedAfter?:  Date
+    /** Match objects last updated before this time, as an ISO 8601 timestamp. */
+    updatedBefore?: Date
+}
+
+/**
  * Filters {@link PersistentObject}.
  *
  * @group Filter Objects
  */
-export interface PersistentObjectFilterOptions {
+export interface PersistentObjectFilter {
     createdAt?: DateFilterOptions,
     updatedAt?: DateFilterOptions
 }

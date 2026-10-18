@@ -1,19 +1,23 @@
-import PIdol, { DBPIdol, IPIdol, PIdolFilterOptions, PopulatePIdol } from "./models/persistent/PIdol"
+import PIdol, { DBPIdol, IPIdol, PIdolFilter, PIdolListQuery, PIdolSortField, PopulatePIdol } from "./models/persistent/PIdol"
 import AuditionEffect, {
-    AuditionEffectFilterOptions,
+    AuditionEffectFilter,
+    AuditionEffectListQuery,
+    AuditionEffectSortField,
     DBAuditionEffect,
     IAuditionEffect
 } from "./models/persistent/AuditionEffect"
 import AuditionTerminology, {
-    AuditionTerminologyFilterOptions,
+    AuditionTerminologyFilter,
+    AuditionTerminologyListQuery,
+    AuditionTerminologySortField,
     DBAuditionTerminology,
     IAuditionTerminology
 } from "./models/persistent/AuditionTerminology"
-import Character, { CharacterFilterOptions, DBCharacter, ICharacter } from "./models/persistent/Character"
-import PDrink, { DBPDrink, IPDrink, PDrinkFilterOptions } from "./models/persistent/PDrink"
-import PItem, { DBPItem, IPItem, PItemFilterOptions } from "./models/persistent/PItem"
-import Skill, { DBSkill, ISkill, SkillFilterOptions } from "./models/persistent/Skill"
-import SupportCard, { DBSupportCard, ISupportCard, SupportCardFilterOptions } from "./models/persistent/SupportCard"
+import Character, { CharacterFilter, CharacterListQuery, CharacterSortField, DBCharacter, ICharacter } from "./models/persistent/Character"
+import PDrink, { DBPDrink, IPDrink, PDrinkFilter, PDrinkListQuery, PDrinkSortField } from "./models/persistent/PDrink"
+import PItem, { DBPItem, IPItem, PItemFilter, PItemListQuery, PItemSortField } from "./models/persistent/PItem"
+import Skill, { DBSkill, ISkill, SkillFilter, SkillListQuery, SkillSortField } from "./models/persistent/Skill"
+import SupportCard, { DBSupportCard, ISupportCard, SupportCardFilter, SupportCardListQuery, SupportCardSortField } from "./models/persistent/SupportCard"
 import Ability, { DBAbility, IAbility } from "./models/embedded/Ability"
 import AbilityLevel, { DBAbilityLevel, IAbilityLevel } from "./models/embedded/AbilityLevel"
 import Effect, { DBEffect, IEffect } from "./models/embedded/Effect"
@@ -77,7 +81,7 @@ import PIdolVisual from "./types/PIdolVisual"
 import PIdolVisualSet from "./types/PIdolVisualSet"
 import SkillFlags from "./types/SkillFlags"
 import SkillUpgradeState from "./types/SkillUpgradeState"
-import SortOption, { decodeSortOptions, encodeSortOptions, Sortable } from "./utilities/types/SortOption"
+import { Sortable, SortOption } from "./utilities/types/SortOption"
 import {
     DateFilterOptions,
     EnumFilterOptions,
@@ -87,7 +91,7 @@ import {
     SimpleStringFilterOptions,
     StringFilterOptions
 } from "./types/FilterOptions"
-import PersistentObject, { IPersistentObject, PersistentObjectFilterOptions } from "./models/others/PersistentObject"
+import PersistentObject, { IPersistentObject, PersistentObjectFilter, PersistentObjectListQuery } from "./models/others/PersistentObject"
 import PrimaStellaUpgrade, { DBPrimaStellaUpgrade, IPrimaStellaUpgrade } from "./models/embedded/PrimaStellaUpgrade"
 import New from "./utilities/types/New"
 import Override from "./utilities/types/Override"
@@ -107,26 +111,36 @@ import ChangeFlagSkillEffectMod from "./types/ChangeFlagSkillEffectMod"
 import CostReduceSkillEffectMod from "./types/CostReduceSkillEffectMod"
 import CustomizeLimitIncreaseSkillEffectMod from "./types/CustomizeLimitIncreaseSkillEffectMod"
 import EnhanceEffectMod from "./types/EnhanceEffectMod"
+import { PageQuery } from "./utilities/types/PageQuery"
+import { NameQuery } from "./utilities/types/NameQuery"
+import { ListRequest, toSearchParams } from "./utilities/functions/listQuery"
+import { SimpleNameQuery } from "./utilities/types/SimpleNameQuery"
 
 export {
     // Interfaces / Abstracts
     DBSerializable, Duplicable, JSONSerializable, EmbeddedObject, PersistentObject, IPersistentObject,
-    PersistentObjectFilterOptions,
+    PersistentObjectFilter, PersistentObjectListQuery,
 
     // Persistent
-    PIdol, IPIdol, DBPIdol, PIdolFilterOptions, PopulatePIdol,
-    AuditionEffect, IAuditionEffect, DBAuditionEffect, AuditionEffectFilterOptions,
-    AuditionTerminology, IAuditionTerminology, DBAuditionTerminology, AuditionTerminologyFilterOptions,
-    Character, ICharacter, DBCharacter, CharacterFilterOptions,
-    PDrink, IPDrink, DBPDrink, PDrinkFilterOptions,
-    PItem, IPItem, DBPItem, PItemFilterOptions,
-    Skill, ISkill, DBSkill, SkillFilterOptions,
-    SupportCard, ISupportCard, DBSupportCard, SupportCardFilterOptions,
+    PIdol,               IPIdol,               DBPIdol,               PIdolFilter,               PIdolListQuery,               PIdolSortField,
+    AuditionEffect,      IAuditionEffect,      DBAuditionEffect,      AuditionEffectFilter,      AuditionEffectListQuery,      AuditionEffectSortField,
+    AuditionTerminology, IAuditionTerminology, DBAuditionTerminology, AuditionTerminologyFilter, AuditionTerminologyListQuery, AuditionTerminologySortField,
+    Character,           ICharacter,           DBCharacter,           CharacterFilter,           CharacterListQuery,           CharacterSortField,
+    PDrink,              IPDrink,              DBPDrink,              PDrinkFilter,              PDrinkListQuery,              PDrinkSortField,
+    PItem,               IPItem,               DBPItem,               PItemFilter,               PItemListQuery,               PItemSortField,
+    Skill,               ISkill,               DBSkill,               SkillFilter,               SkillListQuery,               SkillSortField,
+    SupportCard,         ISupportCard,         DBSupportCard,         SupportCardFilter,         SupportCardListQuery,         SupportCardSortField,
+
+    // Query Types
+    PageQuery, NameQuery, SimpleNameQuery, ListRequest, toSearchParams,
+
+    // Populate
+    PopulateEffectReference, PopulatePIdol,
 
     // Embedded
     Ability, IAbility, DBAbility,
     AbilityLevel, IAbilityLevel, DBAbilityLevel,
-    Effect, IEffect, DBEffect, PopulateEffectReference,
+    Effect, IEffect, DBEffect,
     EffectLine, IEffectLine, DBEffectLine,
     EffectMod, IEffectMod, DBEffectMod,
     InsertEffectMod, IInsertEffectMod, DBInsertEffectMod,
@@ -152,7 +166,7 @@ export {
     New,
     Override,
     Result, SuccessResult, FailureResult, success, fail,
-    SortOption, Sortable, encodeSortOptions, decodeSortOptions,
+    Sortable, SortOption,
     NumberFilterOptions,
     DateFilterOptions,
     EnumFilterOptions,

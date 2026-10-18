@@ -1,5 +1,8 @@
-import APIKey, { APIKeyFilterOptions, DBAPIKey, IAPIKey, ICreateAPIKey, ICreatedAPIKey, IUpdateAPIKey } from "./models/APIKey"
-import User, { DBUser, IAdminUpdateUser, IAdminUser, IPublicUser, ISelfUser, IUpdateUser, IUser, UserFilterOptions } from "./models/User"
+import APIKey, { APIKeyFilter,
+    APIKeyListQuery, APIKeySortField, DBAPIKey, IAPIKey, ICreateAPIKey, ICreatedAPIKey, IUpdateAPIKey,
+    SelfAPIKeyListQuery} from "./models/APIKey"
+import User, { DBUser, IAdminUpdateUser, IAdminUser, IPublicUser, ISelfUser, IUpdateUser, IUser, UserFilter,
+    UserListQuery, UserSortField } from "./models/User"
 import { AuthProvider } from "./types/AuthProvider"
 import { AuthUserIdentity } from "./types/AuthUserIdentity"
 import {
@@ -9,8 +12,8 @@ import {
     AuthScopeGroup, AuthScopePattern } from "./vocabulary"
 
 export {
-    User, IUser, DBUser, UserFilterOptions, IPublicUser, ISelfUser, IAdminUser, IUpdateUser, IAdminUpdateUser,
-    APIKey, IAPIKey, DBAPIKey, APIKeyFilterOptions, ICreatedAPIKey, IUpdateAPIKey, ICreateAPIKey,
+    User, IUser, DBUser, UserFilter, IPublicUser, ISelfUser, IAdminUser, IUpdateUser, IAdminUpdateUser, UserSortField, UserListQuery,
+    APIKey, IAPIKey, DBAPIKey, APIKeyFilter, ICreatedAPIKey, IUpdateAPIKey, ICreateAPIKey, APIKeySortField, APIKeyListQuery, SelfAPIKeyListQuery,
 
     AuthProvider,
     AuthUserIdentity,

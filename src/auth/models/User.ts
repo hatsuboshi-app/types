@@ -1,10 +1,19 @@
 import PersistentObject, {
     IPersistentObject,
-    PersistentObjectFilterOptions
+    PersistentObjectFilter, PersistentObjectListQuery
 } from "../../models/others/PersistentObject"
 import { EnumFilterOptions, SimpleStringFilterOptions } from "../../types/FilterOptions"
 import { AuthUserIdentity } from "../types/AuthUserIdentity"
 import { AuthRole, AuthScopePattern } from "../vocabulary"
+import { Sortable } from "../../utilities/types/SortOption"
+import { SimpleNameQuery } from "../../utilities/types/SimpleNameQuery";
+import {
+    Exhaustive, fromDateString, fromEnumFilter, fromSimpleStringFilter, fromSortOptions,
+    ListRequest,
+    toDateFilter,
+    toEnumFilter,
+    toSimpleStringFilter, toSortOptions
+} from "../../utilities/functions/listQuery";
 
 export default class User extends PersistentObject<IUser, DBUser> implements IUser {
     displayName: string
@@ -16,6 +25,34 @@ export default class User extends PersistentObject<IUser, DBUser> implements IUs
     email: string | null
     verified: boolean
     identities: AuthUserIdentity[]
+
+    static readonly sortableFields = [
+        "id", "createdAt", "updatedAt", "displayName", "disabledAt", "verified"
+    ] as const satisfies readonly Sortable<IUser>[]
+
+    static decodeListQuery(query: UserListQuery): ListRequest<UserFilter, IUser> {
+        const filter: Exhaustive<UserFilter> = {
+            createdAt:   toDateFilter(query.createdAfter, query.createdBefore),
+            updatedAt:   toDateFilter(query.updatedAfter, query.updatedBefore),
+            displayName: toSimpleStringFilter(query.q),
+            roles:       toEnumFilter(query.roles)
+        }
+        return { filter, sort: toSortOptions(query.sort), page: query.p, perPage: query.pp }
+    }
+
+    static encodeListQuery({ filter = {}, sort = [], page, perPage }: ListRequest<UserFilter, IUser>): UserListQuery {
+        return {
+            sort:          fromSortOptions(sort, User.sortableFields),
+            createdAfter:  fromDateString(filter.createdAt?.after),
+            createdBefore: fromDateString(filter.createdAt?.before),
+            updatedAfter:  fromDateString(filter.updatedAt?.after),
+            updatedBefore: fromDateString(filter.updatedAt?.before),
+            roles:         fromEnumFilter(filter.roles),
+            q:             fromSimpleStringFilter(filter.displayName),
+            p:             page,
+            pp:            perPage,
+        } satisfies Exhaustive<UserListQuery>
+    }
 
     constructor(obj: IUser) {
         obj = structuredClone(obj)
@@ -173,15 +210,31 @@ export interface UserResponse {
     totalScopes: AuthScopePattern[]
 }
 
-export interface IUser            extends IPersistentObject, UserProfile, UserAccount, UserIdentity {}
-export interface DBUser           extends IUser {}
-export interface IPublicUser      extends Pick<IPersistentObject, "id" | "createdAt">, UserProfile {}
-export interface ISelfUser        extends IPersistentObject, UserProfile, UserAccount, UserResponse {}
-export interface IAdminUser       extends IUser, UserResponse {}
+export interface IUser            extends IPersistentObject, UserProfile, UserAccount, UserIdentity                 {}
+export interface DBUser           extends IUser                                                                     {}
+export interface IPublicUser      extends Pick<IPersistentObject, "id" | "createdAt">, UserProfile                  {}
+export interface ISelfUser        extends IPersistentObject, UserProfile, UserAccount, UserResponse                 {}
+export interface IAdminUser       extends IUser, UserResponse                                                       {}
 export interface IUpdateUser      extends Partial<Pick<UserProfile, "displayName" | "displayIcon" | "description">> {}
-export interface IAdminUpdateUser extends Partial<Pick<UserAccount, "extraScopes"> & UserProfile> {}
+export interface IAdminUpdateUser extends Partial<Pick<UserAccount, "extraScopes"> & UserProfile>                   {}
 
-export interface UserFilterOptions extends PersistentObjectFilterOptions {
+/**
+ * Fields a list of {@link User} can be sorted by.
+ *
+ * @useDeclaredType
+ */
+export type UserSortField = (typeof User.sortableFields)[number]
+
+export interface UserFilter extends PersistentObjectFilter {
     displayName?: SimpleStringFilterOptions,
     roles?: EnumFilterOptions<AuthRole>
+}
+
+/**
+ * Query parameter to list {@link User}.
+ */
+export interface UserListQuery extends PersistentObjectListQuery, SimpleNameQuery {
+    /** Fields to sort by, in order of priority. Prefix a field with `-` to sort descending, otherwise ascending. */
+    sort?:  `${"" | "-"}${UserSortField}`[]
+    roles?: `${"" | "-"}${AuthRole}`[]
 }
