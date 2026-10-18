@@ -1,4 +1,8 @@
-import PersistentObject, { IPersistentObject, PersistentObjectFilterOptions } from "../others/PersistentObject"
+import PersistentObject, {
+    IPersistentObject,
+    PersistentObjectFilter,
+    PersistentObjectListQuery
+} from "../others/PersistentObject"
 import Effect, { DBEffect, IEffect } from "../embedded/Effect"
 import Nullable from "../../utilities/types/Nullable"
 import AuditionIcon from "../../types/AuditionIcon"
@@ -6,6 +10,15 @@ import { PopulateEffectReference } from "../embedded/EffectReference"
 import LocaleString, { DefaultLocaleString } from "../../types/LocaleString"
 import { LocaleStringFilterOptions } from "../../types/FilterOptions"
 import Override from "../../utilities/types/Override"
+import { Sortable } from "../../utilities/types/SortOption"
+import {
+    Exhaustive, fromDateString, fromLocaleStringFilter, fromSortOptions,
+    ListRequest,
+    toDateFilter,
+    toLocaleStringFilter,
+    toSortOptions
+} from "../../utilities/functions/listQuery";
+import { NameQuery } from "../../utilities/types/NameQuery";
 
 /**
  * **A gameplay terminology**.
@@ -13,7 +26,7 @@ import Override from "../../utilities/types/Override"
  * This may refer to any commonly used word within the game, e.g. パラメータ, チェンジ, 強化, 相談の全項目を割増, etc.
  *
  * > [!TIP]
- * > See {@link AuditionTerminologyFilterOptions} for the list of **filtering** options.
+ * > See {@link AuditionTerminologyFilter} for the list of **filtering** options.
  * >
  * > See {@link IAuditionTerminology} for the list of fields that can be used for **sorting**.
  *
@@ -49,6 +62,32 @@ export default class AuditionTerminology extends PersistentObject<IAuditionTermi
      * @inheritDoc
      */
     isHighlighted: boolean
+
+    static readonly sortableFields = [
+        "id", "createdAt", "updatedAt", "name", "isHighlighted"
+    ] as const satisfies readonly Sortable<IAuditionTerminology>[]
+
+    static decodeListQuery(query: AuditionTerminologyListQuery): ListRequest<AuditionTerminologyFilter, IAuditionTerminology> {
+        const filter: Exhaustive<AuditionTerminologyFilter> = {
+            createdAt: toDateFilter(query.createdAfter, query.createdBefore),
+            updatedAt: toDateFilter(query.updatedAfter, query.updatedBefore),
+            name:      toLocaleStringFilter(query)
+        }
+        return { filter, sort: toSortOptions(query.sort), page: query.p, perPage: query.pp }
+    }
+
+    static encodeListQuery({ filter = {}, sort = [], page, perPage }: ListRequest<AuditionTerminologyFilter, IAuditionTerminology>): AuditionTerminologyListQuery {
+        return {
+            sort:          fromSortOptions(sort, AuditionTerminology.sortableFields),
+            createdAfter:  fromDateString(filter.createdAt?.after),
+            createdBefore: fromDateString(filter.createdAt?.before),
+            updatedAfter:  fromDateString(filter.updatedAt?.after),
+            updatedBefore: fromDateString(filter.updatedAt?.before),
+            p:             page,
+            pp:            perPage,
+            ...fromLocaleStringFilter(filter.name),
+        } satisfies Exhaustive<AuditionTerminologyListQuery>
+    }
 
     /**
      * Constructs an {@link AuditionTerminology} instance from an optional {@link IAuditionTerminology} object.
@@ -182,10 +221,25 @@ export interface DBAuditionTerminology extends Override<IAuditionTerminology, {
 }> {}
 
 /**
+ * Fields a list of {@link AuditionTerminology} can be sorted by.
+ *
+ * @useDeclaredType
+ */
+export type AuditionTerminologySortField = (typeof AuditionTerminology.sortableFields)[number]
+
+/**
  * Filters {@link AuditionTerminology}.
  *
  * @group Filter Objects
  */
-export interface AuditionTerminologyFilterOptions extends PersistentObjectFilterOptions {
+export interface AuditionTerminologyFilter extends PersistentObjectFilter {
     name?: LocaleStringFilterOptions
+}
+
+/**
+ * Query parameter to list {@link AuditionTerminology}.
+ */
+export interface AuditionTerminologyListQuery extends PersistentObjectListQuery, NameQuery {
+    /** Fields to sort by, in order of priority. Prefix a field with `-` to sort descending, otherwise ascending. */
+    sort?: `${"" | "-"}${AuditionTerminologySortField}`[]
 }

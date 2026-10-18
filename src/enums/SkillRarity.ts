@@ -1,14 +1,12 @@
 /**
- * The consolidated rarity of a skill card.
+ * The rarity of a skill card.
  */
 enum SkillRarity {
-    N = "n",
-    RLow = "r",
-    RHigh = "r+",
-    SRLow = "sr",
-    SRHigh = "sr+",
-    SSR = "ssr",
-    Legend = "legend"
+    N      = "100-n",
+    R      = "200-r",
+    SR     = "300-sr",
+    SSR    = "400-ssr",
+    Legend = "500-legend"
 }
 
 export default SkillRarity

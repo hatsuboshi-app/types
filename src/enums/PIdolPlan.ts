@@ -2,9 +2,9 @@
  * The produce plan of a PIdol.
  */
 enum PIdolPlan {
-    Logic = "logic",
-    Sense = "sense",
-    Anomaly = "anomaly"
+    Sense   = "100-sense",
+    Logic   = "110-logic",
+    Anomaly = "120-anomaly"
 }
 
 export default PIdolPlan

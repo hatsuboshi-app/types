@@ -2,8 +2,8 @@
  * The shape for audition effect icons.
  */
 enum AuditionIconShape {
-    Diamond = "diamond",
-    Circle = "circle"
+    Diamond = "001-diamond",
+    Circle  = "002-circle"
 }
 
 export default AuditionIconShape

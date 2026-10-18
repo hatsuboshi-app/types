@@ -1,4 +1,8 @@
-import PersistentObject, { IPersistentObject, PersistentObjectFilterOptions } from "../others/PersistentObject"
+import PersistentObject, {
+    IPersistentObject,
+    PersistentObjectFilter,
+    PersistentObjectListQuery
+} from "../others/PersistentObject"
 import Character, { DBCharacter, ICharacter } from "./Character"
 import Rarity from "../../enums/Rarity"
 import PIdolPlan from "../../enums/PIdolPlan"
@@ -17,6 +21,15 @@ import PrimaStellaUpgrade, { DBPrimaStellaUpgrade, IPrimaStellaUpgrade } from ".
 import Nullable from "../../utilities/types/Nullable"
 import { EnumFilterOptions, LocaleStringFilterOptions } from "../../types/FilterOptions"
 import Override from "../../utilities/types/Override"
+import { Sortable } from "../../utilities/types/SortOption"
+import { NameQuery } from "../../utilities/types/NameQuery";
+import {
+    Exhaustive, fromDateString, fromEnumFilter, fromLocaleStringFilter, fromSortOptions,
+    ListRequest,
+    toDateFilter,
+    toEnumFilter,
+    toLocaleStringFilter, toSortOptions
+} from "../../utilities/functions/listQuery";
 
 /**
  * **A produce idol / P-Idol (プロデュースアイドル / Pアイドル).**
@@ -26,7 +39,7 @@ import Override from "../../utilities/types/Override"
  * {@link Character characters}.
  *
  * > [!TIP]
- * > See {@link PIdolFilterOptions} for the list of **filtering** options.
+ * > See {@link PIdolFilter} for the list of **filtering** options.
  * >
  * > See {@link IPIdol} for the list of fields that can be used for **sorting**.
  *
@@ -143,6 +156,44 @@ export default class PIdol extends PersistentObject<IPIdol, DBPIdol> implements 
      * The current potential / bloom (才能開花) level of this {@link PIdol} instance.
      */
     currentPotentialLevel: number
+
+    static readonly sortableFields = [
+        "id", "createdAt", "updatedAt", "name", "plan", "rarity", "subplan", "isWelfare", "initialStamina"
+    ] as const satisfies readonly Sortable<IPIdol>[]
+
+    static decodeListQuery(query: PIdolListQuery): ListRequest<PIdolFilter, IPIdol> {
+        const filter: Exhaustive<PIdolFilter> = {
+            createdAt:             toDateFilter(query.createdAfter, query.createdBefore),
+            updatedAt:             toDateFilter(query.updatedAfter, query.updatedBefore),
+            name:                  toLocaleStringFilter(query),
+            character:             toEnumFilter(query.character),
+            rarity:                toEnumFilter(query.rarity),
+            plan:                  toEnumFilter(query.plan),
+            isWelfare:             query.isWelfare,
+            hasPrimaStellaUpgrade: query.hasPrimaStellaUpgrade,
+            hasTrainingLv7:        query.hasTrainingLv7
+        }
+        return { filter, sort: toSortOptions(query.sort), page: query.p, perPage: query.pp }
+    }
+
+    static encodeListQuery({ filter = {}, sort = [], page, perPage }: ListRequest<PIdolFilter, IPIdol>): PIdolListQuery {
+        return {
+            sort:                  fromSortOptions(sort, PIdol.sortableFields),
+            createdAfter:          fromDateString(filter.createdAt?.after),
+            createdBefore:         fromDateString(filter.createdAt?.before),
+            updatedAfter:          fromDateString(filter.updatedAt?.after),
+            updatedBefore:         fromDateString(filter.updatedAt?.before),
+            character:             fromEnumFilter(filter.character),
+            rarity:                fromEnumFilter(filter.rarity),
+            plan:                  fromEnumFilter(filter.plan),
+            isWelfare:             filter.isWelfare,
+            hasPrimaStellaUpgrade: filter.hasPrimaStellaUpgrade,
+            hasTrainingLv7:        filter.hasTrainingLv7,
+            p:                     page,
+            pp:                    perPage,
+            ...fromLocaleStringFilter(filter.name),
+        } satisfies Exhaustive<PIdolListQuery>
+    }
 
     /**
      * Constructs a {@link PIdol} instance from an optional {@link IPIdol} object, at a specified training &
@@ -618,11 +669,18 @@ export interface DBPIdol extends Override<IPIdol, {
 }> {}
 
 /**
+ * Fields a list of {@link PIdol} can be sorted by.
+ *
+ * @useDeclaredType
+ */
+export type PIdolSortField = (typeof PIdol.sortableFields)[number]
+
+/**
  * Filters {@link PIdol}.
  *
  * @group Filter Objects
  */
-export interface PIdolFilterOptions extends PersistentObjectFilterOptions {
+export interface PIdolFilter extends PersistentObjectFilter {
     name?: LocaleStringFilterOptions
     character?: EnumFilterOptions<string>
     rarity?: EnumFilterOptions<Rarity>
@@ -630,6 +688,21 @@ export interface PIdolFilterOptions extends PersistentObjectFilterOptions {
     isWelfare?: boolean
     hasPrimaStellaUpgrade?: boolean
     hasTrainingLv7?: boolean
+}
+
+/**
+ * Query parameter to list {@link PIdol}.
+ */
+export interface PIdolListQuery extends PersistentObjectListQuery, NameQuery {
+    /** Fields to sort by, in order of priority. Prefix a field with `-` to sort descending, otherwise ascending. */
+    sort?:                  `${"" | "-"}${PIdolSortField}`[]
+    /** `id`s of characters to match. Prefix an `id` with `-` to exclude it instead. */
+    character?:             string[]
+    rarity?:                `${"" | "-"}${Rarity}`[]
+    plan?:                  `${"" | "-"}${PIdolPlan}`[]
+    isWelfare?:             boolean
+    hasPrimaStellaUpgrade?: boolean
+    hasTrainingLv7?:        boolean
 }
 
 /**

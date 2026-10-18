@@ -1,9 +1,22 @@
-import PersistentObject, { IPersistentObject, PersistentObjectFilterOptions } from "../others/PersistentObject"
+import PersistentObject, {
+    IPersistentObject,
+    PersistentObjectFilter,
+    PersistentObjectListQuery
+} from "../others/PersistentObject"
 import LocaleString, { DefaultLocaleString } from "../../types/LocaleString"
 import CharacterColor, { DefaultCharacterColor } from "../../types/CharacterColor"
 import CharacterDetail, { DefaultCharacterDetail } from "../../types/CharacterDetail"
 import CharacterTrueEndBonus from "../../types/CharacterTrueEndBonus"
 import { LocaleStringFilterOptions } from "../../types/FilterOptions"
+import { Sortable } from "../../utilities/types/SortOption"
+import {
+    Exhaustive, fromDateString, fromLocaleStringFilter, fromSortOptions,
+    ListRequest,
+    toDateFilter,
+    toLocaleStringFilter,
+    toSortOptions
+} from "../../utilities/functions/listQuery";
+import { NameQuery } from "../../utilities/types/NameQuery";
 
 /**
  * **An in-game character.**
@@ -15,7 +28,7 @@ import { LocaleStringFilterOptions } from "../../types/FilterOptions"
  * For the playable produce idol units of each character, see {@link PIdol}.
  *
  * > [!TIP]
- * > See {@link CharacterFilterOptions} for the list of **filtering** options.
+ * > See {@link CharacterFilter} for the list of **filtering** options.
  * >
  * > See {@link ICharacter} for the list of fields that can be used for **sorting**.
  *
@@ -57,6 +70,34 @@ export default class Character extends PersistentObject<ICharacter, DBCharacter>
      * @inheritDoc
      */
     trueEndBonuses: CharacterTrueEndBonus[]
+
+    static readonly sortableFields = [
+        "id", "createdAt", "updatedAt", "firstName", "lastName", "isPlayable"
+    ] as const satisfies readonly Sortable<ICharacter>[]
+
+    static decodeListQuery(query: CharacterListQuery): ListRequest<CharacterFilter, ICharacter> {
+        const filter: Exhaustive<CharacterFilter> = {
+            createdAt:  toDateFilter(query.createdAfter, query.createdBefore),
+            updatedAt:  toDateFilter(query.updatedAfter, query.updatedBefore),
+            name:       toLocaleStringFilter(query),
+            isPlayable: query.isPlayable
+        }
+        return { filter, sort: toSortOptions(query.sort), page: query.p, perPage: query.pp }
+    }
+
+    static encodeListQuery({ filter = {}, sort = [], page, perPage }: ListRequest<CharacterFilter, ICharacter>): CharacterListQuery {
+        return {
+            sort:          fromSortOptions(sort, Character.sortableFields),
+            createdAfter:  fromDateString(filter.createdAt?.after),
+            createdBefore: fromDateString(filter.createdAt?.before),
+            updatedAfter:  fromDateString(filter.updatedAt?.after),
+            updatedBefore: fromDateString(filter.updatedAt?.before),
+            isPlayable:    filter.isPlayable,
+            p:             page,
+            pp:            perPage,
+            ...fromLocaleStringFilter(filter.name),
+        } satisfies Exhaustive<CharacterListQuery>
+    }
 
     /**
      * Constructs a {@link Character} instance from an optional {@link ICharacter} object.
@@ -212,11 +253,27 @@ export interface DBCharacter extends ICharacter {
 }
 
 /**
+ * Fields a list of {@link Character} can be sorted by.
+ *
+ * @useDeclaredType
+ */
+export type CharacterSortField = (typeof Character.sortableFields)[number]
+
+/**
  * Filters {@link Character}.
  *
  * @group Filter Objects
  */
-export interface CharacterFilterOptions extends PersistentObjectFilterOptions {
+export interface CharacterFilter extends PersistentObjectFilter {
     name?: LocaleStringFilterOptions
+    isPlayable?: boolean
+}
+
+/**
+ * Query parameter to list {@link Character}.
+ */
+export interface CharacterListQuery extends PersistentObjectListQuery, NameQuery {
+    /** Fields to sort by, in order of priority. Prefix a field with `-` to sort descending, otherwise ascending. */
+    sort?:       `${"" | "-"}${CharacterSortField}`[]
     isPlayable?: boolean
 }

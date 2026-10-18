@@ -1,9 +1,18 @@
 import PersistentObject, {
     IPersistentObject,
-    PersistentObjectFilterOptions
+    PersistentObjectFilter, PersistentObjectListQuery
 } from "../../models/others/PersistentObject"
 import { DateFilterOptions, EnumFilterOptions, SimpleStringFilterOptions } from "../../types/FilterOptions"
 import { AuthScopePattern } from "../vocabulary"
+import { Sortable } from "../../utilities/types/SortOption"
+import { SimpleNameQuery } from "../../utilities/types/SimpleNameQuery";
+import {
+    Exhaustive, fromDateString, fromEnumFilter, fromSimpleStringFilter, fromSortOptions,
+    ListRequest,
+    toDateFilter,
+    toEnumFilter,
+    toSimpleStringFilter, toSortOptions
+} from "../../utilities/functions/listQuery";
 
 export default class APIKey extends PersistentObject<IAPIKey, IAPIKey> implements IAPIKey {
     userId: string
@@ -14,6 +23,41 @@ export default class APIKey extends PersistentObject<IAPIKey, IAPIKey> implement
     expiresAt: string | null
     lastUsedAt: string | null
     revokedAt: string | null
+
+    static readonly sortableFields = [
+        "id", "createdAt", "updatedAt", "userId", "label", "expiresAt", "lastUsedAt", "revokedAt"
+    ] as const satisfies readonly Sortable<IAPIKey>[]
+
+    static decodeListQuery(query: APIKeyListQuery): ListRequest<APIKeyFilter, IAPIKey> {
+        const filter: Exhaustive<APIKeyFilter> = {
+            createdAt:  toDateFilter(query.createdAfter, query.createdBefore),
+            updatedAt:  toDateFilter(query.updatedAfter, query.updatedBefore),
+            label:      toSimpleStringFilter(query.q),
+            userId:     toEnumFilter(query.userId),
+            lastUsedAt: toDateFilter(query.lastUsedAfter, query.lastUsedBefore),
+            isExpired:  query.isExpired,
+            isRevoked:  query.isRevoked
+        }
+        return { filter, sort: toSortOptions(query.sort), page: query.p, perPage: query.pp }
+    }
+
+    static encodeListQuery({ filter = {}, sort = [], page, perPage }: ListRequest<APIKeyFilter, IAPIKey>): APIKeyListQuery {
+        return {
+            sort:           fromSortOptions(sort, APIKey.sortableFields),
+            createdAfter:   fromDateString(filter.createdAt?.after),
+            createdBefore:  fromDateString(filter.createdAt?.before),
+            updatedAfter:   fromDateString(filter.updatedAt?.after),
+            updatedBefore:  fromDateString(filter.updatedAt?.before),
+            q:              fromSimpleStringFilter(filter.label),
+            userId:         fromEnumFilter(filter.userId),
+            lastUsedAfter:  fromDateString(filter.lastUsedAt?.after),
+            lastUsedBefore: fromDateString(filter.lastUsedAt?.before),
+            isExpired:      filter.isExpired,
+            isRevoked:      filter.isRevoked,
+            p:              page,
+            pp:             perPage,
+        } satisfies Exhaustive<APIKeyListQuery>
+    }
 
     constructor(obj: IAPIKey) {
         obj = structuredClone(obj)
@@ -122,9 +166,9 @@ export interface IAPIKey extends IPersistentObject {
     revokedAt: string | null
 }
 
-export interface DBAPIKey       extends IAPIKey { secretHash: string }
-export interface ICreatedAPIKey extends IAPIKey { secret: string }
-export interface IUpdateAPIKey  extends Partial<Pick<IAPIKey, "label">> {}
+export interface DBAPIKey       extends IAPIKey                           { secretHash: string }
+export interface ICreatedAPIKey extends IAPIKey                           { secret: string }
+export interface IUpdateAPIKey  extends Partial<Pick<IAPIKey, "label">>   {  }
 export interface ICreateAPIKey  extends Pick<IAPIKey, "label" | "scopes"> {
     /**
      * The time the API key will expire, as an ISO 8601 (RFC 3339) timestamp. If this is set to null, it will not expire.
@@ -135,10 +179,39 @@ export interface ICreateAPIKey  extends Pick<IAPIKey, "label" | "scopes"> {
     expiresAt?: string | null
 }
 
-export interface APIKeyFilterOptions extends PersistentObjectFilterOptions {
+/**
+ * Fields a list of {@link APIKey} can be sorted by.
+ *
+ * @useDeclaredType
+ */
+export type APIKeySortField = (typeof APIKey.sortableFields)[number]
+
+export interface APIKeyFilter extends PersistentObjectFilter {
     label?: SimpleStringFilterOptions,
     userId?: EnumFilterOptions<string>,
     lastUsedAt?: DateFilterOptions,
     isExpired?: boolean,
     isRevoked?: boolean
+}
+
+/**
+ * Query parameter to list the caller's own {@link APIKey}.
+ */
+export interface SelfAPIKeyListQuery extends PersistentObjectListQuery, SimpleNameQuery {
+    /** Fields to sort by, in order of priority. Prefix a field with `-` to sort descending, otherwise ascending. */
+    sort?:           `${"" | "-"}${APIKeySortField}`[]
+    /** Match API keys last used after this time, as an ISO 8601 timestamp. */
+    lastUsedAfter?:  Date
+    /** Match API keys last used before this time, as an ISO 8601 timestamp. */
+    lastUsedBefore?: Date
+    isExpired?:      boolean
+    isRevoked?:      boolean
+}
+
+/**
+ * Query parameter to list {@link APIKey}.
+ */
+export interface APIKeyListQuery extends SelfAPIKeyListQuery {
+    /** `id`s of users owning the API keys to match. Prefix an `id` with `-` to exclude it instead. */
+    userId?: string[]
 }
